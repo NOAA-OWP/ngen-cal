@@ -1,0 +1,3 @@
+pytest
+pandas
+git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
