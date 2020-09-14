@@ -49,6 +49,8 @@ __pycache__/
 *.py[cod]
 .env
 .python-version
+venv
+*.pytest_cache
 
 # pyenv #
 #########
