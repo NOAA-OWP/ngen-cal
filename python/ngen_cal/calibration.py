@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from utils import Configuration
-from utils.objectives import custom
+from .configuration import Configuration
+#from utils.objectives import custom
 import glob
 import subprocess
 #import configparser
@@ -9,7 +9,7 @@ import subprocess
 import shutil
 import os
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 #import netCDF4 as nc
 from math import log
 
