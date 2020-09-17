@@ -1,6 +1,6 @@
 from math import log
 
-def dds(start_iteration, iterations, calibration_object, cmd, log_file):
+def dds(start_iteration: int, iterations: int, calibration_object: Calibratable, meta: CalibrationMeta):
     """
         Functional form of the dds loop
     """
@@ -47,7 +47,7 @@ def dds(start_iteration, iterations, calibration_object, cmd, log_file):
         calibration_object.update_state(i)
         #Run cmd Again...
         print("Running {} for iteration {}".format(cmd, i))
-        subprocess.check_call(cmd, stdout=log_file, shell=True)
+        subprocess.check_call(meta.cmd, stdout=meta.log_file, shell=True)
         #read output and calculate objective_func
         score =  objective_func(hydrograph_output_file, observed_df, evaluation_range)
         shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, i))

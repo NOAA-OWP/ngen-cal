@@ -1,17 +1,16 @@
 #!/usr/bin/env python
-from configuration import Configuration
 #from utils.objectives import custom
 import glob
 import subprocess
-#import configparser
-#import argparse
-#import StringIO
 import shutil
 import os
 import pandas as pd
 #import geopandas as gpd
 #import netCDF4 as nc
 from math import log
+
+from configuration import Configuration
+from meta import CalibrationMeta
 
 def objective_func(simulated_hydrograph_file, observed_hydrograph, eval_range=None):
     simulated_hydrograph = pd.read_csv(simulated_hydrograph_file, header=None, usecols=[1,2], names=['time', 'flow'])
@@ -31,23 +30,7 @@ def objective_func(simulated_hydrograph_file, observed_hydrograph, eval_range=No
     #Evaluate custom objective function providing simulated, observed series
     return custom(df['flow'], df['Discharge_cms'])
 
-def write_objective_log_file(i, score):
-    with open(os.path.join(config.workdir, 'objective.log'), 'a') as log_file:
-        log_file.write('{}, '.format(i))
-        log_file.write('{}\n'.format(score))
 
-def write_param_log_file(i, best, score):
-    with open(os.path.join(config.workdir, 'best_params.log'), 'w') as log_file:
-        log_file.write('{}\n'.format(i))
-        log_file.write('{}\n'.format(best))
-        log_file.write('{}\n'.format(score))
-
-def read_param_log_file():
-    with open(os.path.join(config.workdir, 'best_params.log'), 'r') as log_file:
-        iteration = int(log_file.readline())
-        best_params = int(log_file.readline())
-        best_score = float(log_file.readline())
-    return iteration, best_params, best_score
 
 def main(config_file):
     """
@@ -144,9 +127,9 @@ def main(config_file):
 
     #TODO move most of this to utils module
     ngen_bin = "ngen"
-    ngen_args = "{FIXME}".format(config.confif_file)
-    ngen_cmd = "{} {}".format(ngen_bin, ngen_extra_args)
+    ngen_args = "{FIXME}".format(confif_file)
 
+    meta = CalibraitonMeta(workdir, ngen_bin, ngen_args)
     print("Running initial simulation")
     print(ngen_cmd)
 
