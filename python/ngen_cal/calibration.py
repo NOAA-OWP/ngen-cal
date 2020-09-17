@@ -259,65 +259,9 @@ def main(config_file):
     print("Starting Best param: {}".format(best_params))
     print("Starting Best score: {}".format(best_score))
     print("Starting DDS loop")
-    for i in range(start_iteration, iterations+1):
-        #Calculate probability of inclusion
-        inclusion_probability = 1 - log(i)/log(iterations)
-        print( "inclusion probability: {}".format(inclusion_probability) )
-        #select a random subset of variables to modify
-        #TODO convince myself that grabbing a random selction of P fraction of items
-        #is the same as selecting item with probability P
-        neighborhood = variables.sample(frac=inclusion_probability)
-        if neighborhood.empty:
-           neighborhood = variables.sample(n=1)
-        print( "neighborhood: {}".format(neighborhood) )
-        #Copy the best parameter values so far into the next iterations parameter list
-        data.calibration_df[i] = data.calibration_df[best_params]
-        #print( data.calibration_df )
-        for n in neighborhood:
-            #permute the variables in neighborhood
-            #using a random normal sample * sigma, sigma = 0.2*(max-min)
-            #print(n, best_params)
-            new = data.calibration_df.loc[n, best_params] + data.calibration_df.loc[n, 'sigma']*pd.np.random.normal(0,1)
-            lower =  data.calibration_df.loc[n, 'lower']
-            upper = data.calibration_df.loc[n, 'upper']
-            #print( new )
-            #print( lower )
-            #print( upper )
-            if new < lower:
-                new = lower + (lower - new)
-                if new > upper:
-                    new = lower
-            elif new > upper:
-                new = upper - (new - upper)
-                if new < lower:
-                    new = upper
-            data.calibration_df.loc[n, i] = new
-        """
-            At this point, we need to re-run NGen with the new parameters assigned correctly and evaluate the objective function
-        """
-        data.update_state(i)
-        #Run NGen Again...
-        print("Running NGen for iteration {}".format(i))
-        subprocess.check_call(ngen_cmd, stdout=ngen_log, shell=True)
-        #read output and calculate objective_func
-        score =  objective_func(hydrograph_output_file, observed_df, evaluation_range)
-        shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, i))
-        if score <= best_score:
-            best_params = i
-            best_score = score
-            #Score has improved, run next simulation with
-        print("Current score {}\nBest score {}".format(score, best_score))
-        data.calibration_df.to_msgpack(os.path.join(config.workdir, 'calibration_df_state.msg') )
-        write_param_log_file(i, best_params, best_score)
-        write_objective_log_file(i, score)
-        #with open(os.path.join(config.workdir, 'best_params.log'), 'w') as log_file:
-        #    log_file.write('{}\n'.format(i))
-        #    log_file.write('{}\n'.format(best_params))
-        #    log_file.write('{}\n'.format(best_score))
-        #if i == restart_iteration:
-        #    break
-    #print calibration_df
-    print("Best parameters at column {} in calibration_df_state.msg".format(best_params))
+
+    for catchment in catchments:
+        dds(start_iteration, iterations, catchment, ngen_cmd, ngen_log)
 
 if __name__ == "__main__":
 
