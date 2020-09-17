@@ -3,7 +3,7 @@ from pandas import Series
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pandas import Dataframe, Series
+    from pandas import DataFrame, Series
     from pathlib import Path
 
 class Calibratable(ABC):
@@ -12,7 +12,7 @@ class Calibratable(ABC):
     """
 
     @abstractproperty
-    def df(self) -> 'Dataframe':
+    def df(self) -> 'DataFrame':
         """
             A dataframe of the objects parameter values to calculate indexed relative to the variables
             being calibrated.  The columns of the dataframe will be appended to with each search iterations
