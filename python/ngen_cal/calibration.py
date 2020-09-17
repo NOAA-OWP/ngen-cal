@@ -115,14 +115,17 @@ Build a dataframe of calibration parameters
 data = NGenCalibration(config, calibration_catchments)
 
 """
-At this point the NGenCalibration object contains the catchments and all their properties that are going to be calibrated, grouped by the respective calibration parameters defined in ???hypy/formulation.py???
-The next steps require the initial DDS vector, which is each parameter, and its initial value
-Since we may not have to build out all parameters becuase some don't exist in our calibration region, build
-this vector from the identified classes then read the min/max from the user provided tables for these classes, and set the initial value to be in the middle.
-Also, before calibration begins, we need to take any fixed land cover classes and update parameter file to contain the provided
-fixed values.
+At this point the NGenCalibration object contains the catchments and all their properties that are going to be calibrated,
+grouped by the respective calibration parameters defined in ???hypy/formulation.py???
+The next steps require the initial DDS vector, which is each parameter, and its initial value.
+We build this vector from the identified classes then read the min/max from the user provided tables for these classes,
+and set the initial value to be in the middle.
 """
 
+"""
+TODO calibrate each "catcment" independely, but there may be something interesting in grouping various formulation params
+into a single variable vector and calibrating a set of heterogenous formultions...
+"""
 #then we can start the DDS search from this initial vector
 #Build the initial parameter space vector in the calibration matrix.
 

@@ -6,7 +6,6 @@ from hypy.catchment import Catchment
 
 import logging
 logging.basicConfig(
-    filename='scheduler.log',
     level=logging.DEBUG,
     format="%(asctime)s,%(msecs)d %(levelname)s: %(message)s",
     datefmt="%H:%M:%S")
