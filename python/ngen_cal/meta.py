@@ -26,6 +26,23 @@ class CalibrationMeta(object):
         self._param_log_file = self._workdir/"{}_best_params.log".format(self._id)
         self._objective_log_file = self._workdir/"{}_objective.log".format(self._id)
 
+    @property
+    def workdir(self) -> 'Path':
+        return self._workdir
+
+    @property
+    def best_score(self) -> float:
+        """
+            Best score known to the current calibration
+        """
+        return self._best_score
+
+    @property
+    def best_params(self) -> int:
+        """
+            The integer iteration that contains the best parameter values
+        """
+        return self._best_param_iteration
 
     @property
     def cmd(self) -> str:
