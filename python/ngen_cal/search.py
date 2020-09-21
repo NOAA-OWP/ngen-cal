@@ -1,8 +1,21 @@
+import pandas as pd
 from math import log
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ngen_cal import Calibratable, CalibrationMeta
+
+from ngen_cal.objectives import custom
+
+def _objective_func(simulated_hydrograph, observed_hydrograph, eval_range=None):
+    df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
+    if df.empty:
+        print("WARNING: Cannot compute objective function, do time indicies align?")
+    if eval_range:
+        df = df.loc[eval_range[0]:eval_range[1]]
+    #print( df )
+    #Evaluate custom objective function providing simulated, observed series
+    return custom(df['sim_flow'], df['obs_flow'])
 
 def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
     """
@@ -53,7 +66,6 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         print("Running {} for iteration {}".format(cmd, i))
         subprocess.check_call(meta.cmd, stdout=meta.log_file, shell=True)
         #read output and calculate objective_func
-        score =  objective_func(hydrograph_output_file, observed_df, evaluation_range)
         shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, i))
         if score <= best_score:
             best_params = i
@@ -64,3 +76,4 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         write_param_log_file(i, best_params, best_score)
         write_objective_log_file(i, score)
         print("Best parameters at column {} in calibration_df_state.msg".format(best_params))
+        score =  _objective_func(calibration_object.output, calibration_object.observed)
