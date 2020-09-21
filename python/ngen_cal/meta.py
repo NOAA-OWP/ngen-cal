@@ -5,17 +5,22 @@ class CalibraitonMeta(object):
         ###TODO can we hold enough `configuration` information to make it possible to update global config
     """
 
-    def __init__(self, workdir, bin, cmd, cmd_args):
+    def __init__(self, config, workdir, bin, args, id):
         """
 
         """
+        self._config = config #This is the Configuration object that knows how to operate on model configuration files
         self._workdir = workdir
         self._best_score = -1
-        self._best_param_iteration = 1
+        self._best_param_iteration = '0' #String representation of interger iteration
         self._bin = bin
-        self._args = cmd
-        self._cmd = cmd_args
-        self._log_file = "{}_log_file".format(bin)
+        self._args = args
+        self._log_file = self._workdir/"{}_log_file".format(bin)
+        self._id = id #a unique identifier to prepend to log files
+
+        self._param_log_file = self._workdir/"{}_best_params.log".format(self._id)
+        self._objective_log_file = self._workdir/"{}_objective.log".format(self._id)
+
 
     @property
     def cmd(self) -> str:
