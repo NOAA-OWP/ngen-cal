@@ -57,6 +57,8 @@ class CalibrationCatchment(Catchment, Calibratable):
     def output(self) -> 'DataFrame':
         """
             The model output hydrograph for this catchment
+            This re-reads the output file each call, as the output for given calibration catchment changes
+            for each calibration iteration.  If it doesn't exist, should return None
         """
         #FIXME read the correct ngen output structure nex-X_output.csv
         #simulated_hydrograph_file = workdir+"{}_output.csv".format(self.id)
@@ -67,18 +69,25 @@ class CalibrationCatchment(Catchment, Calibratable):
         #hydrograph.drop_duplicates('time', keep='last', inplace=True)
         #hydrograph.set_index('time', inplace=True)
         hydrograph = self._output
+        if hydrograph is None:
+            raise(RuntimeError("Error reading output: {}".format(self._output_file)))
         return hydrograph
 
     @property
     def observed(self) -> 'DataFrame':
         """
             The observed hydrograph for this catchment FIXME set up in __init__ move output/observed to calibratable
+
+            This should be rather static, and can be set at initialization then accessed via the property
+            TODO pull in simultion start/stop time so we know how much data to pull
         """
         #FIXME hook to NWIS
         #observed_file = os.path.join(config.workdir, 'usgs_{}_observed.csv'.format(usgs))
         #observed_df = pd.read_csv(observed_file, parse_dates=['Date_Time']).set_index('Date_Time')
         #observed_df = observed_df.tz_localize('UTC')
         hydrograph = self._observed
+        if hydrograph is None:
+            raise(RuntimeError("Error reading observation for {}".format(self._id)))
         return hydrograph
 
     @observed.setter
