@@ -19,6 +19,30 @@ def _objective_func(simulated_hydrograph, observed_hydrograph, eval_range=None):
     #Evaluate custom objective function providing simulated, observed series
     return custom(df['sim_flow'], df['obs_flow'])
 
+def _execute(meta: 'CalibrationMeta'):
+    """
+        Execute a model run defined by the calibration meta cmd
+    """
+    with open(meta.log_file, 'a') as log_file:
+        subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
+
+def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
+    """
+        Performs the evaluation logic of a calibration step
+    """
+
+    #read output and calculate objective_func
+    score =  _objective_func(calibration_object.output, calibration_object.observed)
+    #save the calibration state, just in case
+    calibration_object.save_output(i)
+    #update meta info based on latest score and write some log files
+    meta.update(i, score, log=True)
+
+    print("Current score {}\nBest score {}".format(score, meta.best_score))
+    calibration_object.check_point(meta.workdir)
+
+    print("Best parameters at iteration {}".format(meta.best_params))
+
 def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
     """
         Functional form of the dds loop
@@ -33,23 +57,14 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
     #precompute sigma for each variable based on neighborhood_size and bounds
     calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
 
-    if start_iteration == 1:
+    if start_iteration == 0:
         if calibration_object.output is None:
             #We are starting a new calibration and do not have an initial output state to evaluate, compute it
             #Need initial states  (iteration 0) to start DDS loop
-            print("Running {} for iteration 0".format(meta.cmd))
-            with open(meta.log_file, 'a') as log_file:
-                subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
-        #read output and calculate objective_func
-        score =  _objective_func(calibration_object.output, calibration_object.observed)
-        #save the model output/state
-        calibration_object.save_output(0)
-        #update meta info based on latest score and write some log files
-        meta.update(0, score, log=True)
-
-        print("Current score {}\nBest score {}".format(score, meta.best_score))
-        #Save the initial calibration state
-        calibration_object.check_point(meta.workdir)
+            print("Running {} to produce initial simulation".format(meta.cmd))
+            _execute(meta)
+        _evaluate(0, calibration_object, meta)
+        start_iteration += 1
 
     for i in range(start_iteration, iterations+1):
         #Calculate probability of inclusion
@@ -91,17 +106,5 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         meta.update_config(i)
         #Run cmd Again...
         print("Running {} for iteration {}".format(meta.cmd, i))
-        with open(meta.log_file, 'a') as log_file:
-            subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
-
-        #read output and calculate objective_func
-        score =  _objective_func(calibration_object.output, calibration_object.observed)
-        #save the calibration state, just in case
-        calibration_object.save_output(i)
-        #update meta info based on latest score and write some log files
-        meta.update(i, score, log=True)
-
-        print("Current score {}\nBest score {}".format(score, meta.best_score))
-        calibration_object.check_point(meta.workdir)
-
-        print("Best parameters at column {} in calibration_df_state.msg".format(meta.best_params))
+        _execute(meta)
+        _evaluate(i, calibration_object, meta)
