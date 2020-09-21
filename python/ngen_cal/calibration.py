@@ -12,7 +12,7 @@ from math import log
 from configuration import Configuration
 from meta import CalibrationMeta
 
-def main(config_file):
+def main(config_file, restart):
     """
         We need to 'read' the configuration of the model we want to calibrate
     """
@@ -40,7 +40,6 @@ def main(config_file):
     """
         Need to get observed hydrograph to evaluate against
     """
-
 
     print("Starting calib")
 
@@ -80,112 +79,12 @@ def main(config_file):
 
     start_iteration = 0
     #run NGEN here on initial parameters if needed
-    ngen_log = open(os.path.join(config.workdir, 'ngen_calibration_log'), 'a')
-    if config.args.restart:
-        """
-        FIXME there are some non-ngen specific details here that need to align to NGEN, such as states (ngen output)
-        """
-        #Restarting means we don't have to do this...find a clean way to convey this as long as an output file
-        #exists for a previous time.  This script renames state.nc.*.txt to state.nc.*.txt_<i>
-        #where i is the iteration, so if an _i exists, and a state.nc.*.txt exists, this file is the i+1 state
-        #and we can restart from there.
-        states = glob.glob(os.path.join(config.workdir, 'state.nc.{}.txt_*'.format(outlet_element_id)))
-        if states:
-            #FIXME just read from log and maybe verify...
-            start_iteration = sorted( [ int(name.split('_')[-1]) for name in states ] )[-1]
-            #last_evaluated = os.path.join(config.workdir, 'state.nc.{}.txt_{}'.format(outlet_element_id, start_iteration))
-            #I don't think we can use next_eval, becuase we can't gaurantee the run is complete...will have to restart it to be ensure
-            #next_eval = os.path.join(config.workdir, 'state.nc.{}.txt'.format(outlet_element_id))
-            #FIXME file should always exist in this case, but what happens if it doesnt???
-            last_iteration, best_params, best_score = read_param_log_file()
-            """
-            with open(os.path.join(config.workdir, 'best_params.log'), 'r') as param_log:
-                best_params = int(param_log.readline())
-                best_score = float(param_log.readline())
-            """
-            if last_iteration != start_iteration:
-                print("ERROR: best_params.log iteration doesn't match output file iteration number for restart")
-                os._exit(1)
-            #We will start at the next iteration that hasn't been completed
-            start_iteration += 1
-            #It is possible another run has finished but hasn't been evaluated.
-            #If the generated state file exists, and was created/modified after the last evaluated,
-            #then its safe to assume  we can start from there
-            #TODO read superfile, calculate how many entrys should be in state and verify that run completed.
-            """
-            next_eval = os.path.join(config.workdir, 'state.nc.{}.txt'.format(outlet_element_id))
-            if os.path.isfile( next_eval ):
-                if os.path.getmtime(next_eval) > os.path.getmtime(last_evaluated):
-                    start_iteration += 1 #TODO this tells us that we have a new output file, is it guaranteed complete?
-                else:
-                    #Just continue with the next iteration of the DDS search...
-                    #need to compute next_eval
-                    #subprocess.check_call(ngen_cmd, stdout=adhydr_log, shell=True) #FIXME clean up this logic
-                    #best_score = objective_func(hydrograph_output_file, observed_df, evaluation_range)
-                    #best_params = 0
-                    #write_param_log_file(best_params, best_score)
-                    pass
-            else:
-                #We have a prior state, but not the next one.  Recompute the score/evalute from this last one and continue
-                #Evaluate initial score....FIXME Reading from the log should be enough...just need to verify log iteration is same as start_iteration
-                #best_score = objective_func(last_evaluated, observed_df, evaluation_range)
-                #best_params = start_iteration - 1
-                #FIXME file should always exist in this case, but what happens if it doesnt???
-                with open(os.path.join(config.workdir, 'best_params.log'), 'r') as param_log:
-                    best_params = int(param_log.readline())
-                    best_score = float(param_log.readline())
-            """
-            """ FIXME can use this in an emergency if you know that the last run completed successfully
-            next_eval = os.path.join(config.workdir, 'state.nc.{}.txt'.format(outlet_element_id))
-            if os.path.isfile( next_eval ):
-                #Evaluate score, run finished but wasn't evaluated
-                score =  objective_func(hydrograph_output_file, observed_df, evaluation_range)
-                shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, start_iteration))
-                if score <= best_score:
-                    best_params = start_iteration
-                    best_score = score
-                    #Score has improved, run next simulation with
-                print("Current score {}\nBest score {}".format(score, best_score))
-                write_param_log_file(start_iteration, best_params, best_score)
-                write_objective_log_file(start_iteration, score)
-                start_iteration += 1
-            """
-        elif os.path.isfile( hydrograph_output_file ): #Iteration 0 complete
-            #Evaluate initial score
-            best_score = objective_func(hydrograph_output_file, observed_df, evaluation_range)
-            best_params = 0
-            write_param_log_file(0, best_params, best_score)
-            write_objective_log_file(0, best_score)
-            shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, start_iteration))
-            start_iteration = 1
-        else:
-            #No prior states written, start from the beginning
-            subprocess.check_call(ngen_cmd, stdout=ngen_log, shell=True)
-            #Evaluate initial score
-            best_score = objective_func(hydrograph_output_file, observed_df, evaluation_range)
-            best_params = 0
-            write_param_log_file(0, best_params, best_score)
-            write_objective_log_file(0, best_score)
-            shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, start_iteration))
-            start_iteration = 1
-
-        if os.path.isfile( os.path.join(config.workdir, 'calibration_df_state.msg') ):
-            data.calibration_df = pd.read_msgpack( os.path.join(config.workdir, 'calibration_df_state.msg') )
-    else:
-        subprocess.check_call(ngen_cmd, stdout=ngen_log, shell=True)
-        #Evaluate initial score
-        best_score = objective_func(hydrograph_output_file, observed_df, evaluation_range)
-        best_params = 0
-        write_param_log_file(0, best_params, best_score)
-        write_objective_log_file(0, best_score)
-        shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, start_iteration))
-        start_iteration = 1
-
-    #best_params = start_iteration #TODO this isn't really needed since best is always copied to next
+    if restart:
+        start_iteration = meta.restart()
 
     print("Starting Iteration: {}".format(start_iteration))
-    print("Starting Best param: {}".format(best_params))
-    print("Starting Best score: {}".format(best_score))
+    print("Starting Best param: {}".format(meta.best_params))
+    print("Starting Best score: {}".format(meta.best_score))
     print("Starting DDS loop")
 
     for catchment in catchments:
@@ -200,6 +99,8 @@ if __name__ == "__main__":
         description='Calibrate catchments in NGEN NWM architecture.')
     parser.add_argument('-c', '--config-file', required=True, type=str,
                         help='The configuration json file for catchments to be operated on')
+    parser.add_argement('-r', '--restart', action='store_true',
+                        help='Attempt to restart from a previous calibration')
     args = parser.parse_args()
 
-    main(args.config_file)
+    main(args.config_file, args.restart)

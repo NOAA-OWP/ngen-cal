@@ -33,6 +33,24 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
     #precompute sigma for each variable based on neighborhood_size and bounds
     calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
 
+    if start_iteration == 1:
+        if calibration_object.output is None:
+            #We are starting a new calibration and do not have an initial output state to evaluate, compute it
+            #Need initial states  (iteration 0) to start DDS loop
+            print("Running {} for iteration 0".format(meta.cmd))
+            with open(meta.log_file, 'a') as log_file:
+                subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
+        #read output and calculate objective_func
+        score =  _objective_func(calibration_object.output, calibration_object.observed)
+        #save the model output/state
+        calibration_object.save_output(0)
+        #update meta info based on latest score and write some log files
+        meta.update(0, score, log=True)
+
+        print("Current score {}\nBest score {}".format(score, meta.best_score))
+        #Save the initial calibration state
+        calibration_object.check_point(meta.workdir)
+
     for i in range(start_iteration, iterations+1):
         #Calculate probability of inclusion
         inclusion_probability = 1 - log(i)/log(iterations)

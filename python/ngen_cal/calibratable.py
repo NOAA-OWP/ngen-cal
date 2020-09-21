@@ -1,5 +1,5 @@
 from abc import ABC, abstractproperty, abstractmethod
-from pandas import Series
+from pandas import Series, read_parquet
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -66,3 +66,10 @@ class Calibratable(ABC):
             Save calibration information
         """
         self.df.to_parquet(path/self.check_point_file)
+
+    @abstractmethod
+    def load_df(self, path: 'Path') -> None:
+        """
+            Load saved calibration information
+        """
+        self._df = read_parquet(path/self.check_point_file)

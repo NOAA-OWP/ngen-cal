@@ -95,3 +95,29 @@ class CalibrationMeta(object):
             best_params = int(log_file.readline())
             best_score = float(log_file.readline())
         return iteration, best_params, best_score
+
+    def restart(self) -> int:
+        """
+            Attempt to restart a calibration from a previous state.
+            If no previous state is available, start from 0
+
+            Returns
+            -------
+            int iteration to start calibration at
+        """
+        #TODO how much meta info is catchment specific vs global?  Might want to wrap this up per catchment?
+        try:
+            last_iteration, best_params, best_score = read_param_log_file()
+            self._best_params_iteration = str(best_parms)
+            self._best_score = best_score
+            start_iteration = last_iteration + 1
+
+            for catchment in config.catchments:
+                catcment.load_df()
+            #TODO verify that loaded calibration info aligns with iteration?  Anther reason to consider making this meta
+            #per catchment???
+
+        except FileNotFoundError:
+            start_iteration = 0
+
+        return start_iteration
