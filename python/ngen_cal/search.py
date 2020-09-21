@@ -1,6 +1,10 @@
 from math import log
+from typing import TYPE_CHECKING
 
-def dds(start_iteration: int, iterations: int, calibration_object: Calibratable, meta: CalibrationMeta):
+if TYPE_CHECKING:
+    from ngen_cal import Calibratable, CalibrationMeta
+
+def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
     """
         Functional form of the dds loop
     """

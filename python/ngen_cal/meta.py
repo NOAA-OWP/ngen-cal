@@ -1,4 +1,9 @@
-class CalibraitonMeta(object):
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+class CalibrationMeta(object):
     """
         Structure for holding calibration meta data
 
@@ -30,7 +35,9 @@ class CalibraitonMeta(object):
         return "{} {}".format(self._bin, self._args)
 
     @property
-    def log_file(self) -> Path:
+    def log_file(self) -> 'Path':
+        """
+
         """
 
         """

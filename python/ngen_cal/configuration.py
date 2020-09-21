@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from hypy.catchment import Catchment
 
@@ -15,7 +18,7 @@ class Configuration():
 
     """
 
-    def __init__(self, config_file: Path):
+    def __init__(self, config_file: 'Path'):
         """
 
         """
