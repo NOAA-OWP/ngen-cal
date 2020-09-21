@@ -1,3 +1,4 @@
+import subprocess
 import pandas as pd
 from math import log
 import numpy as np
@@ -68,20 +69,21 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         """
             At this point, we need to re-run cmd with the new parameters assigned correctly and evaluate the objective function
         """
-        calibration_object.update_state(i)
         #Update the meta info and prepare for next iteration
+        meta.update_config(i)
         #Run cmd Again...
-        print("Running {} for iteration {}".format(cmd, i))
-        subprocess.check_call(meta.cmd, stdout=meta.log_file, shell=True)
+        print("Running {} for iteration {}".format(meta.cmd, i))
+        with open(meta.log_file, 'a') as log_file:
+            subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
+
         #read output and calculate objective_func
-        shutil.move(hydrograph_output_file, '{}_{}'.format(hydrograph_output_file, i))
-        if score <= best_score:
-            best_params = i
-            best_score = score
-            #Score has improved, run next simulation with
-        print("Current score {}\nBest score {}".format(score, best_score))
-        calibration_object.checkpoint( config.workdir )
-        write_param_log_file(i, best_params, best_score)
-        write_objective_log_file(i, score)
-        print("Best parameters at column {} in calibration_df_state.msg".format(best_params))
         score =  _objective_func(calibration_object.output, calibration_object.observed)
+        #save the calibration state, just in case
+        calibration_object.save_output(i)
+        #update meta info based on latest score and write some log files
+        meta.update(i, score, log=True)
+
+        print("Current score {}\nBest score {}".format(score, meta.best_score))
+        calibration_object.check_point(meta.workdir)
+
+        print("Best parameters at column {} in calibration_df_state.msg".format(meta.best_params))
