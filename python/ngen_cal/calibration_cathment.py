@@ -25,8 +25,8 @@ class CalibrationCatchment(Catchment, Calibratable):
         #FIXME paramterize
         self._output_file = 'test_file.out'
 
-        self._observed = DataFrame()
-        self._output = DataFrame()
+        self._observed = None
+        self._output = None
 
     @property
     def df(self) -> 'DataFrame':
@@ -40,6 +40,12 @@ class CalibrationCatchment(Catchment, Calibratable):
 
         """
         super().check_point(path)
+
+    def load_df(self, path: 'Path') -> None:
+        """
+
+        """
+        super().load_df(path)
 
     def update(self) -> None:
         """
