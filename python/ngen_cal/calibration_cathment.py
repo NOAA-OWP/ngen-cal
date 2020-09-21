@@ -30,11 +30,11 @@ class CalibrationCatchment(Catchment, Calibratable):
         """
         return self._df
 
-    def check_point(self) -> None:
+    def check_point(self, path: 'Path') -> None:
         """
 
         """
-        super().check_point(self)
+        super().check_point(path)
 
     def update(self) -> None:
         """

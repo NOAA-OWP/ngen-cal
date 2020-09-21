@@ -52,9 +52,16 @@ class Calibratable(ABC):
         """
         pass
 
+    @property
+    def check_point_file(self) -> 'Path':
+        """
+            Filename checkpoint files are saved to
+        """
+        return '{}_calibration_df_state.parquet'.format(self.id)
+
     @abstractmethod
     def check_point(self, path: 'Path') -> None:
         """
             Save calibration information
         """
-        self.df.to_msgpack(path+'{}_calibration_df_state.msg'.format(self.id))
+        self.df.to_parquet(path/self.check_point_file)
