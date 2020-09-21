@@ -1,4 +1,5 @@
 from pandas import DataFrame
+import shutil
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -81,3 +82,11 @@ class CalibrationCatchment(Catchment, Calibratable):
     def output(self, df):
         self._output = df
 
+    def save_output(self, i) -> None:
+        """
+            Save the last output to output for iteration i
+        """
+        #FIXME ensure _output_file exists
+        #FIXME re-enable this once more complete
+        #shutil.move(self._output_file, '{}_{}'.format(self._output_file, i))
+        pass
