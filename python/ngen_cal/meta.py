@@ -26,6 +26,13 @@ class CalibrationMeta(object):
         self._param_log_file = self._workdir/"{}_best_params.log".format(self._id)
         self._objective_log_file = self._workdir/"{}_objective.log".format(self._id)
 
+    def update_config(self, i):
+        """
+            For a given calibration iteration, i, update the input files/configuration to prepare for that iterations
+            calibration run.
+        """
+        pass
+
     @property
     def workdir(self) -> 'Path':
         return self._workdir
@@ -58,8 +65,18 @@ class CalibrationMeta(object):
         """
         return self._workdir/self._log_file
 
+    def update(self, i: int, score: int, log: bool):
         """
-        return self._workdir+self._log_file
+            Update the meta state for iteration `i` having score `score`
+            logs parameter and objective information if log=True
+        """
+        if score <= self.best_score:
+            self.best_params = i
+            self.best_score = score
+
+        if log:
+            self.write_param_log_file(i)
+            self.write_objective_log_file(i, score)
 
     def write_objective_log_file(self, i, score):
         with open(self._objective_log_file, 'a') as log_file:
