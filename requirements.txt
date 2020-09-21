@@ -1,3 +1,4 @@
 pytest
+pyarrow
 pandas~=1.1.2
 git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
