@@ -1,5 +1,6 @@
 import pandas as pd
 from math import log
+import numpy as np
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -43,15 +44,15 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
            neighborhood = calibration_object.variables.sample(n=1)
         print( "neighborhood: {}".format(neighborhood) )
         #Copy the best parameter values so far into the next iterations parameter list
-        calibration_object.df[i] = calibration_object.df[best_params]
+        calibration_object.df[str(i)] = calibration_object.df[meta.best_params]
         #print( data.calibration_df )
         for n in neighborhood:
             #permute the variables in neighborhood
             #using a random normal sample * sigma, sigma = 0.2*(max-min)
-            #print(n, best_params)
-            new = calibration_object.df.loc[n, best_params] + calibration_object.df.loc[n, 'sigma']*pd.np.random.normal(0,1)
-            lower =  calibration_object.df.loc[n, 'lower']
-            upper = calibration_object.df.loc[n, 'upper']
+            #print(n, meta.best_params)
+            new = calibration_object.df.loc[n, meta.best_params] + calibration_object.df.loc[n, 'sigma']*np.random.normal(0,1)
+            lower =  calibration_object.df.loc[n, 'min']
+            upper = calibration_object.df.loc[n, 'max']
             #print( new )
             #print( lower )
             #print( upper )
@@ -63,11 +64,12 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
                 new = upper - (new - upper)
                 if new < lower:
                     new = upper
-            calibration_object.df.loc[n, i] = new
+            calibration_object.df.loc[n, str(i)] = new
         """
             At this point, we need to re-run cmd with the new parameters assigned correctly and evaluate the objective function
         """
         calibration_object.update_state(i)
+        #Update the meta info and prepare for next iteration
         #Run cmd Again...
         print("Running {} for iteration {}".format(cmd, i))
         subprocess.check_call(meta.cmd, stdout=meta.log_file, shell=True)
