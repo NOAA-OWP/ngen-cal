@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
+    from pathlib import Path
 
 from hypy.catchment import Catchment
 from ngen_cal.calibratable import Calibratable
