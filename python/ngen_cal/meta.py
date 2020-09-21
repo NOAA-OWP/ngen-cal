@@ -56,23 +56,24 @@ class CalibrationMeta(object):
         """
 
         """
+        return self._workdir/self._log_file
 
         """
         return self._workdir+self._log_file
 
     def write_objective_log_file(self, i, score):
-        with open(os.path.join(self._workdir, 'objective.log'), 'a') as log_file:
+        with open(self._objective_log_file, 'a') as log_file:
             log_file.write('{}, '.format(i))
             log_file.write('{}\n'.format(score))
 
-    def write_param_log_file(self, i, best, score):
-        with open(os.path.join(self._workdir, 'best_params.log'), 'w') as log_file:
+    def write_param_log_file(self, i):
+        with open(self._param_log_file, 'w') as log_file:
             log_file.write('{}\n'.format(i))
-            log_file.write('{}\n'.format(best))
-            log_file.write('{}\n'.format(score))
+            log_file.write('{}\n'.format(self.best_params))
+            log_file.write('{}\n'.format(self.best_score))
 
     def read_param_log_file(self):
-        with open(os.path.join(self._workdir, 'best_params.log'), 'r') as log_file:
+        with open(self._param_log_file, 'r') as log_file:
             iteration = int(log_file.readline())
             best_params = int(log_file.readline())
             best_score = float(log_file.readline())
