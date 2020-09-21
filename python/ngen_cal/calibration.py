@@ -117,13 +117,8 @@ def main(config_file):
     variables = pd.Series(data.calibration_df.index.values)
     #print calibration_df
     #print variables
-    #Start defining the DDS search algorithm TODO move this to module
-    neighborhood_size = 0.2
-    iterations = 150
     #restart_iteration = iterations+1
     #print calibration_df
-    #precompute sigma for each variable based on neighborhood_size and bounds
-    data.calibration_df['sigma'] = 0.2*(data.calibration_df['upper'] - data.calibration_df['lower'])
 
     #TODO move most of this to utils module
     ngen_bin = "ngen"
