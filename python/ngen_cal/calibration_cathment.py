@@ -13,19 +13,22 @@ class CalibrationCatchment(Catchment, Calibratable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, id: str):
+    def __init__(self, id: str, params: dict = {}):
         """
 
         """
-        super().__init__(id, {})
-        self._df = p
+        calibration_params = params[id].pop('calibration')
+        super().__init__(id, params)
+        self._df = DataFrame(calibration_params).rename(columns={'init':'0'})
+        #FIXME paramterize
+        self._output_file = 'test_file.out'
 
     @property
     def df(self) -> 'DataFrame':
         """
 
         """
-        pass
+        return self._df
 
     def check_point(self) -> None:
         """
