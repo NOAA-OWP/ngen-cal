@@ -25,6 +25,12 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         raise(ValueError("iterations must be >= 2"))
     if start_iteration > iterations:
         raise(ValueError("start_iteration must be <= iterations"))
+    #TODO make this a parameter
+    neighborhood_size = 0.2
+
+    #precompute sigma for each variable based on neighborhood_size and bounds
+    calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
+
     for i in range(start_iteration, iterations+1):
         #Calculate probability of inclusion
         inclusion_probability = 1 - log(i)/log(iterations)
