@@ -18,7 +18,7 @@ class Configuration():
 
     """
 
-    def __init__(self, config_file: 'Path'):
+    def __init__(self, config_file: 'Path', calibration_input: 'Path'):
         """
 
         """
@@ -26,6 +26,12 @@ class Configuration():
         self._catchments = []
         with open(config_file) as fp:
             self.data = json.load(fp)
+        #Read the calibration specific info
+        #with open(calibration_input) as fp:
+        #    data = json.load(fp)
+        #    for id, params in data.items():
+        #        catchment = CalibrationCatchment(id, self.data['catchments'][id])
+
         for id, params in self.data['catchments'].items():
             logging.debug(id)
             logging.debug(params)

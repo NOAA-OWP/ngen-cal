@@ -15,8 +15,8 @@ def conf() -> Generator[Configuration, None, None]:
         Staging of a generator to test
     """
     test_config_file = _current_dir.joinpath('data/example_realization_config.json')
-
-    yield Configuration(test_config_file)
+    test_calibraiton_file = ''
+    yield Configuration(test_config_file, test_calibraiton_file)
 
 def test_configuration(conf: Configuration):
     """
