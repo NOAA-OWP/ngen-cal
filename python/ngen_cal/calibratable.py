@@ -34,11 +34,12 @@ class Calibratable(ABC):
         """
         pass
 
+    @property
     def variables(self) -> 'Series':
         """
             Index series of variables
         """
-        return pd.Series(self.df.index.values)
+        return Series(self.df.index.values)
 
     @abstractmethod
     def update(self, iteration: int) -> None:
