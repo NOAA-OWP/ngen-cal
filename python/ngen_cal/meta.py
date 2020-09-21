@@ -45,9 +45,9 @@ class CalibrationMeta(object):
         return self._best_score
 
     @property
-    def best_params(self) -> int:
+    def best_params(self) -> str:
         """
-            The integer iteration that contains the best parameter values
+            The integer iteration that contains the best parameter values, as a string
         """
         return self._best_param_iteration
 
