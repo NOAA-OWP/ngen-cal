@@ -67,7 +67,10 @@
                     "path": "./python/ngen_cal/test/data/cat-87_2015-12-01 00_00_00_2015-12-30 23_00_00.csv",
                     "start_time": "2015-12-01 00:00:00",
                     "end_time": "2015-12-30 23:00:00"
-                }
+                },
+                "calibration": [
+                  {"param":"maxsmc", "min": 0.2, "max":1.0, "init": 0.439}
+                ]
         },
         "cat-88": {
             "simple_lumped": {

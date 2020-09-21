@@ -5,7 +5,7 @@ from typing import Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-from hypy.catchment import Catchment
+from ngen_cal.calibration_cathment import CalibrationCatchment
 
 import logging
 logging.basicConfig(
@@ -35,7 +35,8 @@ class Configuration():
         for id, params in self.data['catchments'].items():
             logging.debug(id)
             logging.debug(params)
-            self._catchments.append(Catchment(id, params))
+            if 'calibration' in params.keys():
+                self._catchments.append(CalibrationCatchment(id, self.data['catchments']))
 
 
     @property

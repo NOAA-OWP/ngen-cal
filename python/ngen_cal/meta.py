@@ -22,6 +22,7 @@ class CalibrationMeta(object):
         self._args = args
         self._log_file = self._workdir/"{}_log_file".format(bin)
         self._id = id #a unique identifier to prepend to log files
+        #FIXME another reason to refactor meta under catchment, logs per catchment???
 
         self._param_log_file = self._workdir/"{}_best_params.log".format(self._id)
         self._objective_log_file = self._workdir/"{}_objective.log".format(self._id)
