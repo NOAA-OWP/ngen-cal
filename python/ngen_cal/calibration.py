@@ -37,7 +37,6 @@ def main(config_file):
         We need to 'read' the configuration of the model we want to calibrate
     """
 
-
     config = Configuration(config_file)
 
     """
@@ -46,48 +45,28 @@ def main(config_file):
     #This is the range of the hydrograph dates to run the objective function over
     evaluation_range = ('2011-08-05 12:00:00', '2011-08-08 00:00:00')
 
-    #FIXME this isn't always an accurate thing to look at...maybe recompute reference date from superfile???
-    #Hacked for 2011 right now...
-    hydrograph_reference_date = 2455772.5  #state_nc.variables['referenceDate'][0]
-    #print "REFERENCE DATE {}".format(hydrograph_reference_date)
-
-    #TODO make this an input...
-    outlet_element_id = 7510
     """
     This was initially designed for a single basin calibration, should generalize for multiple
     """
     #gage id correspoinding to outlet_element_id
-    usgs =  '02146300' #for 7462 -> '02146285'
+    usgs =  '02146300' #FIXME read from xwalk
 
     """
         Need to connect the calibrator to the output data from the binary, done here via files
     """
+    #This is catchment specific (The nexus output of the catchment is what is required here)
     hydrograph_output_file = os.path.join(config.workdir, 'state.nc.{}.txt'.format(outlet_element_id) )
     #hydrograph_output_file = '/gscratch/rsteinke/runs/sugar_creek/2011-07-30-limited-regions/state.nc.7462.txt'
     """
         Need to get observed hydrograph to evaluate against
     """
-    observed_file = os.path.join(config.workdir, 'usgs_{}_observed.csv'.format(usgs))
-    observed_df = pd.read_csv(observed_file, parse_dates=['Date_Time']).set_index('Date_Time')
-    observed_df = observed_df.tz_localize('UTC')
 
-    #FIXME see below
-    """
-    In general, grouping is useful to get approriate indicies.  I think setting all DF's with elementID index will save
-    a lot of index tracking/referencing to elementID.  Try this out soon!
-    """
-    """
-    FIXME this section
-    """
-    data_path = ''
-    """
-    FIXME this section ^^^^^^^^
-    """
 
     print("Starting calib")
 
     """
     Should input a set of catchments we want to calibrate???
+    #FIXME use json input file defining these catchments
     """
 
     calibration_catchments = []
@@ -110,21 +89,12 @@ def main(config_file):
     TODO calibrate each "catcment" independely, but there may be something interesting in grouping various formulation params
     into a single variable vector and calibrating a set of heterogenous formultions...
     """
-    #then we can start the DDS search from this initial vector
-    #Build the initial parameter space vector in the calibration matrix.
-
-    data.calibration_df.rename(columns={'init':0}, inplace=True)
-    variables = pd.Series(data.calibration_df.index.values)
-    #print calibration_df
-    #print variables
-    #restart_iteration = iterations+1
-    #print calibration_df
 
     #TODO move most of this to utils module
     ngen_bin = "ngen"
     ngen_args = "{FIXME}".format(confif_file)
 
-    meta = CalibraitonMeta(workdir, ngen_bin, ngen_args)
+    meta = CalibraitonMeta(config, workdir, ngen_bin, ngen_args)
     print("Running initial simulation")
     print(ngen_cmd)
 
