@@ -12,26 +12,6 @@ from math import log
 from configuration import Configuration
 from meta import CalibrationMeta
 
-def objective_func(simulated_hydrograph_file, observed_hydrograph, eval_range=None):
-    simulated_hydrograph = pd.read_csv(simulated_hydrograph_file, header=None, usecols=[1,2], names=['time', 'flow'])
-    simulated_hydrograph['time'] /= 86400 #partial day
-    simulated_hydrograph['time'] += hydrograph_reference_date #Julian date from reference
-    simulated_hydrograph['time'] = pd.to_datetime(simulated_hydrograph['time'], utc=True, unit='D', origin='julian').dt.round('1s')
-    simulated_hydrograph.drop_duplicates('time', keep='last', inplace=True)
-    simulated_hydrograph.set_index('time', inplace=True)
-    #Join the data where the indicies overlap
-    #print( simulated_hydrograph )
-    #print( observed_hydrograph )
-    df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
-    #print( df)
-    if eval_range:
-        df = df.loc[eval_range[0]:eval_range[1]]
-    #print( df )
-    #Evaluate custom objective function providing simulated, observed series
-    return custom(df['flow'], df['Discharge_cms'])
-
-
-
 def main(config_file):
     """
         We need to 'read' the configuration of the model we want to calibrate
