@@ -1,18 +1,21 @@
 from abc import ABC, abstractmethod
 from pandas import Series, read_parquet
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
+
 
 class Calibratable(ABC):
     """
         A Calibratable interface defining required properties for a calibratable object
     """
 
+    def __init__(self, df: Optional['DataFrame'] = None):
+        self._df = df
+
     @property
-    @abstractmethod
     def df(self) -> 'DataFrame':
         """
             A dataframe of the objects parameter values to calculate indexed relative to the variables
@@ -26,7 +29,7 @@ class Calibratable(ABC):
             0:     float initial value of the parameter
             #TODO do we need a group index???
         """
-        pass
+        return self._df
 
     @property
     @abstractmethod
