@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from hypy.catchment import Catchment
-from ngen_cal.calibratable import Calibratable
+from .calibratable import Calibratable
 
 
 class CalibrationCatchment(Catchment, Calibratable):
@@ -20,8 +20,8 @@ class CalibrationCatchment(Catchment, Calibratable):
 
         """
         calibration_params = params[id].pop('calibration')
-        super().__init__(id, params)
-        self._df = DataFrame(calibration_params).rename(columns={'init':'0'})
+        Catchment.__init__(self=self, catchment_id=id, params=params)
+        Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
         self._output_file = 'test_file.out'
 
@@ -81,6 +81,7 @@ class CalibrationCatchment(Catchment, Calibratable):
     @observed.setter
     def observed(self, df):
         self._observed = df
+
     @output.setter
     def output(self, df):
         self._output = df
