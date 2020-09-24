@@ -66,14 +66,12 @@ class Calibratable(ABC):
         from pathlib import Path
         return Path('{}_calibration_df_state.parquet'.format(self.id))
 
-    @abstractmethod
     def check_point(self, path: 'Path') -> None:
         """
             Save calibration information
         """
         self.df.to_parquet(path/self.check_point_file)
 
-    @abstractmethod
     def load_df(self, path: 'Path') -> None:
         """
             Load saved calibration information
