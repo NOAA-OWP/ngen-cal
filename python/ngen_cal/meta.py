@@ -27,12 +27,25 @@ class CalibrationMeta(object):
         self._param_log_file = self._workdir/"{}_best_params.log".format(self._id)
         self._objective_log_file = self._workdir/"{}_objective.log".format(self._id)
 
-    def update_config(self, i):
+    def update_config(self, i, params):
         """
             For a given calibration iteration, i, update the input files/configuration to prepare for that iterations
             calibration run.
+
+            parameters
+            ---------
+            i: int
+                current iteration of calibration
+            params: pandas.DataFrame
+                DataFrame containing the parameter name in `param` and value in `i` columns
         """
-        pass
+        #Example on how to access info that needs to get pushed to configuration for next Run
+        #TODO remove these lines
+        print(params)
+        for idx, p in params.iterrows():
+            #Note for serialization reasons, columns in the dataframe are STRINGS not int,
+            #so convert i to string before accessing.
+            print("Update parameter {} to new value {}".format( p['param'], p[str(i)] ) )
 
     @property
     def workdir(self) -> 'Path':
