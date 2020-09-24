@@ -5,7 +5,7 @@ from typing import Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-from ngen_cal.calibration_cathment import CalibrationCatchment
+from .calibration_cathment import Catchment, CalibrationCatchment
 
 import logging
 logging.basicConfig(
@@ -13,7 +13,8 @@ logging.basicConfig(
     format="%(asctime)s,%(msecs)d %(levelname)s: %(message)s",
     datefmt="%H:%M:%S")
 
-class Configuration():
+
+class Configuration:
     """
 
     """
@@ -37,7 +38,6 @@ class Configuration():
             logging.debug(params)
             if 'calibration' in params.keys():
                 self._catchments.append(CalibrationCatchment(id, self.data['catchments']))
-
 
     @property
     def catchments(self) -> Iterable['Catchment']:
