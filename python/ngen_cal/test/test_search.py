@@ -5,10 +5,10 @@ import pandas as pd
 import json
 import os
 
-from ngen_cal.search import dds
-from ngen_cal.calibration_cathment import CalibrationCatchment
-from ngen_cal.meta import CalibrationMeta
-from ngen_cal.configuration import Configuration
+from ..search import dds
+from ..calibration_cathment import CalibrationCatchment
+from ..meta import CalibrationMeta
+from ..configuration import Configuration
 
 """
     Test suite for calibrtion search algorithms
@@ -26,6 +26,7 @@ _calibraiton_test_params = """
 }
 """
 
+
 @pytest.fixture
 def calibratable() -> Generator[CalibrationCatchment, None, None]:
     """
@@ -41,13 +42,14 @@ def calibratable() -> Generator[CalibrationCatchment, None, None]:
 
     os.remove(_current_dir/calibrate.check_point_file)
 
+
 @pytest.fixture
 def calibration_meta() -> Generator[CalibrationMeta, None, None]:
     """
 
     """
     test_config_file = _current_dir.joinpath('data/example_realization_config.json')
-    test_calibraiton_file = ''
+    test_calibraiton_file = Path('')
     conf = Configuration(test_config_file, test_calibraiton_file)
     meta = CalibrationMeta(conf, _current_dir, 'echo', 'none', 'test-catchment')
     yield meta
@@ -55,6 +57,7 @@ def calibration_meta() -> Generator[CalibrationMeta, None, None]:
     os.remove(meta._log_file)
     os.remove(meta._objective_log_file)
     os.remove(meta._param_log_file)
+
 
 def test_dds(calibratable: CalibrationCatchment, calibration_meta: CalibrationMeta):
     """
