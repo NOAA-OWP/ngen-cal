@@ -35,19 +35,7 @@ class CalibrationCatchment(Catchment, Calibratable):
         """
         return self._df
 
-    def check_point(self, path: 'Path') -> None:
-        """
-
-        """
-        super().check_point(path)
-
-    def load_df(self, path: 'Path') -> None:
-        """
-
-        """
-        super().load_df(path)
-
-    def update(self) -> None:
+    def update(self, iteration: int) -> None:
         """
             update configuration based on latest params
         """
