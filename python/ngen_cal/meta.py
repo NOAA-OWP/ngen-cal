@@ -17,7 +17,7 @@ class CalibrationMeta(object):
         self._config = config #This is the Configuration object that knows how to operate on model configuration files
         self._workdir = workdir
         self._best_score = -1
-        self._best_param_iteration = '0' #String representation of interger iteration
+        self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = bin
         self._args = args
         self._log_file = self._workdir/"{}_log_file".format(bin)
@@ -63,7 +63,7 @@ class CalibrationMeta(object):
         """
             The integer iteration that contains the best parameter values, as a string
         """
-        return self._best_param_iteration
+        return self._best_params_iteration
 
     @property
     def cmd(self) -> str:
