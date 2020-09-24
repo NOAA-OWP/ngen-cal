@@ -63,7 +63,8 @@ class Calibratable(ABC):
         """
             Filename checkpoint files are saved to
         """
-        return '{}_calibration_df_state.parquet'.format(self.id)
+        from pathlib import Path
+        return Path('{}_calibration_df_state.parquet'.format(self.id))
 
     @abstractmethod
     def check_point(self, path: 'Path') -> None:
