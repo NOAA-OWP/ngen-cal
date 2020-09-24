@@ -122,13 +122,13 @@ class CalibrationMeta:
         """
         #TODO how much meta info is catchment specific vs global?  Might want to wrap this up per catchment?
         try:
-            last_iteration, best_params, best_score = read_param_log_file()
-            self._best_params_iteration = str(best_parms)
+            last_iteration, best_params, best_score = self.read_param_log_file()
+            self._best_params_iteration = str(best_params)
             self._best_score = best_score
             start_iteration = last_iteration + 1
 
-            for catchment in config.catchments:
-                catcment.load_df()
+            for catchment in self._config.catchments:
+                catchment.load_df()
             #TODO verify that loaded calibration info aligns with iteration?  Anther reason to consider making this meta
             #per catchment???
 
