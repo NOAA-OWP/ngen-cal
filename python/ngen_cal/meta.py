@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-class CalibrationMeta(object):
+
+class CalibrationMeta:
     """
         Structure for holding calibration meta data
 
@@ -85,8 +86,8 @@ class CalibrationMeta(object):
             logs parameter and objective information if log=True
         """
         if score <= self.best_score:
-            self.best_params = i
-            self.best_score = score
+            self._best_params_iteration = i
+            self._best_score = score
 
         if log:
             self.write_param_log_file(i)
