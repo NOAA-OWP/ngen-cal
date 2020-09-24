@@ -1,4 +1,4 @@
-from abc import ABC, abstractproperty, abstractmethod
+from abc import ABC, abstractmethod
 from pandas import Series, read_parquet
 from typing import TYPE_CHECKING
 
@@ -11,7 +11,8 @@ class Calibratable(ABC):
         A Calibratable interface defining required properties for a calibratable object
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def df(self) -> 'DataFrame':
         """
             A dataframe of the objects parameter values to calculate indexed relative to the variables
@@ -27,7 +28,8 @@ class Calibratable(ABC):
         """
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def id(self) -> str:
         """
             An identifier for this calibratable unit, used to save unique checkpoint information.
