@@ -64,7 +64,7 @@ def test_restart_1(meta: 'CalibrationMeta') -> None:
         Test retarting from serialized logs
     """
     meta._best_score = 1
-    meta._best_param_iteration = "1"
+    meta._best_params_iteration = "1"
     meta.write_param_log_file(2)
     #make sure the catchment param df is saved before trying to restart
     meta._config.catchments[0].check_point(meta._workdir)

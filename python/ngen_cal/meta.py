@@ -102,7 +102,7 @@ class CalibrationMeta:
             logs parameter and objective information if log=True
         """
         if score <= self.best_score:
-            self._best_param_iteration = str(i)
+            self._best_params_iteration = str(i)
             self._best_score = score
 
         if log:
