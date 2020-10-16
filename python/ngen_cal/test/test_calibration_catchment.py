@@ -1,25 +1,15 @@
 import pytest
-from typing import Generator
-from pathlib import Path
-from copy import deepcopy
-from .utils import config
+from typing import TYPE_CHECKING
 
-from ngen_cal.calibration_cathment import CalibrationCatchment
+if TYPE_CHECKING:
+    from ngen_cal.calibration_cathment import CalibrationCatchment
 
 """
     Test suite for calibratable_catchment
 """
 
-@pytest.fixture
-def catchment() -> Generator[CalibrationCatchment, None, None]:
-    """
-        A hy_features catchment implementing the calibratable interface
-    """
-    id = 'test-catchment'
-    catchment = deepcopy(config)['catchments'][id]
-    return(CalibrationCatchment(id, catchment))
-
-def test_df(catchment):
+@pytest.mark.usefixtures("catchment")
+def test_df(catchment: 'CalibrationCatchment') -> None:
     """
         Test the catchments proper construction of the parameter dataframe
     """
@@ -28,7 +18,8 @@ def test_df(catchment):
     assert catchment.df.iloc[0]['min'] == 0.0
     assert catchment.df.iloc[0]['max'] == 1.0
 
-def test_output(catchment):
+@pytest.mark.usefixtures("catchment")
+def test_output(catchment: 'CalibrationCatchment') -> None:
     """
         Test proper handling of non-existent output
     """
@@ -36,7 +27,8 @@ def test_output(catchment):
     with pytest.raises(RuntimeError):
         out = catchment.output
 
-def test_observed(catchment):
+@pytest.mark.usefixtures("catchment")
+def test_observed(catchment: 'CalibrationCatchment') -> None:
     """
         Test proper handling of non-existent output
     """

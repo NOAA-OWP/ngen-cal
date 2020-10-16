@@ -1,49 +1,17 @@
 import pytest
-from typing import Generator
-from pathlib import Path
-import json
 import pandas as pd
+import json
+from typing import TYPE_CHECKING
 
-from ..configuration import Configuration
-from ..meta import CalibrationMeta
-from .utils import config
+if TYPE_CHECKING:
+    from ..meta import CalibrationMeta
 
 """
     Test suite for reading and manipulating ngen configration files
 """
 
-
-@pytest.fixture(scope="session")
-def realization_config(tmpdir_factory):
-    """
-        Fixture to provide a staged testing input files
-    """
-    fn = tmpdir_factory.mktemp("data").join("realization_config.json")
-    with(open(fn, 'w')) as fp:
-        json.dump(config, fp)
-    return fn
-
-@pytest.fixture
-def conf(realization_config) -> Generator[Configuration, None, None]:
-    """
-        Staging of a generator to test
-    """
-    print(type(realization_config))
-    print(realization_config)
-    yield Configuration(realization_config)
-
-@pytest.fixture
-def meta(conf, tmpdir_factory):
-    """
-        build up a meta object to test
-    """
-    bin = "echo ngen"
-    args = "args"
-    workdir = tmpdir_factory.mktemp("workdir")
-    m = CalibrationMeta(conf, workdir, bin, args, "test_0")
-    yield m
-
-def test_update_config(meta, realization_config):
+@pytest.mark.usefixtures("meta", "realization_config")
+def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None:
     """
         Ensure that update config properly updates and serializes the config
     """
@@ -55,7 +23,8 @@ def test_update_config(meta, realization_config):
         data = json.load(fp)
     assert data['catchments'][id]['formulations'][0]['params']['some_param'] == 4.2
 
-def test_update(meta):
+@pytest.mark.usefixtures("meta")
+def test_update(meta: 'CalibrationMeta') -> None:
     """
         Test score update function with a worse score
     """
@@ -67,7 +36,8 @@ def test_update(meta):
     assert meta.best_score == 0.5
     assert meta.best_params == '0'
 
-def test_update_1(meta):
+@pytest.mark.usefixtures("meta")
+def test_update_1(meta: 'CalibrationMeta') -> None:
     """
         Test score update function with a better score
     """
@@ -79,7 +49,8 @@ def test_update_1(meta):
     assert meta.best_score == 0.1
     assert meta.best_params == '1'
 
-def test_restart(meta):
+@pytest.mark.usefixtures("meta")
+def test_restart(meta: 'CalibrationMeta') -> None:
     """
         Test restarting from minimal meta, no logs available
         should "restart" at iteration 0
@@ -87,7 +58,8 @@ def test_restart(meta):
     iteration = meta.restart()
     assert iteration == 0
 
-def test_restart(meta):
+@pytest.mark.usefixtures("meta")
+def test_restart(meta: 'CalibrationMeta') -> None:
     """
         Test retarting from serialized logs
     """
