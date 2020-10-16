@@ -24,7 +24,7 @@ class CalibrationMeta:
         self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = bin
         self._args = args
-        self._log_file = self._workdir/"{}_log_file".format(bin)
+        self._log_file = "{}_log_file".format(bin)
         self._id = id #a unique identifier to prepend to log files
         #FIXME another reason to refactor meta under catchment, logs per catchment???
 
