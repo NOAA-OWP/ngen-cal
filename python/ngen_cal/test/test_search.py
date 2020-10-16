@@ -4,36 +4,27 @@ from pathlib import Path
 import pandas as pd
 import json
 import os
+from copy import deepcopy
 
-from ..search import dds
-from ..calibration_cathment import CalibrationCatchment
-from ..meta import CalibrationMeta
-from ..configuration import Configuration
+from .utils import config
+from ngen_cal.search import dds
+from ngen_cal.calibration_cathment import CalibrationCatchment
+from ngen_cal.meta import CalibrationMeta
+from ngen_cal.configuration import Configuration
 
 """
     Test suite for calibrtion search algorithms
 """
 _current_dir = Path(__file__).resolve().parent
 
-_calibraiton_test_params = """
-{"test-catchment":
-    {
-        "calibration":
-        [
-            {"param":"some_param", "min":0.0, "max":10.0, "init":5.0}
-        ]
-    }
-}
-"""
-
-
 @pytest.fixture
 def calibratable() -> Generator[CalibrationCatchment, None, None]:
     """
         Staging of a generator to test
     """
-    params = json.loads(_calibraiton_test_params)
-    calibrate = CalibrationCatchment("test-catchment", params)
+    name = 'test-catchment'
+    catchment = deepcopy(config['catchments'][name])
+    calibrate = CalibrationCatchment(name, catchment)
     now = pd.Timestamp.now().round('H')
     test_data = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     calibrate.output = test_data
@@ -49,8 +40,7 @@ def calibration_meta() -> Generator[CalibrationMeta, None, None]:
 
     """
     test_config_file = _current_dir.joinpath('data/example_realization_config.json')
-    test_calibraiton_file = Path('')
-    conf = Configuration(test_config_file, test_calibraiton_file)
+    conf = Configuration(test_config_file)
     meta = CalibrationMeta(conf, _current_dir, 'echo', 'none', 'test-catchment')
     yield meta
 
