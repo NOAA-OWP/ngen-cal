@@ -1,5 +1,5 @@
 import pytest
-import pandas as pd
+import pandas as pd # type: ignore
 import json
 from typing import TYPE_CHECKING
 
@@ -59,7 +59,7 @@ def test_restart(meta: 'CalibrationMeta') -> None:
     assert iteration == 0
 
 @pytest.mark.usefixtures("meta")
-def test_restart(meta: 'CalibrationMeta') -> None:
+def test_restart_1(meta: 'CalibrationMeta') -> None:
     """
         Test retarting from serialized logs
     """

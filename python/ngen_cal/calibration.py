@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from pathlib import Path
-from configuration import Configuration
-from meta import CalibrationMeta
-from search import dds
+from .configuration import Configuration
+from .meta import CalibrationMeta
+from .search import dds
 
 def main(config_file, restart):
     """
