@@ -19,7 +19,7 @@ class CalibrationCatchment(Catchment, Calibratable):
         """
 
         """
-        calibration_params = params[id].pop('calibration')
+        calibration_params = params.pop('calibration')
         Catchment.__init__(self=self, catchment_id=id, params=params)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
@@ -27,6 +27,7 @@ class CalibrationCatchment(Catchment, Calibratable):
 
         self._observed = None
         self._output = None
+        #TODO find nwis info from nexus hydro_location information
 
     @property
     def df(self) -> 'DataFrame':
@@ -38,6 +39,7 @@ class CalibrationCatchment(Catchment, Calibratable):
     def update(self, iteration: int) -> None:
         """
             update configuration based on latest params
+            This functionality currently exists in the meta class
         """
         pass
 
