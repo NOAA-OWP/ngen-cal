@@ -1,26 +1,41 @@
 import pytest
 from typing import Generator
 from pathlib import Path
+import json
 
-from ngen_cal import Configuration
+from ..configuration import Configuration
+from .utils import config
 
 """
     Test suite for reading and manipulating ngen configration files
 """
-_current_dir = Path(__file__).resolve().parent
+
+@pytest.fixture(scope="session")
+def realization_config(tmpdir_factory):
+    """
+        Fixture to provide a staged testing input files
+    """
+    fn = tmpdir_factory.mktemp("data").join("realization_config.json")
+    with(open(fn, 'w')) as fp:
+        json.dump(config, fp)
+    return fn
 
 @pytest.fixture
-def conf() -> Generator[Configuration, None, None]:
+def conf(realization_config) -> Generator[Configuration, None, None]:
     """
         Staging of a generator to test
     """
-    test_config_file = _current_dir.joinpath('data/example_realization_config.json')
-    test_calibraiton_file = ''
-    yield Configuration(test_config_file, test_calibraiton_file)
+    yield Configuration(realization_config)
 
-def test_configuration(conf: Configuration):
+def test_config_file(conf: Configuration, realization_config):
     """
-        Test configuration is properly constructed
+        Test configuration property `config_file`
     """
-    assert conf.data != None
-    assert len(conf._catchments) != 0
+    assert conf.config_file == realization_config
+
+def test_catchments(conf: Configuration):
+    """
+        Ensure that only the catchment marked with "calibration" is used in the configuration
+    """
+    assert len(conf.catchments) == 1
+    assert conf.catchments[0].id == 'test-catchment'
