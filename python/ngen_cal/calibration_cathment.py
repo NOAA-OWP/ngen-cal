@@ -63,6 +63,10 @@ class CalibrationCatchment(Catchment, Calibratable):
             raise(RuntimeError("Error reading output: {}".format(self._output_file)))
         return hydrograph
 
+    @output.setter
+    def output(self, df):
+        self._output = df
+
     @property
     def observed(self) -> 'DataFrame':
         """
@@ -83,10 +87,6 @@ class CalibrationCatchment(Catchment, Calibratable):
     @observed.setter
     def observed(self, df):
         self._observed = df
-
-    @output.setter
-    def output(self, df):
-        self._output = df
 
     def save_output(self, i) -> None:
         """
