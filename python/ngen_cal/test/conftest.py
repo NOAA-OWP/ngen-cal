@@ -3,7 +3,7 @@ from typing import Generator
 from pathlib import Path
 from copy import deepcopy
 import json
-import pandas as pd
+import pandas as pd # type: ignore
 
 from ..configuration import Configuration
 from ..meta import CalibrationMeta
@@ -29,7 +29,7 @@ def conf(realization_config) -> Generator[Configuration, None, None]:
     yield Configuration(realization_config)
 
 @pytest.fixture
-def meta(conf, tmpdir_factory) -> Generator[CalibrationCatchment, None, None]:
+def meta(conf, tmpdir_factory) -> Generator[CalibrationMeta, None, None]:
     """
         build up a meta object to test
     """
@@ -45,7 +45,7 @@ def catchment() -> Generator[CalibrationCatchment, None, None]:
         A hy_features catchment implementing the calibratable interface
     """
     id = 'test-catchment'
-    data = deepcopy(config)['catchments'][id]
+    data = deepcopy(config)['catchments'][id] # type: ignore
     catchment = CalibrationCatchment(id, data)
     now = pd.Timestamp.now().round('H')
     ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))

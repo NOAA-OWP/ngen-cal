@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from pandas import Series, read_parquet
+from pandas import Series, read_parquet # type: ignore
 from typing import Optional, TYPE_CHECKING
+from pathlib import Path
 
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
@@ -63,7 +64,6 @@ class Calibratable(ABC):
         """
             Filename checkpoint files are saved to
         """
-        from pathlib import Path
         return Path('{}_calibration_df_state.parquet'.format(self.id))
 
     def check_point(self, path: 'Path') -> None:
@@ -77,3 +77,29 @@ class Calibratable(ABC):
             Load saved calibration information
         """
         self._df = read_parquet(path/self.check_point_file)
+
+    @property
+    @abstractmethod
+    def output(self) -> 'DataFrame':
+        """
+            The output data for the calibrated object
+            Calibration re-reads the output each call, as the output for given calibration is expected to change
+            for each calibration iteration.  If the output doesn't exist, should raise RuntimeError
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def observed(self) -> 'DataFrame':
+        """
+            The observed data for this calibratable.
+            This should be rather static, and can be set at initialization then accessed via the property
+        """
+        pass
+
+    @abstractmethod
+    def save_output(self, i: int) -> None:
+        """
+            Save the last output of the runtime for iteration i
+        """
+        pass

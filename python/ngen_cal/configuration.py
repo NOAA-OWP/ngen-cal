@@ -1,7 +1,7 @@
 import json
 import shutil
 from pathlib import Path
-from typing import Iterable, TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -44,7 +44,7 @@ class Configuration:
         return self._config_file_path
 
     @property
-    def catchments(self) -> Iterable['Catchment']:
+    def catchments(self) -> Sequence['CalibrationCatchment']:
         """
             A list of Catchments for calibration holding information about the
             parameters/calibration data for that catchment

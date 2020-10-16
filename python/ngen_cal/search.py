@@ -1,7 +1,7 @@
 import subprocess
-import pandas as pd
+import pandas as pd # type: ignore
 from math import log
-import numpy as np
+import numpy as np # type: ignore
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

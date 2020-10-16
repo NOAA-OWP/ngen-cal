@@ -1,4 +1,4 @@
-from pandas import DataFrame
+from pandas import DataFrame # type: ignore
 import shutil
 from typing import TYPE_CHECKING
 
@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
 
-from hypy.catchment import Catchment
+from hypy.catchment import Catchment # type: ignore
 from .calibratable import Calibratable
 
 
@@ -35,6 +35,18 @@ class CalibrationCatchment(Catchment, Calibratable):
 
         """
         return self._df
+
+    def check_point(self, path: 'Path') -> None:
+        """
+
+        """
+        super().check_point(path)
+
+    def load_df(self, path: 'Path') -> None:
+        """
+
+        """
+        super().load_df(path)
 
     def update(self, iteration: int) -> None:
         """

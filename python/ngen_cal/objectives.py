@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pandas as pd
+import pandas as pd # type: ignore
 
 weights = [0.4, 0.2, 0.4]
 

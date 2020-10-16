@@ -1,10 +1,11 @@
 import json
-import pandas as pd
+import pandas as pd # type: ignore
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from pandas import DataFrame
 
 
 class CalibrationMeta:
@@ -95,7 +96,7 @@ class CalibrationMeta:
         """
         return self._workdir/self._log_file
 
-    def update(self, i: int, score: int, log: bool):
+    def update(self, i: int, score: float, log: bool):
         """
             Update the meta state for iteration `i` having score `score`
             logs parameter and objective information if log=True
