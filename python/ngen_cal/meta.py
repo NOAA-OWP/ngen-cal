@@ -101,7 +101,7 @@ class CalibrationMeta:
             logs parameter and objective information if log=True
         """
         if score <= self.best_score:
-            self._best_params_iteration = i
+            self._best_param_iteration = str(i)
             self._best_score = score
 
         if log:
@@ -143,7 +143,7 @@ class CalibrationMeta:
             start_iteration = last_iteration + 1
 
             for catchment in self._config.catchments:
-                catchment.load_df()
+                catchment.load_df(self._workdir)
             #TODO verify that loaded calibration info aligns with iteration?  Anther reason to consider making this meta
             #per catchment???
 
