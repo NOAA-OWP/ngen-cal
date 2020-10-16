@@ -104,7 +104,7 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
         """
         #Update the meta info and prepare for next iteration
         #Pass the parameter and interation columns of the object we are calibrating to the update function
-        meta.update_config(i, calibration_object.df[[str(i), 'param']])
+        meta.update_config(i, calibration_object.df[[str(i), 'param']], calibration_object.id)
         #Run cmd Again...
         print("Running {} for iteration {}".format(meta.cmd, i))
         _execute(meta)
