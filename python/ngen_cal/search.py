@@ -23,7 +23,7 @@ def _execute(meta: 'CalibrationMeta'):
     """
         Execute a model run defined by the calibration meta cmd
     """
-    with open(meta.log_file, 'a') as log_file:
+    with open(meta.log_file, 'a+') as log_file:
         subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
 
 def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
