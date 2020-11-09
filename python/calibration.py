@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 from pathlib import Path
-from .configuration import Configuration
-from .meta import CalibrationMeta
-from .search import dds
+from ngen_cal.configuration import Configuration
+from ngen_cal.meta import CalibrationMeta
+from ngen_cal.search import dds
 
-def main(config_file, restart):
+def main(config_file, catchment_data, nexus_data, crosswalk, restart):
     """
         We need to 'read' the configuration of the model we want to calibrate
     """
-
-    config = Configuration(config_file, '')
+    workdir = Path.cwd()
+    config = Configuration(config_file, catchment_data, nexus_data, crosswalk, workdir)
 
     """
         It might make the most sense to link static/parameter info independently from model runtime such as start/end times
@@ -25,13 +25,13 @@ def main(config_file, restart):
     """
 
     #TODO move most of this to utils module
-    ngen_bin = "echo ngen"
-    ngen_args = "{FIXME}"
-    workdir= Path(__file__).resolve().parent
-    meta = CalibrationMeta(config, workdir, ngen_bin, ngen_args, "test_calibration")
+    ngen_bin = "ngen"
+    ngen_args = '{} "" {} "" {}'.format(catchment_data, nexus_data, config_file)
 
+    meta = CalibrationMeta(config, workdir, ngen_bin, ngen_args, "ngen-calibration")
+    meta.log_file = None
     start_iteration = 0
-    iterations = 2
+    iterations = 100
     #run NGEN here on initial parameters if needed
     if restart:
         start_iteration = meta.restart()
@@ -55,8 +55,14 @@ if __name__ == "__main__":
         description='Calibrate catchments in NGEN NWM architecture.')
     parser.add_argument('-c', '--config-file', required=True, type=str,
                         help='The configuration json file for catchments to be operated on')
+    parser.add_argument('-d', '--catchment-data', required=True, type=str,
+                        help='The catchment hydrofabric data file')
+    parser.add_argument('-n', '--nexus-data', required=True, type=str,
+                        help='The nexus hydrofabric datafile')
+    parser.add_argument('-x', '--crosswalk', required=True, type=str,
+                        help='The crossswalk data file linking nexus identities')
     parser.add_argument('-r', '--restart', action='store_true',
                         help='Attempt to restart from a previous calibration')
     args = parser.parse_args()
 
-    main(args.config_file, args.restart)
+    main(args.config_file, args.catchment_data, args.nexus_data, args.crosswalk, args.restart)
