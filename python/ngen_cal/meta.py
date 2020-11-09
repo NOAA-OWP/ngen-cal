@@ -21,7 +21,7 @@ class CalibrationMeta:
         """
         self._config = config #This is the Configuration object that knows how to operate on model configuration files
         self._workdir = workdir
-        self._best_score = -1
+        self._best_score = float('inf')
         self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = bin
         self._args = args
