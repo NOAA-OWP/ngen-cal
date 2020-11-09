@@ -16,7 +16,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, id: str, params: dict = {}):
+    def __init__(self,  workdir: 'Path', id: str, nexus, start_time: str, end_time: str, params: dict = {}):
         """
 
         """
@@ -24,9 +24,9 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
-        self._output_file = 'test_file.out'
 
         self._observed = None
+        self._output_file = workdir/'{}_output.csv'.format(self.id)
         self._output = None
         #TODO find nwis info from nexus hydro_location information
 
@@ -63,17 +63,16 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
             This re-reads the output file each call, as the output for given calibration catchment changes
             for each calibration iteration.  If it doesn't exist, should return None
         """
-        #FIXME read the correct ngen output structure nex-X_output.csv
-        #simulated_hydrograph_file = workdir+"{}_output.csv".format(self.id)
-        #hydrograph = pd.read_csv(simulated_hydrograph_file, header=None, usecols=[0,1], names=['time', 'flow'])
-        #hydrograph['time'] /= 86400 #partial day
-        #hydrograph['time'] += hydrograph_reference_date #Julian date from reference
-        #hydrograph['time'] = pd.to_datetime(simulated_hydrograph['time'], utc=True, unit='D', origin='julian').dt.round('1s')
-        #hydrograph.drop_duplicates('time', keep='last', inplace=True)
-        #hydrograph.set_index('time', inplace=True)
-        hydrograph = self._output
-        if hydrograph is None:
-            raise(RuntimeError("Error reading output: {}".format(self._output_file)))
+        try:
+            self._output = read_csv(self._output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
+            self._output.rename(columns={'Flow':'sim_flow'}, inplace=True)
+            hydrograph = self._output
+        except FileNotFoundError:
+            hydrograph = None
+        except Exception as e:
+            raise(e)
+        #if hydrograph is None:
+        #    raise(RuntimeError("Error reading output: {}".format(self._output_file)))
         return hydrograph
 
     @output.setter
@@ -107,5 +106,4 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         """
         #FIXME ensure _output_file exists
         #FIXME re-enable this once more complete
-        #shutil.move(self._output_file, '{}_{}'.format(self._output_file, i))
-        pass
+        shutil.move(self._output_file, '{}_last'.format(self._output_file))
