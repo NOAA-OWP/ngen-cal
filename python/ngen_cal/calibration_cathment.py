@@ -24,11 +24,13 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
-
-        self._observed = None
         self._output_file = workdir/'{}_output.csv'.format(self.id)
+        #use the nwis location to get observation data
+        obs = self.outflow._hydro_location.get_data(start_time, end_time)
+        #make sure data is hourly
+        self._observed = obs.set_index('value_date')['value'].resample('1H').nearest()
+        self._observed.rename('obs_flow', inplace=True)
         self._output = None
-        #TODO find nwis info from nexus hydro_location information
 
     @property
     def df(self) -> 'DataFrame':
@@ -82,15 +84,8 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
     @property
     def observed(self) -> 'DataFrame':
         """
-            The observed hydrograph for this catchment FIXME set up in __init__ move output/observed to calibratable
-
-            This should be rather static, and can be set at initialization then accessed via the property
-            TODO pull in simultion start/stop time so we know how much data to pull
+            The observed hydrograph for this catchment FIXME move output/observed to calibratable?
         """
-        #FIXME hook to NWIS
-        #observed_file = os.path.join(config.workdir, 'usgs_{}_observed.csv'.format(usgs))
-        #observed_df = pd.read_csv(observed_file, parse_dates=['Date_Time']).set_index('Date_Time')
-        #observed_df = observed_df.tz_localize('UTC')
         hydrograph = self._observed
         if hydrograph is None:
             raise(RuntimeError("Error reading observation for {}".format(self._id)))
