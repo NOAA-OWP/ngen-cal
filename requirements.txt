@@ -3,6 +3,7 @@ pyarrow
 pandas~=1.1.2
 geopandas
 flake8
+matplotlib
 git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
 git+ssh://git@github.com/noaa-owp/evaluation_tools@master#egg=evaluation-tools-nwis_client&subdirectory=python/nwis_client
 git+ssh://git@github.com/noaa-owp/evaluation_tools@master#egg=evaluation-tools-_restclientt&subdirectory=python/_restclient
