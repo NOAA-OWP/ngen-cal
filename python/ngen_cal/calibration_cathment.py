@@ -1,4 +1,4 @@
-from pandas import DataFrame # type: ignore
+from pandas import DataFrame, read_csv # type: ignore
 import shutil
 from typing import TYPE_CHECKING
 
@@ -6,11 +6,12 @@ if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
 
-from hypy.catchment import Catchment # type: ignore
+from hypy.catchment import FormulatableCatchment # type: ignore
+
 from .calibratable import Calibratable
 
 
-class CalibrationCatchment(Catchment, Calibratable):
+class CalibrationCatchment(FormulatableCatchment, Calibratable):
     """
         A HY_Features based catchment with additional calibration information/functionality
     """
@@ -20,7 +21,7 @@ class CalibrationCatchment(Catchment, Calibratable):
 
         """
         calibration_params = params.pop('calibration')
-        Catchment.__init__(self=self, catchment_id=id, params=params)
+        FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
         self._output_file = 'test_file.out'
