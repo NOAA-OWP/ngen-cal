@@ -2,16 +2,19 @@ import logging
 #supress geopandas debug logs
 logging.disable(logging.DEBUG)
 import json
+json.encoder.FLOAT_REPR = str #lambda x: format(x, '%.09f')
 import geopandas as gpd
 import pandas as pd
 import shutil
 from pathlib import Path
 from typing import Sequence, TYPE_CHECKING
+from hypy.hydrolocation import NWISLocation # type: ignore
+from hypy.nexus import Nexus # type: ignore
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-from .calibration_cathment import Catchment, CalibrationCatchment
+from .calibration_cathment import CalibrationCatchment
 
 import logging
 logging.basicConfig(
@@ -66,6 +69,11 @@ class Configuration:
                     nexus_data = nexus_hydro_fabric.loc[fabric['toID']]
                 except KeyError:
                     raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+
+                #establish the hydro location for the observation nexus associated with this catchment
+                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
+                nexus = Nexus(nexus_data.name, location, id)
+                self._catchments.append(CalibrationCatchment(workdir, id, nexus, start_t, end_t, catchment))
 
     @property
     def config_file(self) -> Path:
