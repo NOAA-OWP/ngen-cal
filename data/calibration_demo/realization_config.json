@@ -1,0 +1,133 @@
+{
+    "global": {
+        "formulations": [
+            {
+                "name": "tshirt_c",
+                "params": {
+                    "maxsmc": 0.439,
+                    "wltsmc": 0.066,
+                    "satdk": 3.38e-06,
+                    "satpsi": 0.355,
+                    "slope": 1.0,
+                    "scaled_distribution_fn_shape_parameter": 4.05,
+                    "multiplier": 0.0,
+                    "alpha_fc": 0.33,
+                    "Klf": 0.01,
+                    "Kn": 0.03,
+                    "nash_n": 2,
+                    "Cgw": 0.01,
+                    "expon": 6.0,
+                    "max_groundwater_storage_meters": 1.0,
+                    "nash_storage": [
+                        0.0,
+                        0.0
+                    ],
+                    "soil_storage_percentage": 0.33,
+                    "groundwater_storage_percentage": 0.1,
+                    "timestep": 3600
+                }
+            }
+        ],
+        "giuh": {
+            "giuh_path": "./test/data/giuh/GIUH.json",
+            "crosswalk_path": "./data/crosswalk.json"
+        },
+        "forcing": {
+            "file_pattern": ".*{{ID}}.*.csv",
+            "path": "./data/forcing/",
+            "start_time": "2015-12-01 00:00:00",
+            "end_time": "2015-12-30 23:00:00"
+        }
+    },
+    "time": {
+        "start_time": "2015-12-01 00:00:00",
+        "end_time": "2015-12-30 23:00:00",
+        "output_interval": 3600
+    },
+    "catchments": {
+        "cat-87": {
+            "formulations": [
+                {
+                    "name": "tshirt_c",
+                    "params": {
+                      "maxsmc": 0.439,
+                      "wltsmc": 0.066,
+                      "satdk": 3.38e-06,
+                      "satpsi": 0.355,
+                      "slope": 1.0,
+                      "scaled_distribution_fn_shape_parameter": 4.05,
+                      "multiplier": 0.0,
+                      "alpha_fc": 0.33,
+                      "Klf": 0.01,
+                      "Kn": 0.03,
+                      "nash_n": 2,
+                      "Cgw": 0.01,
+                      "expon": 6.0,
+                      "max_groundwater_storage_meters": 1.0,
+                      "nash_storage": [
+                          0.0,
+                          0.0
+                      ],
+                      "soil_storage_percentage": 0.33,
+                      "groundwater_storage_percentage": 0.1,
+                      "timestep": 3600,
+                        "giuh": {
+                            "giuh_path": "./giuh/GIUH.json",
+                            "crosswalk_path": "./crosswalk.json",
+                            "cdf_ordinates":[ 0.1, 0.35, 0.2, 0.14, 0.1, 0.06, 0.05]
+                        }
+                    }
+                }
+            ],
+            "forcing": {
+                "path": "../../python/ngen_cal/test/data/cat-87_2015-12-01 00_00_00_2015-12-30 23_00_00.csv",
+                "start_time": "2015-12-01 00:00:00",
+                "end_time": "2015-12-30 23:00:00"
+            },
+            "calibration": [
+                {
+                    "param": "maxsmc",
+                    "min": 0.2,
+                    "max": 1.0,
+                    "init": 0.439
+                },
+                {
+                    "param": "satdk",
+                    "min": 0.0,
+                    "max": 0.000726,
+                    "init": 3.38e-06
+                },
+                {
+                    "param": "refkdt",
+                    "min": 0.1,
+                    "max": 4.0,
+                    "init": 3.0
+                },
+                {
+                    "param": "slope",
+                    "min": 0.0,
+                    "max": 1.0,
+                    "init": 0.01
+                },
+                {
+                    "param": "bb",
+                    "min": 0.0,
+                    "max": 21.9,
+                    "init": 4.05
+                },
+                {
+                    "param": "multiplier",
+                    "min": 10.7,
+                    "max": 9997.3,
+                    "init": 100.0
+                },
+                {
+                    "param": "expon",
+                    "min": 1.0,
+                    "max": 8.0,
+                    "init": 6.0
+                }
+            ]
+        }
+    }
+}
