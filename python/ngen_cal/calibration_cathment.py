@@ -30,6 +30,8 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         #make sure data is hourly
         self._observed = obs.set_index('value_date')['value'].resample('1H').nearest()
         self._observed.rename('obs_flow', inplace=True)
+        #observations in ft^3/s convert to m^3/s
+        self._observed = self._observed * 0.028316847
         self._output = None
 
     @property
