@@ -8,8 +8,13 @@ import pandas as pd # type: ignore
 from ..configuration import Configuration
 from ..meta import CalibrationMeta
 from ..calibration_cathment import CalibrationCatchment
+from hypy import Nexus, HydroLocation
 
 from .utils import config
+
+@pytest.fixture(scope="session")
+def workdir(tmpdir_factory):
+    return tmpdir_factory.mktemp("workdir")
 
 @pytest.fixture(scope="session")
 def realization_config(tmpdir_factory) -> str:
@@ -22,33 +27,85 @@ def realization_config(tmpdir_factory) -> str:
     return fn
 
 @pytest.fixture
-def conf(realization_config) -> Generator[Configuration, None, None]:
+def conf(realization_config, workdir) -> Generator[Configuration, None, None]:
     """
         Staging of a generator to test
     """
-    yield Configuration(realization_config)
+    catchment_data = Path(__file__).parent/"data/catchment_data.geojson"
+    nexus_data = Path(__file__).parent/"data/nexus_data.geojson"
+    x_walk = Path(__file__).parent/"data/crosswalk.json"
+    yield Configuration(realization_config, catchment_data, nexus_data, x_walk, workdir)
 
 @pytest.fixture
-def meta(conf, tmpdir_factory) -> Generator[CalibrationMeta, None, None]:
+def meta(conf, workdir) -> Generator[CalibrationMeta, None, None]:
     """
         build up a meta object to test
     """
     bin = "echo"
     args = "ngen args"
-    workdir = tmpdir_factory.mktemp("workdir")
+    #workdir = tmpdir_factory.mktemp("workdir")
     m = CalibrationMeta(conf, workdir, bin, args, "test_0")
     yield m
 
+class MockLocation:
+    def __init__(self):
+        now = pd.Timestamp.now().round('H')
+        self.ts = pd.DataFrame({'value':[1,2,3,4,5], "value_date":pd.date_range(now, periods=5, freq='H')})
+
+    def get_data(self, *args, **kwargs):
+        return self.ts
+
 @pytest.fixture
-def catchment() -> Generator[CalibrationCatchment, None, None]:
+def nexus():
+    """
+        Mock nexus for building catchments
+    """
+    id = "test_nexus"
+    nexus = Nexus(id, MockLocation())
+
+    return nexus
+
+@pytest.fixture
+def catchment(nexus, workdir, mocker) -> Generator[CalibrationCatchment, None, None]:
     """
         A hy_features catchment implementing the calibratable interface
     """
+    output = nexus._hydro_location.get_data().rename(columns={'value':'sim_flow'})
+    output.set_index('value_date', inplace=True)
+    #Override the output property so it doesn't try to reload output each time
+    mocker.patch(__name__+'.CalibrationCatchment.output',
+                new_callable=mocker.PropertyMock,
+                return_value = output
+                )
+    #Disable output saving for testing purpose
+    mocker.patch(__name__+'.CalibrationCatchment.save_output',
+                return_value=None)
+
     id = 'test-catchment'
     data = deepcopy(config)['catchments'][id] # type: ignore
-    catchment = CalibrationCatchment(id, data)
-    now = pd.Timestamp.now().round('H')
-    ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
-    catchment.output = ts
-    catchment.observed = ts.rename(columns={"obs_flow":"sim_flow"})
+    #now = pd.Timestamp.now().round('H')
+    #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
+    start = output.index[0]
+    end = output.index[-1]
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, data)
+
+    return catchment
+
+@pytest.fixture
+def catchment2(nexus, workdir) -> Generator[CalibrationCatchment, None, None]:
+    """
+        A hy_features catchment implementing the calibratable interface
+        Doesn't mock output, can be used to test semantics of erronous output
+    """
+    ts = nexus._hydro_location.get_data().rename(columns={'value':'obs_flow'})
+    ts.set_index('value_date', inplace=True)
+
+    id = 'test-catchment'
+    data = deepcopy(config)['catchments'][id] # type: ignore
+    #now = pd.Timestamp.now().round('H')
+    #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
+    start = ts.index[0]
+    end = ts.index[-1]
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, data)
+
     return catchment
