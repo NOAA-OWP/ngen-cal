@@ -100,6 +100,7 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     obs = nexus._hydro_location.get_data("2015-12-01 00:00:00", "2015-12-30 23:00:00")
     #make sure data is hourly
     obs = obs.set_index('value_date')['value'].resample('1H').nearest()
+    obs = obs * 0.028316847 #convert to m^3/s
     obs.rename('obs_flow', inplace=True)
     plt.figure()
     obs.plot(title='Observation at USGS {}'.format(nwis))
