@@ -88,7 +88,8 @@ def catchment(nexus, workdir, mocker) -> Generator[CalibrationCatchment, None, N
     start = output.index[0]
     end = output.index[-1]
     catchment = CalibrationCatchment(workdir, id, nexus, start, end, data)
-
+    #Reset observed here since it does unit conversion from cfs -> cms
+    catchment.observed = output.rename(columns={'sim_flow':'obs_flow'})
     return catchment
 
 @pytest.fixture
