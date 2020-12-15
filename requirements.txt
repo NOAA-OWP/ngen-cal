@@ -1,9 +1,9 @@
 pytest
+pytest-mock
 pyarrow
 pandas~=1.1.2
 geopandas
 flake8
 matplotlib
 git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
-git+git://github.com/noaa-owp/evaluation_tools@main#egg=evaluation-tools-nwis_client&subdirectory=python/nwis_client
-git+git://github.com/noaa-owp/evaluation_tools@main#egg=evaluation-tools-_restclientt&subdirectory=python/_restclient
+git+git://github.com/noaa-owp/evaluation_tools#egg=evaluation-tools-nwis_client&subdirectory=python/nwis_client
