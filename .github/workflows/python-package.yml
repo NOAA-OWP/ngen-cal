@@ -20,10 +20,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: webfactory/ssh-agent@v0.4.1
-      with:
-        ssh-private-key: ${{ secrets.EVALUATION_TOOLS_SSH_KEY }}
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
