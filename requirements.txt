@@ -6,4 +6,4 @@ geopandas
 flake8
 matplotlib
 git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
-git+git://github.com/noaa-owp/evaluation_tools#egg=evaluation-tools-nwis_client&subdirectory=python/nwis_client
+hydrotools.nwis-client
