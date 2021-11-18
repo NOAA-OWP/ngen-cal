@@ -73,7 +73,7 @@ class Configuration:
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
                 nexus = Nexus(nexus_data.name, location, id)
-                self._catchments.append(CalibrationCatchment(workdir, id, nexus, start_t, end_t, catchment))
+                self._catchments.append(CalibrationCatchment(workdir, id, nexus, start_t, end_t, fabric, catchment))
 
     @property
     def config_file(self) -> Path:

@@ -16,7 +16,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self,  workdir: 'Path', id: str, nexus, start_time: str, end_time: str, params: dict = {}):
+    def __init__(self,  workdir: 'Path', id: str, nexus, start_time: str, end_time: str, fabric: "GeoSeries", params: dict = {}):
         """
 
         """
@@ -33,6 +33,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         #observations in ft^3/s convert to m^3/s
         self._observed = self._observed * 0.028316847
         self._output = None
+        self._fabric = fabric
 
     @property
     def df(self) -> 'DataFrame':
@@ -68,8 +69,9 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
             for each calibration iteration.  If it doesn't exist, should return None
         """
         try:
-            self._output = read_csv(self._output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
-            self._output.rename(columns={'Flow':'sim_flow'}, inplace=True)
+            #FIXME make sure units are correct here...
+            #Assumes model catchment outputs are in m/hr, convert to m^3/s
+            self._output = self._output * self._fabric['areasqkm']*1000000/3600
             hydrograph = self._output
         except FileNotFoundError:
             hydrograph = None

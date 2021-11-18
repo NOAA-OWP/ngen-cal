@@ -4,7 +4,7 @@ from pathlib import Path
 from copy import deepcopy
 import json
 import pandas as pd # type: ignore
-
+import geopandas as gpd # type: ignore
 from ..configuration import Configuration
 from ..meta import CalibrationMeta
 from ..calibration_cathment import CalibrationCatchment
@@ -47,6 +47,15 @@ def meta(conf, workdir) -> Generator[CalibrationMeta, None, None]:
     m = CalibrationMeta(conf, workdir, bin, args, "test_0")
     yield m
 
+@pytest.fixture
+def fabric():
+    """
+        Mock geoseries for defining catchment gemomentry/attributes
+    """
+    catchment_data = Path(__file__).parent/"data/catchment_data.geojson"
+    df = gpd.read_file(catchment_data)
+    return df.loc[0]
+
 class MockLocation:
     def __init__(self):
         now = pd.Timestamp.now().round('H')
@@ -66,7 +75,7 @@ def nexus():
     return nexus
 
 @pytest.fixture
-def catchment(nexus, workdir, mocker) -> Generator[CalibrationCatchment, None, None]:
+def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment, None, None]:
     """
         A hy_features catchment implementing the calibratable interface
     """
@@ -87,13 +96,13 @@ def catchment(nexus, workdir, mocker) -> Generator[CalibrationCatchment, None, N
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = output.index[0]
     end = output.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, data)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, data)
     #Reset observed here since it does unit conversion from cfs -> cms
     catchment.observed = output.rename(columns={'sim_flow':'obs_flow'})
     return catchment
 
 @pytest.fixture
-def catchment2(nexus, workdir) -> Generator[CalibrationCatchment, None, None]:
+def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, None]:
     """
         A hy_features catchment implementing the calibratable interface
         Doesn't mock output, can be used to test semantics of erronous output
@@ -107,6 +116,6 @@ def catchment2(nexus, workdir) -> Generator[CalibrationCatchment, None, None]:
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = ts.index[0]
     end = ts.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, data)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, data)
 
     return catchment
