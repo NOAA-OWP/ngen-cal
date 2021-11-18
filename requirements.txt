@@ -1,3 +1,4 @@
+pathlib
 pytest
 pytest-mock
 pyarrow
@@ -5,5 +6,5 @@ pandas~=1.1.2
 geopandas
 flake8
 matplotlib
-git+git://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
-hydrotools.nwis-client
+git+https://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python
+hydrotools.nwis_client
