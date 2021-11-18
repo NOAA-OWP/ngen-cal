@@ -24,7 +24,10 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize
-        self._output_file = workdir/'{}_output.csv'.format(self.id)
+        self._output_file = workdir/'{}.csv'.format(self.id)
+        #For BMI modules, look up name from realization config
+        #If no `main_output_variable`, default to Q_OUT
+        self._output_var = params['formulations'][0]['params'].get('main_output_variable', 'Q_OUT')
         #use the nwis location to get observation data
         obs = self.outflow._hydro_location.get_data(start_time, end_time)
         #make sure data is hourly
@@ -69,6 +72,9 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
             for each calibration iteration.  If it doesn't exist, should return None
         """
         try:
+            #FIXME get the output variable from config
+            self._output = read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time')
+            self._output.rename(columns={self._output_var:'sim_flow'}, inplace=True)
             #FIXME make sure units are correct here...
             #Assumes model catchment outputs are in m/hr, convert to m^3/s
             self._output = self._output * self._fabric['areasqkm']*1000000/3600
