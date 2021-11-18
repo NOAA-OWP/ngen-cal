@@ -73,7 +73,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         """
         try:
             #FIXME get the output variable from config
-            self._output = read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time')
+            self._output = read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time', dtype={self._output_var: 'float64'})
             self._output.rename(columns={self._output_var:'sim_flow'}, inplace=True)
             #FIXME make sure units are correct here...
             #Assumes model catchment outputs are in m/hr, convert to m^3/s
