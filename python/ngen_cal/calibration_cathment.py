@@ -20,7 +20,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         """
 
         """
-        calibration_params = params.pop('calibration')
+        calibration_params = params['calibration'].pop('params')
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
         #FIXME paramterize

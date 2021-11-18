@@ -21,7 +21,7 @@ def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None
     meta.update_config(i, params, id)
     with open(realization_config) as fp:
         data = json.load(fp)
-    assert data['catchments'][id]['formulations'][0]['params']['some_param'] == 4.2
+    assert data['catchments'][id]['formulations'][0]['params']['model_params']['some_param'] == 4.2
 
 @pytest.mark.usefixtures("meta")
 def test_update(meta: 'CalibrationMeta') -> None:

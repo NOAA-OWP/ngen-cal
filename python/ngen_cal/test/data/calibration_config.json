@@ -1,6 +1,6 @@
 {
     "global": {
-        "calibration": [
+        "calibration": { "params": [
             {"param":"maxsmc", "min": 0.2, "max":1.0, "init": 0.439},
             {"param":"satdk", "min":0.0, "max":0.000726, "init":0.00000338},
             {"param":"refkdt", "min":0.1, "max":4.0, "init":3.0},
@@ -8,11 +8,11 @@
             {"param":"bb", "min":0.0, "max":21.9, "init":4.05},
             {"param":"multiplier", "min":10.7, "max":9997.3, "init":100.0},
             {"param":"expon", "min":1.0, "max":8.0, "init":6.0}
-        ]
+        ]}
     },
     "catchments": {
         "cat-87": {
-                "calibration": [
+                "calibration": {"params": [
                     {"param":"maxsmc", "min": 0.2, "max":1.0, "init": 0.439},
                     {"param":"satdk", "min":0.0, "max":0.000726, "init":0.00000338},
                     {"param":"refkdt", "min":0.1, "max":4.0, "init":3.0},
@@ -20,17 +20,17 @@
                     {"param":"bb", "min":0.0, "max":21.9, "init":4.05},
                     {"param":"multiplier", "min":10.7, "max":9997.3, "init":100.0},
                     {"param":"expon", "min":1.0, "max":8.0, "init":6.0}
-                ]
+                ]}
         },
         "cat-88": {
-            "calibration": [
+            "calibration": {"params": [
                 {"param":"b", "min": 0.1, "max":100, "init": 10},
                 {"param":"Ks", "min":0.0, "max":1.0, "init":0.1},
                 {"param":"Kq", "min":0.001, "max":1, "init":0.01}
-            ]
+            ]}
         },
         "cat-89": {
-                "calibration": [
+                "calibration": {"params": [
                     {"param":"maxsmc", "min": 0.2, "max":1.0, "init": 0.439},
                     {"param":"satdk", "min":0.0, "max":0.000726, "init":0.00000338},
                     {"param":"refkdt", "min":0.1, "max":4.0, "init":3.0},
@@ -38,14 +38,14 @@
                     {"param":"bb", "min":0.0, "max":21.9, "init":4.05},
                     {"param":"multiplier", "min":10.7, "max":9997.3, "init":100.0},
                     {"param":"expon", "min":1.0, "max":8.0, "init":6.0}
-                ]
+                ]}
         },
         "cat-92": {
-            "calibration": [
+            "calibration": {"params": [
                 {"param":"b", "min": 0.1, "max":100, "init": 10},
                 {"param":"Ks", "min":0.0, "max":1.0, "init":0.1},
                 {"param":"Kq", "min":0.001, "max":1, "init":0.01}
-            ]
+            ]}
         }
     }
 }

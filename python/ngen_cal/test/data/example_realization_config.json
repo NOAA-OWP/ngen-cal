@@ -74,14 +74,13 @@
                 "start_time": "2015-12-01 00:00:00",
                 "end_time": "2015-12-30 23:00:00"
             },
-            "calibration": [
-                {
-                    "param": "maxsmc",
+            "calibration": { "params": [
+                    {"param": "maxsmc",
                     "min": 0.2,
                     "max": 1.0,
-                    "init": 0.439
-                }
-            ]
+                    "init": 0.439}
+                ]
+            }
         },
         "cat-88": {
             "simple_lumped": {

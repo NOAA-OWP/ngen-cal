@@ -84,7 +84,7 @@ config = {
                 "start_time": "2015-12-01 00:00:00",
                 "end_time": "2015-12-30 23:00:00"
             },
-            "calibration": [
+            "calibration": {"params": [
                 {
                     "param": "some_param",
                     "min": 0.0,
@@ -97,7 +97,7 @@ config = {
                     "max": 1.0,
                     "init": 0.439
                 }
-            ]
+            ]}
         }
     }
 }

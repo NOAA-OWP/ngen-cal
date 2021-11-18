@@ -44,6 +44,9 @@ class CalibrationMeta:
             params: pandas.DataFrame
                 DataFrame containing the parameter name in `param` and value in `i` columns
         """
+        #FIXME this function needs some consideration for
+        # 1) multiple formulations
+        # 2) different parameter placement/encapsulation for BMI and non BMI models
 
         # update the config file using the best estimate for parameters in the last calibration step
         #config object makes a backup of the original, so we just overwrite the existing one to prepare for the next step
@@ -52,12 +55,17 @@ class CalibrationMeta:
             data = json.load(fp)
             #params, i.e. {"maxsmc": 0.439, "satdk":0.00000338, "refkdt":3.0, "slope":0.01, "bb":4.05, "multiplier":100.0, "expon":6.0}
             # update calibration parameters in data in json format
-            for param, value in params.set_index('param')[str(i)].iteritems():
-                #TODO/FIXME consider conveying which formulaiton in a meaningful way
-                #For now, update all formulations which contain param
-                for f in data['catchments'][id]['formulations']:
-                    if param in f['params'].keys():
-                        f['params'][param] = value
+            #TODO/FIXME consider conveying which formulaiton in a meaningful way
+            #For now, update all formulations which contain param
+            for f in data['catchments'][id]['formulations']:
+                #NJF FIXME determine if BMI???
+                f['params']['model_params'] = {}
+                for param, value in params.set_index('param')[str(i)].iteritems():
+                    #if param in f['params'].keys(): #This was being used to ensure a param only updated in a formulation that needed it...
+                    #Add the param, even if it didn't appear in the original formulation, now it should
+                    #NJF FIXME determine if BMI???
+                    #f['params'][param] = value
+                    f['params']['model_params'][param] = value
 
         # write to a json file
         with open(self._config.config_file, 'w') as fp:
