@@ -110,7 +110,7 @@ def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, 
     ts = nexus._hydro_location.get_data().rename(columns={'value':'obs_flow'})
     ts.set_index('value_date', inplace=True)
 
-    id = 'test-catchment'
+    id = 'tst-1'
     data = deepcopy(config)['catchments'][id] # type: ignore
     #now = pd.Timestamp.now().round('H')
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))

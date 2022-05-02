@@ -17,7 +17,7 @@ def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None
     """
     i = 0
     params = pd.DataFrame({"0":4.2, "param":"some_param"}, index=[0])
-    id = 'test-catchment'
+    id = 'tst-1'
     meta.update_config(i, params, id)
     with open(realization_config) as fp:
         data = json.load(fp)

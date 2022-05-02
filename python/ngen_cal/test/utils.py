@@ -45,7 +45,7 @@ config = {
         "output_interval": 3600
     },
     "catchments": {
-        "test-catchment": {
+        "tst-1": {
             "formulations": [
                 {
                     "name": "tshirt",
