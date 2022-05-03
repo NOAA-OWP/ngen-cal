@@ -35,7 +35,7 @@ def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta
     """
 
     #read output and calculate objective_func
-    score =  _objective_func(calibration_object.output, calibration_object.observed)
+    score =  _objective_func(calibration_object.output, calibration_object.observed, meta.evaluation_range)
     #save the calibration state, just in case
     calibration_object.save_output(i)
     #update meta info based on latest score and write some log files
