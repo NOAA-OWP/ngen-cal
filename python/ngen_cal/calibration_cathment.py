@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
+    from geopandas import GeoSeries
 
 from hypy.catchment import FormulatableCatchment # type: ignore
 
