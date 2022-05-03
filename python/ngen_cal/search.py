@@ -24,10 +24,10 @@ def _execute(meta: 'CalibrationMeta'):
         Execute a model run defined by the calibration meta cmd
     """
     if meta.log_file is None:
-        subprocess.check_call(meta.cmd, stdout=subprocess.DEVNULL, shell=True)
+        subprocess.check_call(meta.cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, cwd=meta.workdir)
     else:
         with open(meta.log_file, 'a+') as log_file:
-            subprocess.check_call(meta.cmd, stdout=log_file, shell=True)
+            subprocess.check_call(meta.cmd, stdout=log_file, stderr=log_file, shell=True, cwd=meta.workdir)
 
 def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
     """
