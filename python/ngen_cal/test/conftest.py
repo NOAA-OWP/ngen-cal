@@ -5,12 +5,13 @@ from copy import deepcopy
 import json
 import pandas as pd # type: ignore
 import geopandas as gpd # type: ignore
-from ..configuration import Configuration
+from ..configuration import General
+from ..ngen import Ngen
 from ..meta import CalibrationMeta
 from ..calibration_cathment import CalibrationCatchment
 from hypy import Nexus, HydroLocation
 
-from .utils import config
+from .utils import *
 
 @pytest.fixture(scope="session")
 def workdir(tmpdir_factory):
@@ -26,25 +27,82 @@ def realization_config(tmpdir_factory) -> str:
         json.dump(config, fp)
     return fn
 
-@pytest.fixture
-def conf(realization_config, workdir) -> Generator[Configuration, None, None]:
+@pytest.fixture(scope="session")
+def general_config(workdir) -> General:
+    """A general configuration using default values where possible
+
+    Returns:
+        General: _description_
+
+    Yields:
+        Iterator[General]: _description_
     """
-        Staging of a generator to test
+    #override the workdir, must do this to properly clean up
+    #test states, even though this technically overrides the default
+    general_w_defaults.update({"workdir": workdir})
+    general = General(**general_w_defaults)
+    return general
+
+@pytest.fixture(scope="session")
+def general_config_custom(workdir) -> General:
+    """A general configuration using custom values for all possible defaults
+
+    Returns:
+        General: _description_
+
+    Yields:
+        Iterator[General]: _description_
     """
-    catchment_data = Path(__file__).parent/"data/catchment_data.geojson"
-    nexus_data = Path(__file__).parent/"data/nexus_data.geojson"
-    x_walk = Path(__file__).parent/"data/crosswalk.json"
-    yield Configuration(realization_config, catchment_data, nexus_data, x_walk, workdir)
+    #override the workdir
+    general_no_defaults.update({"workdir": workdir})
+    general = General(**general_no_defaults)
+    return general
+
+@pytest.fixture(scope="session")
+def ngen_config(realization_config) -> Ngen:
+    """Fixture to provided a staged ngen configuration
+
+    Args:
+        realization_config (str): path to realization config for ngen
+
+    Returns:
+        Ngen: Ngen model data class and configuration
+
+    Yields:
+        Iterator[Ngen]: Ngen model data class and configuration
+    """
+    ngen_config = {"type":"ngen",
+                   "realization": realization_config,
+                   "catchments": Path(__file__).parent/"data/catchment_data.geojson",
+                   "nexus": Path(__file__).parent/"data/nexus_data.geojson",
+                   "crosswalk": Path(__file__).parent/"data/crosswalk.json"}
+    model = Ngen(**ngen_config)
+    return model
+
+# @pytest.fixture
+# def conf(realization_config, workdir) -> Generator[Configuration, None, None]:
+#     """
+#         Staging of a generator to test
+#     """
+#     catchment_data = Path(__file__).parent/"data/catchment_data.geojson"
+#     nexus_data = Path(__file__).parent/"data/nexus_data.geojson"
+#     x_walk = Path(__file__).parent/"data/crosswalk.json"
+#     yield Configuration(realization_config, catchment_data, nexus_data, x_walk, workdir)
 
 @pytest.fixture
-def meta(conf, workdir) -> Generator[CalibrationMeta, None, None]:
+def meta(ngen_config, general_config, mocker) -> Generator[CalibrationMeta, None, None]:
     """
         build up a meta object to test
     """
-    bin = "echo"
-    args = "ngen args"
-    #workdir = tmpdir_factory.mktemp("workdir")
-    m = CalibrationMeta(conf, workdir, bin, args, "test_0")
+    m = CalibrationMeta(ngen_config, general_config)
+    #Override the eval range property
+    #should probably refactor to allow testing of eval range,
+    #but that also rquires creating a MockLocation using a time range
+    #that we can subset out of for creation of a meta object
+    mocker.patch(__name__+'.CalibrationMeta.evaluation_range',
+                new_callable=mocker.PropertyMock,
+                return_value = None
+                )
     yield m
 
 @pytest.fixture
@@ -90,7 +148,7 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
     mocker.patch(__name__+'.CalibrationCatchment.save_output',
                 return_value=None)
 
-    id = 'test-catchment'
+    id = 'tst-1'
     data = deepcopy(config)['catchments'][id] # type: ignore
     #now = pd.Timestamp.now().round('H')
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))

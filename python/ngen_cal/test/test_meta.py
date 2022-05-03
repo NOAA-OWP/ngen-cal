@@ -67,7 +67,7 @@ def test_restart_1(meta: 'CalibrationMeta') -> None:
     meta._best_params_iteration = "1"
     meta.write_param_log_file(2)
     #make sure the catchment param df is saved before trying to restart
-    meta._config.catchments[0].check_point(meta._workdir)
+    meta._model.hy_catchments[0].check_point(meta._workdir)
 
     iteration = meta.restart()
     assert iteration == 3
