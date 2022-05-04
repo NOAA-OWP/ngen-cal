@@ -59,7 +59,7 @@ class Estimation(BaseModel):
         Document that all functions must take obs, sim args
     """
     objective: Optional[Union[Objective, PyObject]] = Objective.custom
-    target: Union[Literal['min'], Literal['max']] = 'min'
+    target: Union[Literal['min'], Literal['max'], float] = 'min'
 
     @validator("objective")
     def validate_objective(cls, value):
