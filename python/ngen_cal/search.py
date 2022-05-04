@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 from ngen_cal.objectives import custom
 
-def _objective_func(simulated_hydrograph, observed_hydrograph, eval_range=None):
+def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range=None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
     if df.empty:
         print("WARNING: Cannot compute objective function, do time indicies align?")
@@ -17,7 +17,7 @@ def _objective_func(simulated_hydrograph, observed_hydrograph, eval_range=None):
         df = df.loc[eval_range[0]:eval_range[1]]
     #print( df )
     #Evaluate custom objective function providing simulated, observed series
-    return custom(df['obs_flow'], df['sim_flow'])
+    return objective(df['obs_flow'], df['sim_flow'])
 
 def _execute(meta: 'CalibrationMeta'):
     """
@@ -35,7 +35,7 @@ def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta
     """
 
     #read output and calculate objective_func
-    score =  _objective_func(calibration_object.output, calibration_object.observed, meta.evaluation_range)
+    score =  _objective_func(calibration_object.output, calibration_object.observed, meta.objective, meta.evaluation_range)
     #save the calibration state, just in case
     calibration_object.save_output(i)
     #update meta info based on latest score and write some log files

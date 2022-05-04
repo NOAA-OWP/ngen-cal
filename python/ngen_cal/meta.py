@@ -180,4 +180,6 @@ class CalibrationMeta:
     @property
     def evaluation_range(self):
         return self._eval_range
-
+ 
+    def objective(self, *args, **kwargs):
+        return self._general.strategy.objective(*args, **kwargs)
