@@ -26,7 +26,10 @@ class CalibrationMeta:
         if(self._log_file is not None):
             self._log_file = self._workdir/self._log_file
         self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
-        self._best_score = float('inf')
+        if self._general.strategy.target == 'min':
+            self._best_score = float('inf')
+        else: #must be max or value, either way this works
+            self._best_score = float('-inf')
         self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = model.get_binary()
         self._args = model.get_args()
@@ -125,10 +128,14 @@ class CalibrationMeta:
             Update the meta state for iteration `i` having score `score`
             logs parameter and objective information if log=True
         """
-        if score <= self.best_score:
-            self._best_params_iteration = str(i)
-            self._best_score = score
-
+        if self._general.strategy.target == 'min':
+            if score <= self.best_score:
+                self._best_params_iteration = str(i)
+                self._best_score = score
+        elif self._general.strategy.target == 'max':
+            if score >= self.best_score:
+                self._best_params_iteration = str(i)
+                self._best_score = score
         if log:
             self.write_param_log_file(i)
             self.write_objective_log_file(i, score)
