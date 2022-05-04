@@ -17,7 +17,7 @@ def _objective_func(simulated_hydrograph, observed_hydrograph, eval_range=None):
         df = df.loc[eval_range[0]:eval_range[1]]
     #print( df )
     #Evaluate custom objective function providing simulated, observed series
-    return custom(df['sim_flow'], df['obs_flow'])
+    return custom(df['obs_flow'], df['sim_flow'])
 
 def _execute(meta: 'CalibrationMeta'):
     """

@@ -21,7 +21,7 @@ over_estimate = pd.DataFrame({'Simulated_cms':[2,2,2,2,2], 'Observed_cms':[1,1,1
 ]
 )
 def test_nse(data, expected):
-    result = nash_sutcliffe(data['Simulated_cms'], data['Observed_cms'])
+    result = nash_sutcliffe(data['Observed_cms'], data['Simulated_cms'])
     assert result == expected
 
 @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ def test_nse(data, expected):
 ]
 )
 def test_nnse(data, expected):
-    result = normalized_nash_sutcliffe(data['Simulated_cms'], data['Observed_cms'])
+    result = normalized_nash_sutcliffe(data['Observed_cms'], data['Simulated_cms'])
     assert result == expected
 
 @pytest.mark.parametrize(
@@ -45,7 +45,7 @@ def test_nnse(data, expected):
 ]
 )
 def test_peak(data, expected):
-    result = peak_error_single(data['Simulated_cms'], data['Observed_cms'])
+    result = peak_error_single(data['Observed_cms'], data['Simulated_cms'])
     assert result == expected
 
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_peak(data, expected):
 ]
 )
 def test_volume(data, expected):
-    result = volume_error(data['Simulated_cms'], data['Observed_cms'])
+    result = volume_error(data['Observed_cms'], data['Simulated_cms'])
     assert result == expected
 
 @pytest.mark.parametrize(
@@ -69,5 +69,5 @@ def test_volume(data, expected):
 ]
 )
 def test_custom(data, expected):
-    result = custom(data['Simulated_cms'], data['Observed_cms'])
+    result = custom(data['Observed_cms'], data['Simulated_cms'])
     assert result == expected
