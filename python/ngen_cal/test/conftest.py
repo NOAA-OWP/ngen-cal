@@ -117,7 +117,7 @@ def fabric():
 class MockLocation:
     def __init__(self):
         now = pd.Timestamp.now().round('H')
-        self.ts = pd.DataFrame({'value':[1,2,3,4,5], "value_date":pd.date_range(now, periods=5, freq='H')})
+        self.ts = pd.DataFrame({'value':[1,2,3,4,5], "value_time":pd.date_range(now, periods=5, freq='H')})
 
     def get_data(self, *args, **kwargs):
         return self.ts
@@ -138,7 +138,7 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
         A hy_features catchment implementing the calibratable interface
     """
     output = nexus._hydro_location.get_data().rename(columns={'value':'sim_flow'})
-    output.set_index('value_date', inplace=True)
+    output.set_index('value_time', inplace=True)
     #Override the output property so it doesn't try to reload output each time
     mocker.patch(__name__+'.CalibrationCatchment.output',
                 new_callable=mocker.PropertyMock,
@@ -166,7 +166,7 @@ def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, 
         Doesn't mock output, can be used to test semantics of erronous output
     """
     ts = nexus._hydro_location.get_data().rename(columns={'value':'obs_flow'})
-    ts.set_index('value_date', inplace=True)
+    ts.set_index('value_time', inplace=True)
 
     id = 'tst-1'
     data = deepcopy(config)['catchments'][id] # type: ignore
