@@ -1,5 +1,9 @@
 from pydantic import BaseModel
-from typing import Literal, Optional
+from typing import Optional
+try: #to get literal in python 3.7, it was added to typing in 3.8
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from enum import Enum
 
 class Algorithm(str, Enum):

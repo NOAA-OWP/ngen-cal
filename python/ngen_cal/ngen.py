@@ -1,5 +1,9 @@
 from pydantic import FilePath, root_validator
-from typing import Optional, Literal, Sequence, Dict
+from typing import Optional, Sequence, Dict
+try: #to get literal in python 3.7, it was added to typing in 3.8
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from pathlib import Path
 import logging
 #supress geopandas debug logs

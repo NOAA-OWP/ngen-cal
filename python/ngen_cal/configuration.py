@@ -6,7 +6,11 @@ import logging
 from pydantic import BaseModel, Field, DirectoryPath
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, Literal
+from typing import Optional, Union
+try: #to get literal in python 3.7, it was added to typing in 3.8
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 #local components for composing configuration
 from .strategy import Estimation, Sensitivity
