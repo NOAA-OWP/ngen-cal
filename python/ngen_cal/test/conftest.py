@@ -75,7 +75,8 @@ def ngen_config(realization_config) -> Ngen:
                    "realization": realization_config,
                    "catchments": Path(__file__).parent/"data/catchment_data.geojson",
                    "nexus": Path(__file__).parent/"data/nexus_data.geojson",
-                   "crosswalk": Path(__file__).parent/"data/crosswalk.json"}
+                   "crosswalk": Path(__file__).parent/"data/crosswalk.json",
+                   "binary": "echo ngen"}
     model = Ngen(**ngen_config)
     return model
 
