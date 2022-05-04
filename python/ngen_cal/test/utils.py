@@ -108,8 +108,8 @@ config = {
 algorithm_good = {"algorithm": "dds"}
 algorithm_bad = {"algorithm": "foo"}
 
-strategy_estimation = {"type": "estimation", **algorithm_good, "objective": None}
-strategy_sensitivity = {"type": "sensitivity", "objective": None}
+strategy_estimation = {"type": "estimation", **algorithm_good}
+strategy_sensitivity = {"type": "sensitivity"}
 
 general_no_defaults = {"strategy":strategy_estimation, 
                     "iterations": 10,
