@@ -1,5 +1,8 @@
 #An exampmle ngen-calibration configuration file
 general:
+  # Optional value to seed the random generators, useful for reproducing results
+  # Defaults to None, which will not use a seed
+  #random_seed: 42
   # Optional custom name for this run, can be used to generate unique output files
   # Defaults to `ngen-calibration`
   #name: None

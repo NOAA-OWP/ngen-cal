@@ -6,7 +6,13 @@ from ngen_cal.configuration import General, Model
 from ngen_cal.meta import CalibrationMeta
 from ngen_cal.search import dds
 
-def main(general, model):
+def main(general: General, model: Model):
+    #seed the random number generators if requested
+    if( general.random_seed is not None):
+        import random
+        random.seed(general.random_seed)
+        import numpy as np
+        np.random.seed(general.random_seed)
 
     print("Starting calib")
 
