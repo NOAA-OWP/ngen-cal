@@ -1,7 +1,8 @@
 import json
 import pandas as pd # type: ignore
-
+from pathlib import Path
 from typing import TYPE_CHECKING
+from .configuration import General, Model
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,22 +16,33 @@ class CalibrationMeta:
         ###TODO can we hold enough `configuration` information to make it possible to update global config
     """
 
-    def __init__(self, config, workdir, bin, args, id):
+    def __init__(self, model: Model, general: General):
         """
 
         """
-        self._config = config #This is the Configuration object that knows how to operate on model configuration files
-        self._workdir = workdir
+        self._workdir = general.workdir
+        self._log_file = general.log_file
+        self._general = general
+        if(self._log_file is not None):
+            self._log_file = self._workdir/self._log_file
+        self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
         self._best_score = float('inf')
         self._best_params_iteration = '0' #String representation of interger iteration
-        self._bin = bin
-        self._args = args
-        self._log_file = self._workdir/"{}_log_file".format(bin)
-        self._id = id #a unique identifier to prepend to log files
+        self._bin = model.get_binary()
+        self._args = model.get_args()
+        
+        self._id = general.name #a unique identifier to prepend to log files
         #FIXME another reason to refactor meta under catchment, logs per catchment???
+        if general.parameter_log_file is None:
+            self._param_log_file = self._workdir/"{}_best_params.txt".format(self._id)
+        else:
+            self._param_log_file = self._workdir/general.parameter_log_file
+        if general.objective_log_file is None:
+            self._objective_log_file = self._workdir/"{}_objective.txt".format(self._id)
+        else:
+            self._objective_log_file = self._workdir/general.objective_log_file
 
-        self._param_log_file = self._workdir/"{}_best_params.txt".format(self._id)
-        self._objective_log_file = self._workdir/"{}_objective.txt".format(self._id)
+        self._eval_range = (self._general.evaluation_start, self._general.evaluation_stop)
 
     def update_config(self, i: int, params: 'DataFrame', id: str):
         """
@@ -51,7 +63,7 @@ class CalibrationMeta:
         # update the config file using the best estimate for parameters in the last calibration step
         #config object makes a backup of the original, so we just overwrite the existing one to prepare for the next step
         # read in the config file from last calibration step
-        with open(self._config.config_file, 'r') as fp:
+        with open(self._model.config_file, 'r') as fp:
             data = json.load(fp)
             #params, i.e. {"maxsmc": 0.439, "satdk":0.00000338, "refkdt":3.0, "slope":0.01, "bb":4.05, "multiplier":100.0, "expon":6.0}
             # update calibration parameters in data in json format
@@ -68,7 +80,7 @@ class CalibrationMeta:
                     f['params']['model_params'][param] = value
 
         # write to a json file
-        with open(self._config.config_file, 'w') as fp:
+        with open(self._model.config_file, 'w') as fp:
             json.dump(data, fp, indent=4)
 
 
@@ -155,7 +167,7 @@ class CalibrationMeta:
             self._best_score = best_score
             start_iteration = last_iteration + 1
 
-            for catchment in self._config.catchments:
+            for catchment in self._model.hy_catchments:
                 catchment.load_df(self._workdir)
             #TODO verify that loaded calibration info aligns with iteration?  Anther reason to consider making this meta
             #per catchment???
@@ -164,3 +176,8 @@ class CalibrationMeta:
             start_iteration = 0
 
         return start_iteration
+    
+    @property
+    def evaluation_range(self):
+        return self._eval_range
+

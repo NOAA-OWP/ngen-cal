@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
+    from geopandas import GeoSeries
 
 from hypy.catchment import FormulatableCatchment # type: ignore
 
@@ -31,7 +32,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         #use the nwis location to get observation data
         obs = self.outflow._hydro_location.get_data(start_time, end_time)
         #make sure data is hourly
-        self._observed = obs.set_index('value_date')['value'].resample('1H').nearest()
+        self._observed = obs.set_index('value_time')['value'].resample('1H').nearest()
         self._observed.rename('obs_flow', inplace=True)
         #observations in ft^3/s convert to m^3/s
         self._observed = self._observed * 0.028316847
