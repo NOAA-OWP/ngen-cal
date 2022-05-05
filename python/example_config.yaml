@@ -11,13 +11,16 @@ general:
       algorithm: "dds"
       # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
       #objective: nnse
-      objective: "ngen_cal.objectives.custom"
+      # one can also provide a module path to any function that takes
+      # obs, sim array-like arguments and produces a single value float
+      # for example, nnse above could be called this way
+      #objective: "ngen_cal.objectives.normalized_nash_sutcliffe"
       # Can choose to minimize the objective function or maximixe it
-      # choices are 'min', 'max', or an explicit floating point value.
-      # NOTE the capability of optimizing to a floating point value is currently disabled
-      # and will result in a runtime error, use either min or max for now
+      # choices are 'min', 'max'.
+      # An an explicit floating point value can be supplied instead, and the
+      # optmization will attempt to converge on that value
       # Default: min
-      target: min
+      #target: 0.0
     #in theory, could do a senstivity strategy like this
     #sensitivity:
     #  objective: null
