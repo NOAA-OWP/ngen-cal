@@ -1,4 +1,3 @@
-pydantic
 pathlib
 pytest
 pytest-mock

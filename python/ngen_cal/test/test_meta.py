@@ -17,7 +17,7 @@ def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None
     """
     i = 0
     params = pd.DataFrame({"0":4.2, "param":"some_param"}, index=[0])
-    id = 'tst-1'
+    id = 'test-catchment'
     meta.update_config(i, params, id)
     with open(realization_config) as fp:
         data = json.load(fp)
@@ -67,7 +67,7 @@ def test_restart_1(meta: 'CalibrationMeta') -> None:
     meta._best_params_iteration = "1"
     meta.write_param_log_file(2)
     #make sure the catchment param df is saved before trying to restart
-    meta._model.hy_catchments[0].check_point(meta._workdir)
+    meta._config.catchments[0].check_point(meta._workdir)
 
     iteration = meta.restart()
     assert iteration == 3
