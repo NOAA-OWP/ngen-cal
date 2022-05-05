@@ -42,6 +42,7 @@ class General(BaseModel):
     log_file: Optional[Path]
     parameter_log_file: Optional[Path]
     objective_log_file: Optional[Path]
+    random_seed: Optional[int]
 
 
 class NoModel(BaseModel):
