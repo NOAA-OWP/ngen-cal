@@ -26,13 +26,10 @@ class CalibrationMeta:
         if(self._log_file is not None):
             self._log_file = self._workdir/self._log_file
         self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
-        if self._general.strategy.target == 'min':
-            self._best_score = float('inf')
-        elif self._general.strategy.target == 'max': #must be max or value, either way this works
+        if self._general.strategy.target == 'max':
             self._best_score = float('-inf')
-        else: #optimizing to a target
+        else: #must be min or value, either way this works
             self._best_score = float('inf')
-            self._score_delta = float('inf')
         self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = model.get_binary()
         self._args = model.get_args()
@@ -140,11 +137,9 @@ class CalibrationMeta:
                 self._best_params_iteration = str(i)
                 self._best_score = score
         else: #target is a specific value
-            raise RuntimeError("Target value optimization not currently supported. Set target to 'min' or 'max'")
-            if abs( score - self._general.strategy.target ) < self._score_delta:
+            if abs( score - self._general.strategy.target ) <= abs(self._best_score - self._general.strategy.target):
                 self._best_params_iteration = str(i)
                 self._best_score = score
-                self._score_delta = abs( score - self._general.strategy.target )        
         if log:
             self.write_param_log_file(i)
             self.write_objective_log_file(i, score)

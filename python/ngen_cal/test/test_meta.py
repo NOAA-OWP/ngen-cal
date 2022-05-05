@@ -49,6 +49,8 @@ def test_update_1(meta: 'CalibrationMeta') -> None:
     assert meta.best_score == 0.1
     assert meta.best_params == '1'
 
+#FIXME expand update unit tests...specifically that optmizing min/max and values
+#is consistent, for example
 @pytest.mark.usefixtures("meta")
 def test_restart(meta: 'CalibrationMeta') -> None:
     """
