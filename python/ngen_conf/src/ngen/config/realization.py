@@ -20,7 +20,7 @@ class NgenRealization(BaseModel):
     time: Time
     routing: Optional[Routing]
     #FIXME have not tested catchments...
-    catchments: Optional[ Mapping[str, Realization] ]
+    catchments: Optional[ Mapping[str, CatchmentRealization] ] = {}
 
     #FIXME https://github.com/samuelcolvin/pydantic/issues/2277
     #Until 1.10, it looks like nested encoder config doesn't apply
