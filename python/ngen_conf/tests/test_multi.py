@@ -13,8 +13,8 @@ def test_name_map(multi_params):
     assert _t == 'land_surface_wind__x_component_of_velocity'
 
 def test_name_map_override(multi_params):
-    multi_params['modules'][-1].params.name_map.update( {"atmosphere_water__liquid_equivalent_precipitation_rate":"RAINRATE"} )
-    multi_params['modules'][0].params.name_map.update( {"UU":"WIND_U"} )
+    multi_params['modules'][-1]['params']['name_map'].update( {"atmosphere_water__liquid_equivalent_precipitation_rate":"RAINRATE"} )
+    multi_params['modules'][0]['params']['name_map'].update( {"UU":"WIND_U"} )
     multi = MultiBMI(**multi_params)
     _t = multi.modules[-1].params.name_map["atmosphere_water__liquid_equivalent_precipitation_rate"]
     assert _t == "RAINRATE"
