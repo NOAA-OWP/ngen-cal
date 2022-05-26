@@ -3,7 +3,7 @@ from pydantic import root_validator, Field
 
 from .bmi_formulation import BMIParams
 
-class MultiBMI(BMIParams):
+class MultiBMI(BMIParams, smart_union=True):
     """A MultiBMI model definition
         Implements and overrids several BMIParams attributes,
         and includes a recursive Formulation list `modules`
@@ -41,9 +41,14 @@ class MultiBMI(BMIParams):
         Returns:
             Mapping[str, Any]: Attributes to assign to the class, with a (possibly) modifed `model_name`
         """
-        name = values.get('model_name')
-        if not name:
-            values['model_name'] = '_'.join( [ m.params.model_name for m in values['modules'] ] )
+        name = values.get('model_name') or values
+        modules = values.get('modules')
+        if not name and modules:
+            try:
+                names = [ m['params']['model_name'] for m in modules ]
+            except KeyError:
+                names = [ m['params']['model_type_name'] for m in modules ]
+            values['model_name'] = '_'.join( names )
         return values
 
     @root_validator(pre=True)
@@ -60,8 +65,9 @@ class MultiBMI(BMIParams):
             Mapping[str, Any]: Attributes to assign to the class, with a (possibly) modifed `main_output_variable`
         """
         var = values.get('main_output_variable')
-        if not var:
-           values['main_output_variable'] = values['modules'][-1].params.main_output_variable
+        modules = values.get('modules')
+        if not var and modules:
+           values['main_output_variable'] = modules[-1].params.main_output_variable
         return values
 
 #NOTE To avoid circular import and support recrusive modules

@@ -170,9 +170,10 @@ class BMILib(BMIParams):
             Mapping[str, Any]: Attributes to assign to the class, with a (possibly) modified `library` attribute
         """
         lib_path = values.get('library_prefix')
+        lib = values.get('library') or values.get('library_file')
         if lib_path:
-            values['library'] = lib_path.joinpath(values['library'])
-        values['library'] = Path(values['library']).with_suffix( cls.get_system_lib_extension() )
+            lib = lib_path.joinpath(lib)
+        values['library'] = Path(lib).with_suffix( cls.get_system_lib_extension() )
         return values
 
 class BMIC(BMILib):
