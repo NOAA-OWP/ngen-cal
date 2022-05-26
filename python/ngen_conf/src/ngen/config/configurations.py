@@ -16,8 +16,8 @@ class Forcing(BaseModel, smart_union=True):
         NetCDF = "FIXME"
     
     #required
-    file_pattern: Union[FilePath, str]
-    path: DirectoryPath
+    file_pattern: Optional[Union[FilePath, str]]
+    path: Union[DirectoryPath, FilePath, str]
     #reasonable? default
     provider: Provider = Field(Provider.CSV, const=True)
 
