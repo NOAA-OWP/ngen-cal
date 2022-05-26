@@ -22,5 +22,4 @@ def test_lstm_formulation(lstm_params, forcing):
     assert _lstm.name == 'bmi_python'
     assert _lstm.model_name == 'LSTM'
     serialized = _lstm.dict(by_alias=True)
-    print(serialized)
     assert serialized['model_type_name'] == 'LSTM'

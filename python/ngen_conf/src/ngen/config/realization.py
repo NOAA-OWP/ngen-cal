@@ -10,7 +10,8 @@ class Realization(BaseModel):
     formulations: Sequence[Formulation]
     forcing: Forcing
 
-
+class CatchmentRealization(Realization):
+    forcing: Optional[Forcing]
 
 class NgenRealization(BaseModel):
     """A complete ngen realization confiiguration model, including global and catchment overrides
