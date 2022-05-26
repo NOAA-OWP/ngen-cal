@@ -48,8 +48,8 @@ class Routing(BaseModel):
     #optional/not used TODO make default None?
     path: Optional[str] = Field('', alias='t_route_connection_path') #TODO deprecate this field?
 
-    def dict(self, *kwargs):
+    def dict(self, **kwargs):
         #Can override the `dict` call so we ALWAYS `use_aliases` when this model
         #is serialized
-        kwargs.setdefault('use_aliases', True)
+        kwargs.setdefault('by_alias', True)
         return super().dict(**kwargs)
