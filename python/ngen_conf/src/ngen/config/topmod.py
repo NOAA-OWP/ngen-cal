@@ -15,7 +15,7 @@ class TopmodParams(BaseModel):
 class Topmod(BMIC):
     """A BMIC implementation for the Topmod ngen module
     """
-    model_params: TopmodParams = {}
+    model_params: Optional[TopmodParams]
     main_output_variable: str = 'Qout'
     registration_function: str = "register_bmi_topmodel"
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias

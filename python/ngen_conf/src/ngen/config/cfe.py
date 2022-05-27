@@ -16,7 +16,7 @@ class CFEParams(BaseModel):
 class CFE(BMIC):
     """A BMIC implementation for the CFE ngen module
     """
-    model_params: CFEParams = {}
+    model_params: Optional[CFEParams]
     main_output_variable: str = 'Q_OUT'
     registration_function: str = "register_bmi_cfe"
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
