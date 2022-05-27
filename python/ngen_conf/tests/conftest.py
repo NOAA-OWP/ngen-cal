@@ -39,6 +39,17 @@ def cfe_params():
     return data
 
 @pytest.fixture
+def topmod_params():
+    path = _workdir.joinpath("data/CFE/")
+    data = {'config_prefix':path, 
+            # 'config': "{{id}}_config.txt", 
+            'config': "config.txt", 
+            'library_prefix':path,
+            'library': 'libfakecfe.so',
+            'model_params':{'t0':0.42, 'szm':42}}
+    return data
+
+@pytest.fixture
 def noahowp_params():
     path = _workdir.joinpath("data/NOAH/")
     libpath = _workdir.joinpath("data/CFE")
