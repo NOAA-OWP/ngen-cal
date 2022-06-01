@@ -13,8 +13,7 @@ json.encoder.FLOAT_REPR = str #lambda x: format(x, '%.09f')
 import geopandas as gpd
 import pandas as pd
 import shutil
-from .model import ModelExec, PosInt
-from .calibration_cathment import CalibrationCatchment
+from .parameter import Parameters
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -34,6 +33,7 @@ class Ngen(ModelExec):
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
+    params: Optional[ Mapping[str, Parameters] ] 
     #dependent fields
     binary: str = 'ngen'
     args: Optional[str]
