@@ -194,3 +194,32 @@ class Ngen(ModelExec):
         if(parallel is not None and parallel > 1 and partitions is None):
             raise ValueError("Must provide partitions if using parallel")
         return values
+
+    def update_config(self, i: int, params: 'pd.DataFrame', id: str = None):
+        """_summary_
+
+        Args:
+            i (int): _description_
+            params (pd.DataFrame): _description_
+            id (str): _description_
+        """
+        
+        if id is None: #Update global
+            module = self.ngen_realization.global_config.formulations[0].params
+        else: #update specific catchment
+            module = self.ngen_realization.catchments[id].formulations[0].params
+
+        groups = params.set_index('param').groupby('model')
+        if isinstance(module, MultiBMI):
+            for m in module.modules:
+                name = m.params.model_name
+                if name in groups.groups:
+                    p = groups.get_group(name)
+                    m.params.model_params = p[str(i)].to_dict()
+        else:
+            p = groups.get_group(module.params.model_name)
+            module.params.model_params = p[str(i)].to_dict()
+        
+        with open(self.realization, 'w') as fp:
+                fp.write( self.ngen_realization.json(by_alias=True, exclude_none=True, indent=4))
+    
