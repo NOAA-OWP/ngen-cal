@@ -13,10 +13,19 @@ json.encoder.FLOAT_REPR = str #lambda x: format(x, '%.09f')
 import geopandas as gpd
 import pandas as pd
 import shutil
+from enum import Enum
 from .parameter import Parameters
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
+
+class NgenStrategy(str, Enum):
+    """
+    """
+    #multiplier = "multiplier"
+    uniform = "uniform"
+    explicit = "explicit"
+    independent = "independent"
 
 class Ngen(ModelExec):
     """
