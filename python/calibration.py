@@ -56,5 +56,6 @@ if __name__ == "__main__":
     general = General(**conf['general'])
     # change directory to workdir
     chdir(general.workdir)
-    model = Model.parse_obj(conf['model']).get_model()
+
+    model = Model(model=conf['model']).model
     main(general, model)
