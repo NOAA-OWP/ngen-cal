@@ -14,6 +14,7 @@ import geopandas as gpd
 import pandas as pd
 import shutil
 from enum import Enum
+from ngen.config.realization import NgenRealization
 from .parameter import Parameters
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
@@ -35,10 +36,15 @@ class Ngen(ModelExec):
     """
     type: Literal['ngen']
     #required fields
+    # TODO with the ability to generate realizations programaticaly, this may not be
+    # strictly required any longer...for now it "works" so we are using info from
+    # an existing realization to build various calibration realization configs
+    # but we should probably take a closer look at this in the near future
     realization: FilePath
     catchments: FilePath
     nexus: FilePath
     crosswalk: FilePath
+    ngen_realization: Optional[NgenRealization]
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
@@ -106,11 +112,7 @@ class Ngen(ModelExec):
                 except KeyError:
                     raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
 
-                #establish the hydro location for the observation nexus associated with this catchment
-                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.name, location, id)
-                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, catchment))
-        print(self._catchments)
+        self.ngen_realization = NgenRealization(**data)
 
     @property
     def config_file(self) -> Path:
