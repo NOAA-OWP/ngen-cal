@@ -28,6 +28,10 @@ class Configurable(ABC):
             str: Preconfigured arg string to pass to the binary upon execution
         """
 
+    @abstractmethod
+    def update_config(*args, **kwargs):
+        pass
+
 class ModelExec(BaseModel, Configurable):
     """
         The data class for a given model, which must also be Configurable
