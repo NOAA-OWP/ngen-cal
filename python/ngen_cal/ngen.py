@@ -40,6 +40,9 @@ class Ngen(ModelExec):
 
     #private, not validated
     _catchments: Sequence['CalibrationCatchment'] = []
+    _catchment_hydro_fabric: gpd.GeoDataFrame
+    _nexus_hydro_fabric: gpd.GeoDataFrame
+    _x_walk: pd.Series
 
     class Config:
         """Override configuration for pydantic BaseModel
@@ -52,16 +55,22 @@ class Ngen(ModelExec):
         #now we work ours
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
-
+       
         #Read the catchment hydrofabric data
-        catchment_hydro_fabric = gpd.read_file(self.catchments)
-        catchment_hydro_fabric = catchment_hydro_fabric.rename(columns=str.lower)
-        catchment_hydro_fabric.set_index('id', inplace=True)
-        nexus_hydro_fabric = gpd.read_file(self.nexus)
-        nexus_hydro_fabric = nexus_hydro_fabric.rename(columns=str.lower)
-        nexus_hydro_fabric.set_index('id', inplace=True)
+        self._catchment_hydro_fabric = gpd.read_file(self.catchments)
+        self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
+        self._catchment_hydro_fabric.set_index('id', inplace=True)
+        self._nexus_hydro_fabric = gpd.read_file(self.nexus)
+        self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
 
-        x_walk = pd.read_json(self.crosswalk, dtype=str)
+        self._x_walk = pd.Series()
+        with open(self.crosswalk) as fp:
+            data = json.load(fp)
+            for id, values in data.items():
+                gage = values.get('Gage_no')
+                if gage:
+                    self._x_walk[id] = gage[0]
 
         #Read the calibration specific info
         with open(self.realization) as fp:
