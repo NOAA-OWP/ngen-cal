@@ -55,12 +55,4 @@ class Model(BaseModel):
     """
         Composition data class for defining a model configuration
     """
-    __root__: Union[Ngen, NoModel] = Field(discriminator='type')
-    
-    def get_model(self)->Union[Ngen, NoModel]:
-        """Get the validated model data class
-
-        Returns:
-            Union[Ngen, NoModel]: The first fully valid model constructable by this class
-        """
-        return self.__root__
+    model: Union[Ngen, NoModel] = Field(discriminator='type')
