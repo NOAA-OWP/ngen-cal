@@ -1,5 +1,4 @@
-from pydantic import FilePath, root_validator
-from typing import Optional, Sequence, Dict
+from typing import Optional, Sequence, Dict, Mapping
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -14,8 +13,9 @@ import geopandas as gpd
 import pandas as pd
 import shutil
 from enum import Enum
-from ngen.config.realization import NgenRealization
-from .parameter import Parameters
+from ngen.config.realization import NgenRealization, Realization
+from ngen.config.multi import MultiBMI
+from .parameter import Parameter, Parameters
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -28,7 +28,34 @@ class NgenStrategy(str, Enum):
     explicit = "explicit"
     independent = "independent"
 
-class Ngen(ModelExec):
+def _params_as_df(params: Mapping[str, Parameters], name: str = None):
+    if not name:
+        dfs = []
+        for k,v in params.items():
+            df = pd.DataFrame([s.__dict__ for s in v])
+            df['model'] = k
+            df.rename(columns={'name':'param'}, inplace=True)
+            dfs.append(df)
+        return pd.concat(dfs)
+    else:
+        p = params.get(name, [])
+        df = pd.DataFrame([s.__dict__ for s in p])
+        df['model'] = name
+        df.rename(columns={'name':'param'}, inplace=True)
+        return df
+
+def _map_params_to_realization(params: Mapping[str, Parameters], realization: Realization):
+    # don't even think about calibration multiple formulations at once just yet..
+    module = realization.formulations[0].params
+    
+    if isinstance(module, MultiBMI):
+        dfs = []
+        for m in module.modules:
+            dfs.append(_params_as_df(params, m.params.model_name))
+        return pd.concat(dfs)
+    else:
+        return _params_as_df(params, module.model_name)
+
     """
         Data class specific for Ngen
         
@@ -90,28 +117,6 @@ class Ngen(ModelExec):
         #Read the calibration specific info
         with open(self.realization) as fp:
             data = json.load(fp)
-        try:
-            #FIXME validate sim time with eval time in general config
-            start_t = data['time']['start_time']
-            end_t = data['time']['end_time']
-        except KeyError as e:
-            raise(RuntimeError("Invalid time configuration: {} key missing from {}".format(e.args[0], self.realization)))
-        #Setup each calibration catchment
-        for id, catchment in data['catchments'].items():
-            if 'calibration' in catchment.keys():
-                try:
-                    fabric = catchment_hydro_fabric.loc[id]
-                except KeyError:
-                    continue
-                try:
-                    nwis = x_walk[id]['site_no']
-                except KeyError:
-                    raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
-                try:
-                    nexus_data = nexus_hydro_fabric.loc[fabric['toid']]
-                except KeyError:
-                    raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
-
         self.ngen_realization = NgenRealization(**data)
 
     @property
