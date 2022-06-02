@@ -31,8 +31,8 @@ class General(BaseModel):
     strategy: Union[Estimation, Sensitivity] = Field(discriminator='type')
     iterations: int
     #TODO make this optional, but co-dependent???
-    evaluation_start: datetime
-    evaluation_stop: datetime
+    evaluation_start: Optional[datetime]
+    evaluation_stop: Optional[datetime]
     #Fields with reasonable defaults
     restart: bool = False
     start_iteration: PosInt = 0
