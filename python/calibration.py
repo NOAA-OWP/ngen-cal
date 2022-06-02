@@ -34,8 +34,9 @@ def main(general: General, model: Model):
 
     #NOTE this assumes we calibrate each catchment independently, it may be possible to design an "aggregate" calibration
     #that works in a more sophisticated manner.
-    for catchment in model.hy_catchments:
-        dds(start_iteration, general.iterations, catchment, meta)
+    if model.strategy == 'explicit':
+        for catchment in model.hy_catchments:
+            dds(start_iteration, general.iterations, catchment, meta)
 
 if __name__ == "__main__":
 

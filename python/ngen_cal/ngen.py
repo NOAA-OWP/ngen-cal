@@ -1,4 +1,5 @@
-from typing import Optional, Sequence, Dict, Mapping
+from pydantic import FilePath, root_validator, BaseModel
+from typing import Optional, Sequence, Dict, Mapping, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -15,7 +16,9 @@ import shutil
 from enum import Enum
 from ngen.config.realization import NgenRealization, Realization
 from ngen.config.multi import MultiBMI
+from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
+from .calibration_cathment import CalibrationCatchment
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -56,6 +59,7 @@ def _map_params_to_realization(params: Mapping[str, Parameters], realization: Re
     else:
         return _params_as_df(params, module.model_name)
 
+class NgenBase(ModelExec):
     """
         Data class specific for Ngen
         
@@ -90,6 +94,8 @@ def _map_params_to_realization(params: Mapping[str, Parameters], realization: Re
         """Override configuration for pydantic BaseModel
         """
         underscore_attrs_are_private = True
+        use_enum_values = True
+        smart_union = True
 
     def __init__(self, **kwargs):
         #Let pydantic work its magic
@@ -228,3 +234,71 @@ def _map_params_to_realization(params: Mapping[str, Parameters], realization: Re
         with open(self.realization, 'w') as fp:
                 fp.write( self.ngen_realization.json(by_alias=True, exclude_none=True, indent=4))
     
+class NgenExplicit(NgenBase):
+    
+    strategy: Literal[NgenStrategy.explicit]
+
+    def __init__(self, **kwargs):
+        #Let pydantic work its magic
+        super().__init__(**kwargs)
+        #now we work ours
+        start_t = self.ngen_realization.time.start_time
+        end_t = self.ngen_realization.time.end_time
+        #Setup each calibration catchment
+        for id, catchment in self.ngen_realization.catchments.items():
+            
+            if hasattr(catchment, 'calibration'):
+                try:
+                    fabric = self._catchment_hydro_fabric.loc[id]
+                except KeyError:
+                    continue
+                try:
+                    nwis = self._x_walk[id]
+                except KeyError:
+                    raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+                try:
+                    nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
+                except KeyError:
+                    raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+
+                #establish the hydro location for the observation nexus associated with this catchment
+                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
+                nexus = Nexus(nexus_data.name, location, (), id)
+                output_var = catchment.formulations[0].params.main_output_variable
+                #read params from the realization calibration definition
+                params = {model:[Parameter(**p) for p in params] for model, params in catchment.calibration.items()}
+                params = _map_params_to_realization(params, catchment)
+                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, params))
+
+    def update_config(self, i: int, params: 'pd.DataFrame', id: str):
+        """_summary_
+
+        Args:
+            i (int): _description_
+            params (pd.DataFrame): _description_
+            id (str): _description_
+        """
+
+        if id is None:
+            raise RuntimeError("NgenExplicit calibration must recieve an id to update, not None")
+        
+        super().update_config(i, params, id)
+
+class Ngen(BaseModel, Configurable, smart_union=True):
+    __root__: Union[NgenExplicit, NgenBase]
+
+    #proxy methods for Configurable
+    def get_args(self) -> str:
+        return self.__root__.get_args()
+    def get_binary(self) -> str:
+        return self.__root__.get_binary()
+    def update_config(self, *args, **kwargs):
+        return self.__root__.update_config(*args, **kwargs)
+    #proxy methods for model
+    @property
+    def hy_catchments(self):
+        return self.__root__.hy_catchments
+
+    @property
+    def strategy(self):
+        return self.__root__.strategy

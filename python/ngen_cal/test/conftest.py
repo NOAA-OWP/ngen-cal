@@ -8,7 +8,7 @@ import geopandas as gpd # type: ignore
 from ..configuration import General
 from ..ngen import Ngen
 from ..meta import CalibrationMeta
-from ..calibration_cathment import CalibrationCatchment
+from ..calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
 from hypy import Nexus, HydroLocation
 
 from .utils import *
@@ -72,12 +72,13 @@ def ngen_config(realization_config) -> Ngen:
         Iterator[Ngen]: Ngen model data class and configuration
     """
     ngen_config = {"type":"ngen",
+                   "strategy":"explicit",
                    "realization": realization_config,
                    "catchments": Path(__file__).parent/"data/catchment_data.geojson",
                    "nexus": Path(__file__).parent/"data/nexus_data.geojson",
                    "crosswalk": Path(__file__).parent/"data/crosswalk.json",
                    "binary": "echo ngen"}
-    model = Ngen(**ngen_config)
+    model = Ngen.parse_obj(ngen_config)
     return model
 
 # @pytest.fixture
@@ -141,21 +142,23 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
     output = nexus._hydro_location.get_data().rename(columns={'value':'sim_flow'})
     output.set_index('value_time', inplace=True)
     #Override the output property so it doesn't try to reload output each time
-    mocker.patch(__name__+'.CalibrationCatchment.output',
+    mocker.patch(__name__+'.EvaluatableCatchment.output',
                 new_callable=mocker.PropertyMock,
                 return_value = output
                 )
     #Disable output saving for testing purpose
-    mocker.patch(__name__+'.CalibrationCatchment.save_output',
+    mocker.patch(__name__+'.AdjustableCatchment.save_output',
                 return_value=None)
 
     id = 'tst-1'
-    data = deepcopy(config)['catchments'][id] # type: ignore
+    data = deepcopy(config)['catchments'][id]['calibration']['CFE'] # type: ignore
+    data = pd.DataFrame(data)
+    data['model'] = 'CFE'
     #now = pd.Timestamp.now().round('H')
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = output.index[0]
     end = output.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, data)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, "Q_Out", data)
     #Reset observed here since it does unit conversion from cfs -> cms
     catchment.observed = output.rename(columns={'sim_flow':'obs_flow'})
     return catchment
@@ -170,11 +173,13 @@ def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, 
     ts.set_index('value_time', inplace=True)
 
     id = 'tst-1'
-    data = deepcopy(config)['catchments'][id] # type: ignore
+    data = deepcopy(config)['catchments'][id]['calibration']['CFE'] # type: ignore
+    data = pd.DataFrame(data)
+    data['model'] = 'CFE'
     #now = pd.Timestamp.now().round('H')
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = ts.index[0]
     end = ts.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, data)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', data)
 
     return catchment
