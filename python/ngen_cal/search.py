@@ -5,7 +5,7 @@ import numpy as np # type: ignore
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ngen_cal import Calibratable, CalibrationMeta
+    from ngen_cal import Adjustable, Evaluatable, CalibrationMeta, CalibrationSet
 
 from ngen_cal.objectives import custom
 
@@ -29,7 +29,7 @@ def _execute(meta: 'CalibrationMeta'):
         with open(meta.log_file, 'a+') as log_file:
             subprocess.check_call(meta.cmd, stdout=log_file, stderr=log_file, shell=True, cwd=meta.workdir)
 
-def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
+def _evaluate(i: int, calibration_object: 'Evaluatable', meta: 'CalibrationMeta'):
     """
         Performs the evaluation logic of a calibration step
     """
@@ -42,13 +42,55 @@ def _evaluate(i: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta
     meta.update(i, score, log=True)
 
     print("Current score {}\nBest score {}".format(score, meta.best_score))
-    calibration_object.check_point(meta.workdir)
-
     print("Best parameters at iteration {}".format(meta.best_params))
 
-def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable', meta: 'CalibrationMeta'):
+def dds_update(iteration: int, inclusion_probability: float, calibration_object: 'Adjustable', meta: 'CalibrationMeta'):
+    """_summary_
+
+    Args:
+        iteration (int): _description_
     """
-        Functional form of the dds loop
+
+    print( "inclusion probability: {}".format(inclusion_probability) )
+    #select a random subset of variables to modify
+    #TODO convince myself that grabbing a random selction of P fraction of items
+    #is the same as selecting item with probability P
+    neighborhood = calibration_object.variables.sample(frac=inclusion_probability)
+    if neighborhood.empty:
+        neighborhood = calibration_object.variables.sample(n=1)
+    print( "neighborhood: {}".format(neighborhood) )
+    #Copy the best parameter values so far into the next iterations parameter list
+    calibration_object.df[str(iteration)] = calibration_object.df[meta.best_params]
+    #print( data.calibration_df )
+    for n in neighborhood:
+        #permute the variables in neighborhood
+        #using a random normal sample * sigma, sigma = 0.2*(max-min)
+        #print(n, meta.best_params)
+        new = calibration_object.df.loc[n, meta.best_params] + calibration_object.df.loc[n, 'sigma']*np.random.normal(0,1)
+        lower =  calibration_object.df.loc[n, 'min']
+        upper = calibration_object.df.loc[n, 'max']
+        #print( new )
+        #print( lower )
+        #print( upper )
+        if new < lower:
+            new = lower + (lower - new)
+            if new > upper:
+                new = lower
+        elif new > upper:
+            new = upper - (new - upper)
+            if new < lower:
+                new = upper
+        calibration_object.df.loc[n, str(iteration)] = new
+    """
+        At this point, we need to re-run cmd with the new parameters assigned correctly and evaluate the objective function
+    """
+    #Update the meta info and prepare for next iteration
+    #Pass the parameter and interation columns of the object we are calibrating to the update function
+    meta.update_config(iteration, calibration_object.df[[str(iteration), 'param', 'model']], calibration_object.id)
+
+
+def dds(start_iteration: int, iterations: int,  calibration_object: 'Adjustable', meta: 'CalibrationMeta'):
+    """
     """
     if iterations < 2:
         raise(ValueError("iterations must be >= 2"))
@@ -59,7 +101,8 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
 
     #precompute sigma for each variable based on neighborhood_size and bounds
     calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
-
+    
+    #Produce the baseline simulation output
     if start_iteration == 0:
         if calibration_object.output is None:
             #We are starting a new calibration and do not have an initial output state to evaluate, compute it
@@ -67,48 +110,16 @@ def dds(start_iteration: int, iterations: int, calibration_object: 'Calibratable
             print("Running {} to produce initial simulation".format(meta.cmd))
             _execute(meta)
         _evaluate(0, calibration_object, meta)
+        calibration_object.check_point(meta.workdir)
         start_iteration += 1
 
     for i in range(start_iteration, iterations+1):
         #Calculate probability of inclusion
         inclusion_probability = 1 - log(i)/log(iterations)
-        print( "inclusion probability: {}".format(inclusion_probability) )
-        #select a random subset of variables to modify
-        #TODO convince myself that grabbing a random selction of P fraction of items
-        #is the same as selecting item with probability P
-        neighborhood = calibration_object.variables.sample(frac=inclusion_probability)
-        if neighborhood.empty:
-           neighborhood = calibration_object.variables.sample(n=1)
-        print( "neighborhood: {}".format(neighborhood) )
-        #Copy the best parameter values so far into the next iterations parameter list
-        calibration_object.df[str(i)] = calibration_object.df[meta.best_params]
-        #print( data.calibration_df )
-        for n in neighborhood:
-            #permute the variables in neighborhood
-            #using a random normal sample * sigma, sigma = 0.2*(max-min)
-            #print(n, meta.best_params)
-            new = calibration_object.df.loc[n, meta.best_params] + calibration_object.df.loc[n, 'sigma']*np.random.normal(0,1)
-            lower =  calibration_object.df.loc[n, 'min']
-            upper = calibration_object.df.loc[n, 'max']
-            #print( new )
-            #print( lower )
-            #print( upper )
-            if new < lower:
-                new = lower + (lower - new)
-                if new > upper:
-                    new = lower
-            elif new > upper:
-                new = upper - (new - upper)
-                if new < lower:
-                    new = upper
-            calibration_object.df.loc[n, str(i)] = new
-        """
-            At this point, we need to re-run cmd with the new parameters assigned correctly and evaluate the objective function
-        """
-        #Update the meta info and prepare for next iteration
-        #Pass the parameter and interation columns of the object we are calibrating to the update function
-        meta.update_config(i, calibration_object.df[[str(i), 'param']], calibration_object.id)
+        dds_update(i, inclusion_probability, calibration_object, meta)
         #Run cmd Again...
         print("Running {} for iteration {}".format(meta.cmd, i))
         _execute(meta)
         _evaluate(i, calibration_object, meta)
+        calibration_object.check_point(meta.workdir)
+
