@@ -3,32 +3,67 @@ import shutil
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pandas import DataFrame, Series
+    from pandas import DataFrame
     from pathlib import Path
     from geopandas import GeoSeries
 
 from hypy.catchment import FormulatableCatchment # type: ignore
+from hypy.nexus import Nexus
 
-from .calibratable import Calibratable
+from .calibratable import Adjustable, Evaluatable
 
-
-class CalibrationCatchment(FormulatableCatchment, Calibratable):
+class AdjustableCatchment(FormulatableCatchment, Adjustable):
     """
-        A HY_Features based catchment with additional calibration information/functionality
+        A Formulatable catchment that has an Adjustable interface to adjust
+        parameteters used by the catchment.
     """
 
-    def __init__(self,  workdir: 'Path', id: str, nexus, start_time: str, end_time: str, fabric: "GeoSeries", params: dict = {}):
+    def __init__(self,  workdir: 'Path', id: str, nexus, params: dict = {}):
+        """Create an adjustable catchment and initialize its parameter space
+
+        Args:
+            workdir (Path): working directory of the calibration runs
+            id (str): catchment id of this unit
+            nexus (_type_): the downstream nexus associated with the catchment
+            params (dict, optional): Mapping of parameter names and values. Defaults to {}.
         """
 
-        """
-        calibration_params = params['calibration'].pop('params')
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
-        Calibratable.__init__(self=self, df=DataFrame(calibration_params).rename(columns={'init': '0'}))
+        Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
         #FIXME paramterize
         self._output_file = workdir/'{}.csv'.format(self.id)
+    
+    def save_output(self, i) -> None:
+        """
+            Save the last output to output for iteration i
+        """
+        #FIXME ensure _output_file exists
+        #FIXME re-enable this once more complete
+        shutil.move(self._output_file, '{}_last'.format(self._output_file))
+    
+    #update handled in meta, TODO remove this method???
+    def update(self, iteration: int) -> None:
+        pass
+
+class EvaluatableCatchment(Evaluatable):
+    """
+        A catchment which is "observable" which means model output can be evaluated against
+        these observations for this catchment.
+    """
+    def __init__(self, nexus: Nexus, start_time: str, end_time: str, fabric: "GeoSeries", output_var: str):
+        """Initialize the evaluatable catchment
+
+        Args:
+            nexus (Nexus): An NWIS nexus to query stream flow data from
+            start_time (str): starting datetime to request observations for
+            end_time (str): ending datetime to request observations for
+            fabric (GeoSeries): The catchment hydrofabric representation
+            params (dict, optional): _description_. Defaults to {}.
+        """
+        self._outflow = nexus
         #For BMI modules, look up name from realization config
         #If no `main_output_variable`, default to Q_OUT
-        self._output_var = params['formulations'][0]['params'].get('main_output_variable', 'Q_OUT')
+        self._output_var = output_var
         #use the nwis location to get observation data
         obs = self.outflow._hydro_location.get_data(start_time, end_time)
         #make sure data is hourly
@@ -38,32 +73,6 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
         self._observed = self._observed * 0.028316847
         self._output = None
         self._fabric = fabric
-
-    @property
-    def df(self) -> 'DataFrame':
-        """
-
-        """
-        return self._df
-
-    def check_point(self, path: 'Path') -> None:
-        """
-
-        """
-        super().check_point(path)
-
-    def load_df(self, path: 'Path') -> None:
-        """
-
-        """
-        super().load_df(path)
-
-    def update(self, iteration: int) -> None:
-        """
-            update configuration based on latest params
-            This functionality currently exists in the meta class
-        """
-        pass
 
     @property
     def output(self) -> 'DataFrame':
@@ -78,7 +87,7 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
             self._output.rename(columns={self._output_var:'sim_flow'}, inplace=True)
             #FIXME make sure units are correct here...
             #Assumes model catchment outputs are in m/hr, convert to m^3/s
-            self._output = self._output * self._fabric['areasqkm']*1000000/3600
+            self._output = self._output * self._fabric['area_sqkm']*1000000/3600
             hydrograph = self._output
         except FileNotFoundError:
             hydrograph = None
@@ -106,10 +115,10 @@ class CalibrationCatchment(FormulatableCatchment, Calibratable):
     def observed(self, df):
         self._observed = df
 
-    def save_output(self, i) -> None:
-        """
-            Save the last output to output for iteration i
-        """
-        #FIXME ensure _output_file exists
-        #FIXME re-enable this once more complete
-        shutil.move(self._output_file, '{}_last'.format(self._output_file))
+class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
+    """
+        A Calibratable interface defining required properties for a calibratable object
+    """
+    def __init__(self, workdir: str, id: str, nexus: Nexus, start_time: str, end_time: str, fabric: "GeoSeries", output_var: str, params: dict = {}):
+        EvaluatableCatchment.__init__(self, nexus, start_time, end_time, fabric, output_var)
+        AdjustableCatchment.__init__(self,  workdir, id, nexus, params)
