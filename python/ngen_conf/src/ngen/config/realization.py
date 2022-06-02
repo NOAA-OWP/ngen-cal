@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Mapping, Sequence
+from typing import Optional, Mapping, Sequence, Any
 from datetime import datetime
 from .configurations import Forcing, Time, Routing
 from .formulation import Formulation
@@ -9,6 +9,7 @@ class Realization(BaseModel):
     """
     formulations: Sequence[Formulation]
     forcing: Forcing
+    calibration: Optional[ Mapping[ str, Sequence[ Any ]] ]
 
 class CatchmentRealization(Realization):
     forcing: Optional[Forcing]
