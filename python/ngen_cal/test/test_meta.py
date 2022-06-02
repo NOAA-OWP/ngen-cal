@@ -16,7 +16,7 @@ def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None
         Ensure that update config properly updates and serializes the config
     """
     i = 0
-    params = pd.DataFrame({"0":4.2, "param":"some_param"}, index=[0])
+    params = pd.DataFrame({"model":"CFE","0":4.2, "param":"some_param"}, index=[0])
     id = 'tst-1'
     meta.update_config(i, params, id)
     with open(realization_config) as fp:

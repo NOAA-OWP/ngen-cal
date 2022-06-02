@@ -4,33 +4,35 @@ config = {
         "global": {
         "formulations": [
             {
-                "name": "tshirt",
+                "name": "bmi_c",
                 "params": {
-                    "maxsmc": 0.439,
-                    "wltsmc": 0.066,
-                    "satdk": 3.38e-06,
-                    "satpsi": 0.355,
-                    "slope": 1.0,
-                    "scaled_distribution_fn_shape_parameter": 4.05,
-                    "multiplier": 0.0,
-                    "alpha_fc": 0.33,
-                    "Klf": 0.01,
-                    "Kn": 0.03,
-                    "nash_n": 2,
-                    "Cgw": 0.01,
-                    "expon": 6.0,
-                    "max_groundwater_storage_meters": 1.0,
-                    "nash_storage": [
-                        0.0,
-                        0.0
-                    ],
-                    "soil_storage_percentage": 0.667,
-                    "groundwater_storage_percentage": 0.5,
-                    "timestep": 3600,
-                    "giuh": {
-                        "giuh_path": _where+"/data/giuh/GIUH.json",
-                        "crosswalk_path": _where+"/data/crosswalk.json"
+                    "name": "bmi_c",
+                    "model_type_name": "CFE",
+                    "main_output_variable": "Q_OUT",
+                    "init_config": "/Users/nels.frazier/workspace/ngen//data/bmi/c/cfe/cat-27_bmi_config.ini",
+                    "allow_exceed_end_time": False,
+                    "fixed_time_step": False,
+                    "uses_forcing_file": False,
+                    "variables_names_map": {
+                        "atmosphere_water__liquid_equivalent_precipitation_rate": "precip_rate",
+                        "water_potential_evaporation_flux": "potential_evapotranspiration",
+                        "atmosphere_air_water~vapor__relative_saturation": "SPFH_2maboveground",
+                        "land_surface_air__temperature": "TMP_2maboveground",
+                        "land_surface_wind__x_component_of_velocity": "UGRD_10maboveground",
+                        "land_surface_wind__y_component_of_velocity": "VGRD_10maboveground",
+                        "land_surface_radiation~incoming~longwave__energy_flux": "DLWRF_surface",
+                        "land_surface_radiation~incoming~shortwave__energy_flux": "DSWRF_surface",
+                        "land_surface_air__pressure": "PRES_surface"
                     },
+                    "model_params": {
+                        "maxsmc": 0.21470105463393196,
+                        "satdk": 0.0003343056064723208,
+                        "slope": 0.5836411296916055,
+                        "multiplier": 465.8926732378259,
+                        "expon": 7.813285220525254
+                    },
+                    "library_file": "/Users/nels.frazier/workspace/ngen/extern/cfe/cmake_build/libcfebmi.dylib",
+                    "registration_function": "register_bmi_cfe"
                 }
             }
         ],
@@ -50,44 +52,45 @@ config = {
     "catchments": {
         "tst-1": {
             "formulations": [
-                {
-                    "name": "tshirt",
-                    "params": {
-                        "some_param": 4.565028565154633,
-                        "maxsmc": 0.439,
-                        "wltsmc": 0.066,
-                        "satdk": 3.38e-06,
-                        "satpsi": 0.355,
-                        "slope": 1.0,
-                        "scaled_distribution_fn_shape_parameter": 4.05,
-                        "multiplier": 0.0,
-                        "alpha_fc": 0.33,
-                        "Klf": 0.01,
-                        "Kn": 0.03,
-                        "nash_n": 2,
-                        "Cgw": 0.01,
-                        "expon": 6.0,
-                        "max_groundwater_storage_meters": 1.0,
-                        "nash_storage": [
-                            0.0,
-                            0.0
-                        ],
-                        "soil_storage_percentage": 0.667,
-                        "groundwater_storage_percentage": 0.5,
-                        "timestep": 3600,
-                        "giuh": {
-                            "giuh_path": _where+"/data/giuh/GIUH.json",
-                            "crosswalk_path": _where+"/data/crosswalk.json"
-                        }
-                    }
+            {
+                "name": "bmi_c",
+                "params": {
+                    "name": "bmi_c",
+                    "model_type_name": "CFE",
+                    "main_output_variable": "Q_OUT",
+                    "init_config": "/Users/nels.frazier/workspace/ngen//data/bmi/c/cfe/cat-27_bmi_config.ini",
+                    "allow_exceed_end_time": False,
+                    "fixed_time_step": False,
+                    "uses_forcing_file": False,
+                    "variables_names_map": {
+                        "atmosphere_water__liquid_equivalent_precipitation_rate": "precip_rate",
+                        "water_potential_evaporation_flux": "potential_evapotranspiration",
+                        "atmosphere_air_water~vapor__relative_saturation": "SPFH_2maboveground",
+                        "land_surface_air__temperature": "TMP_2maboveground",
+                        "land_surface_wind__x_component_of_velocity": "UGRD_10maboveground",
+                        "land_surface_wind__y_component_of_velocity": "VGRD_10maboveground",
+                        "land_surface_radiation~incoming~longwave__energy_flux": "DLWRF_surface",
+                        "land_surface_radiation~incoming~shortwave__energy_flux": "DSWRF_surface",
+                        "land_surface_air__pressure": "PRES_surface"
+                    },
+                    "model_params": {
+                        "maxsmc": 0.21470105463393196,
+                        "satdk": 0.0003343056064723208,
+                        "slope": 0.5836411296916055,
+                        "multiplier": 465.8926732378259,
+                        "expon": 7.813285220525254
+                    },
+                    "library_file": "/Users/nels.frazier/workspace/ngen/extern/cfe/cmake_build/libcfebmi.dylib",
+                    "registration_function": "register_bmi_cfe"
                 }
-            ],
+            }
+        ],
             "forcing": {
                 "path": _where+"/data/cat-87_2015-12-01 00_00_00_2015-12-30 23_00_00.csv",
                 "start_time": "2015-12-01 00:00:00",
                 "end_time": "2015-12-30 23:00:00"
             },
-            "calibration": {"params": [
+            "calibration": {"CFE": [
                 {
                     "param": "some_param",
                     "min": 0.0,
