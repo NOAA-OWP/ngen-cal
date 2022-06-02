@@ -4,7 +4,7 @@ from os import chdir
 from pathlib import Path
 from ngen_cal.configuration import General, Model
 from ngen_cal.meta import CalibrationMeta
-from ngen_cal.search import dds
+from ngen_cal.search import dds, dds_set
 
 def main(general: General, model: Model):
     #seed the random number generators if requested
@@ -37,6 +37,10 @@ def main(general: General, model: Model):
     if model.strategy == 'explicit':
         for catchment in model.hy_catchments:
             dds(start_iteration, general.iterations, catchment, meta)
+
+    elif model.strategy == 'independent':
+        for catchment_set in model.hy_catchments:
+            dds_set(start_iteration, general.iterations, catchment_set, meta)
 
 if __name__ == "__main__":
 

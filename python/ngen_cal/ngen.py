@@ -1,4 +1,4 @@
-from pydantic import FilePath, root_validator, BaseModel
+from pydantic import FilePath, root_validator, BaseModel, Field
 from typing import Optional, Sequence, Dict, Mapping, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
@@ -14,11 +14,12 @@ import geopandas as gpd
 import pandas as pd
 import shutil
 from enum import Enum
-from ngen.config.realization import NgenRealization, Realization
+from ngen.config.realization import NgenRealization, Realization, CatchmentRealization
 from ngen.config.multi import MultiBMI
 from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
-from .calibration_cathment import CalibrationCatchment
+from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
+from .calibration_set import CalibrationSet
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -284,8 +285,59 @@ class NgenExplicit(NgenBase):
         
         super().update_config(i, params, id)
 
+class NgenIndependent(NgenBase):
+    
+    strategy: Literal[NgenStrategy.independent]
+    params: Mapping[str, Parameters] #required in this case...
+
+    def __init__(self, **kwargs):
+        #Let pydantic work its magic
+        super().__init__(**kwargs)
+        #now we work ours
+        start_t = self.ngen_realization.time.start_time
+        end_t = self.ngen_realization.time.end_time
+        #Setup each calibration catchment
+        catchments = []
+        eval_nexus = []
+        catchment_realizations = {}
+        g_conf = self.ngen_realization.global_config.dict(by_alias=True)
+        g_conf.pop('forcing')
+        for id in self._catchment_hydro_fabric.index:
+            #Copy the global configuration into each catchment
+            catchment_realizations[id] = CatchmentRealization(**g_conf)
+        self.ngen_realization.catchments = catchment_realizations
+        
+        for id, catchment in self.ngen_realization.catchments.items():#data['catchments'].items():
+            try:
+                fabric = self._catchment_hydro_fabric.loc[id]
+            except KeyError: # This probaly isn't strictly required since we built these from the index
+                continue
+            try:
+                nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
+            except KeyError:
+                raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+            try:
+                nwis = self._x_walk.loc[id.replace('cat', 'wb')]
+                #establish the hydro location for the observation nexus associated with this catchment
+                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
+                nexus = Nexus(nexus_data.name, location, (), id)
+                eval_nexus.append( nexus ) # FIXME why did I make this a tuple???
+            except KeyError:
+                #in this case, we don't care if all nexus are observable, just need one downstream
+                #FIXME use the graph to work backwards from an observable nexus to all upstream catchments
+                #and create independent "sets"
+                nexus = Nexus(nexus_data.name, None, (), id)
+            #FIXME pick up params per catchmment somehow???
+            params = _map_params_to_realization(self.params, catchment)
+            catchments.append(AdjustableCatchment(self.workdir, id, nexus, params))
+
+        if len(eval_nexus) != 1:
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
+        # FIXME hard coded routing file name...
+        self._catchments.append(CalibrationSet(catchments, eval_nexus[0], "flowveldepth_Ngen1.h5", start_t, end_t))
+
 class Ngen(BaseModel, Configurable, smart_union=True):
-    __root__: Union[NgenExplicit, NgenBase]
+    __root__: Union[NgenExplicit, NgenIndependent] = Field(discriminator="strategy")
 
     #proxy methods for Configurable
     def get_args(self) -> str:

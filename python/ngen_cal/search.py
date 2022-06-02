@@ -123,3 +123,46 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Adjustable'
         _evaluate(i, calibration_object, meta)
         calibration_object.check_point(meta.workdir)
 
+def dds_set(start_iteration: int, iterations: int,  calibration_set: 'CalibrationSet', meta: 'CalibrationMeta'):
+    """
+        DDS search that applies to a set of calibration objects.
+
+        This works by giving each object a parameter space, but allows a single execution
+        step to happen each iteration, and then each object in the set can be adjusted independently
+        and then evaluated as a whole.
+    """
+    # TODO I think the can ultimately be refactored and merged with dds, there only a couple very
+    # minor differenes in this implementation, and I think those can be abstrated away
+    # by carefully crafting sets and adjustables before this function is ever reached.
+    if iterations < 2:
+        raise(ValueError("iterations must be >= 2"))
+    if start_iteration > iterations:
+        raise(ValueError("start_iteration must be <= iterations"))
+    #TODO make this a parameter
+    neighborhood_size = 0.2
+
+    for calibration_object in calibration_set.adjustables:
+        #precompute sigma for each variable based on neighborhood_size and bounds
+        calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
+    
+    #Produce the baseline simulation output
+    if start_iteration == 0:
+        if calibration_set.output is None:
+            #We are starting a new calibration and do not have an initial output state to evaluate, compute it
+            #Need initial states  (iteration 0) to start DDS loop
+            print("Running {} to produce initial simulation".format(meta.cmd))
+            _execute(meta)
+        _evaluate(0, calibration_set, meta)
+        calibration_set.check_point(meta.workdir)
+        start_iteration += 1
+
+    for i in range(start_iteration, iterations+1):
+        #Calculate probability of inclusion
+        inclusion_probability = 1 - log(i)/log(iterations)
+        for calibration_object in calibration_set.adjustables:
+            dds_update(i, inclusion_probability, calibration_object, meta)
+        #Run cmd Again...
+        print("Running {} for iteration {}".format(meta.cmd, i))
+        _execute(meta)
+        _evaluate(i, calibration_set, meta)
+        calibration_set.check_point(meta.workdir)
