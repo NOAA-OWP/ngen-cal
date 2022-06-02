@@ -108,3 +108,44 @@ class CalibrationSet(Evaluatable):
         """
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(path/adjustable.check_point_file)
+
+class UniformCalibrationSet(CalibrationSet, Adjustable):
+    """
+        A HY_Features based catchment with additional calibration information/functionality
+    """
+
+    def __init__(self, eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str,  params: dict = {}):
+        """
+
+        """
+        super().__init__(adjustables=[self], eval_nexus=eval_nexus, routing_output=routing_output, start_time=start_time, end_time=end_time)
+        Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
+
+        #For now, set this to None so meta update does the right thing
+        #at some point, may want to refactor model update to handle this better
+        self._id = None 
+
+    #Required Adjustable properties
+    @property
+    def id(self) -> str:
+        """
+            An identifier for this unit, used to save unique checkpoint information.
+        """
+        return self._id
+
+    def save_output(self, i) -> None:
+        """
+            Save the last output to output for iteration i
+        """
+        #FIXME ensure _output_file exists
+        #FIXME re-enable this once more complete
+        shutil.move(self._output_file, '{}_last'.format(self._output_file))
+    
+    #update handled in meta, TODO remove this method???
+    def update(self, iteration: int) -> None:
+        pass
+
+    #Override this file name
+    @property
+    def check_point_file(self) -> 'Path':
+        return Path('{}_parameter_df_state.parquet'.format(self._eval_nexus.id))
