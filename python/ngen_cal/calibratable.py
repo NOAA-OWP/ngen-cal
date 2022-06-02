@@ -7,10 +7,9 @@ if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
 
-
-class Calibratable(ABC):
+class Adjustable(ABC):
     """
-        A Calibratable interface defining required properties for a calibratable object
+        An Adjustable interface defning required properties for adjusting an object's state
     """
 
     def __init__(self, df: Optional['DataFrame'] = None):
@@ -36,7 +35,7 @@ class Calibratable(ABC):
     @abstractmethod
     def id(self) -> str:
         """
-            An identifier for this calibratable unit, used to save unique checkpoint information.
+            An identifier for this unit, used to save unique checkpoint information.
         """
         pass
 
@@ -51,7 +50,8 @@ class Calibratable(ABC):
     def update(self, iteration: int) -> None:
         """
             Update the models information to prepare for the next model run
-
+            FIXME this is currently done in the CalibrationMeta
+            Need to decide if this needs to remain???
             Parameters
             ----------
             iteration:
@@ -64,7 +64,7 @@ class Calibratable(ABC):
         """
             Filename checkpoint files are saved to
         """
-        return Path('{}_calibration_df_state.parquet'.format(self.id))
+        return Path('{}_parameter_df_state.parquet'.format(self.id))
 
     def check_point(self, path: 'Path') -> None:
         """
@@ -77,6 +77,18 @@ class Calibratable(ABC):
             Load saved calibration information
         """
         self._df = read_parquet(path/self.check_point_file)
+
+    @abstractmethod
+    def save_output(self, i: int) -> None:
+        """
+            Save the last output of the runtime for iteration i
+        """
+        pass
+
+class Evaluatable(ABC):
+    """
+        An Evaluatable interface defining required properties for a evaluating and object's state
+    """
 
     @property
     @abstractmethod
@@ -97,9 +109,9 @@ class Calibratable(ABC):
         """
         pass
 
-    @abstractmethod
-    def save_output(self, i: int) -> None:
-        """
-            Save the last output of the runtime for iteration i
-        """
-        pass
+class Calibratable(Adjustable, Evaluatable):
+    """
+        A Calibratable interface defining required properties for a calibratable object
+    """
+    def __init__(self, df: Optional['DataFrame'] = None):
+        Adjustable.__init__(self, df)
