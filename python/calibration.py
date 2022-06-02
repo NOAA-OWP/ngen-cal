@@ -42,6 +42,10 @@ def main(general: General, model: Model):
         for catchment_set in model.hy_catchments:
             dds_set(start_iteration, general.iterations, catchment_set, meta)
 
+    elif model.strategy == 'uniform':
+        for catchment_set in model.hy_catchments:
+            dds_set(start_iteration, general.iterations, catchment_set, meta)
+
 if __name__ == "__main__":
 
 

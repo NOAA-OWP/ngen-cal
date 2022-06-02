@@ -19,7 +19,7 @@ from ngen.config.multi import MultiBMI
 from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
 from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
-from .calibration_set import CalibrationSet
+from .calibration_set import CalibrationSet, UniformCalibrationSet
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -336,8 +336,42 @@ class NgenIndependent(NgenBase):
         # FIXME hard coded routing file name...
         self._catchments.append(CalibrationSet(catchments, eval_nexus[0], "flowveldepth_Ngen1.h5", start_t, end_t))
 
+class NgenUniform(NgenBase):
+    """
+        Uses a global ngen configuration and permutes just this global parameter space
+        which is applied to each catchment in the hydrofabric being simulated.
+    """
+    strategy: Literal[NgenStrategy.uniform]
+    params: Mapping[str, Parameters] #required in this case...
+
+    def __init__(self, **kwargs):
+        #Let pydantic work its magic
+        super().__init__(**kwargs)
+        #now we work ours
+        start_t = self.ngen_realization.time.start_time
+        end_t = self.ngen_realization.time.end_time
+        eval_nexus = []
+        
+        for id, toid in self._catchment_hydro_fabric['toid'].iteritems():
+            #look for an observable nexus
+            try:
+                nexus_data = self._nexus_hydro_fabric.loc[toid]
+                nwis = self._x_walk.loc[id.replace('cat', 'wb')]
+                #establish the hydro location for the observation nexus associated with this catchment
+                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
+                nexus = Nexus(nexus_data.name, location, (), id)
+                eval_nexus.append( nexus )
+            except KeyError:
+                #not an observable nexus, try the next one
+                continue
+        if len(eval_nexus) != 1:
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
+        # FIXME hard coded routing file name...
+        params = _params_as_df(self.params)
+        self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output="flowveldepth_Ngen1.h5", start_time=start_t, end_time=end_t, params=params))
+            
 class Ngen(BaseModel, Configurable, smart_union=True):
-    __root__: Union[NgenExplicit, NgenIndependent] = Field(discriminator="strategy")
+    __root__: Union[NgenExplicit, NgenIndependent, NgenUniform] = Field(discriminator="strategy")
 
     #proxy methods for Configurable
     def get_args(self) -> str:
