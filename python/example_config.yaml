@@ -70,6 +70,40 @@ general:
   # to undesirable results
   iterations: 100
 
+#Describe the model parameters you want to use, valid for independent and uniform
+#ngen strategies
+cfe_params: &cfe_params
+  - 
+      name: maxsmc
+      min: 0.2
+      max: 1.0
+      init: 0.439
+  - 
+      name: satdk
+      min: 0.0
+      max: 0.000726
+      init: 3.38e-06
+  - 
+      name: slope
+      min: 0.0
+      max: 1.0
+      init: 0.01
+#   - 
+#       name: bb
+#       min: 0.0
+#       max: 21.9
+#       init: 4.05
+  - 
+      name: multiplier
+      min: 10.7
+      max: 9997.3
+      init: 100.0
+  - 
+      name: expon
+      min: 1.0
+      max: 8.0
+      init: 6.0
+
 #Model specifc configuration
 model:
     # Which model to execute for the search optimization
@@ -97,3 +131,10 @@ model:
     nexus: ../cfe-cal-2/hydrofabric/nexus_data.geojson
     # Required path to hydrofabric crosswalk file
     crosswalk: ../cfe-cal-2/hydrofabric/crosswalk.json
+    #ngen calibration strategies include
+    #uniform: Each catchment shares the same parameter space, evaluates at one observable nexus
+    #independet: Each catchment upstream of observable nexus gets its own permuated parameter space, evalutates at one observable nexus 
+    #explicit: only calibrates basins in the realization_config with a "calibration" definition and an observable nexus
+    strategy: independent
+    params: 
+        CFE: *cfe_params
