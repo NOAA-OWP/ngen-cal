@@ -228,8 +228,8 @@ class NgenBase(ModelExec):
                     p = groups.get_group(name)
                     m.params.model_params = p[str(i)].to_dict()
         else:
-            p = groups.get_group(module.params.model_name)
-            module.params.model_params = p[str(i)].to_dict()
+            p = groups.get_group(module.model_name)
+            module.model_params = p[str(i)].to_dict()
         
         with open(self.realization, 'w') as fp:
                 fp.write( self.ngen_realization.json(by_alias=True, exclude_none=True, indent=4))
