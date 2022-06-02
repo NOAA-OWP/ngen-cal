@@ -3,6 +3,7 @@ pathlib
 pytest
 pytest-mock
 pyarrow
+tables #for hdf5 reading
 pandas~=1.1.2
 geopandas
 flake8
