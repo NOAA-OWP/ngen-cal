@@ -13,13 +13,13 @@ class Forcing(BaseModel, smart_union=True):
         """Enumeration of the supported NGEN forcing provider strings
         """
         CSV = "CsvPerFeature"
-        NetCDF = "FIXME"
+        NetCDF = "NetCDF"
     
     #required
     file_pattern: Optional[Union[FilePath, str]]
     path: Union[DirectoryPath, FilePath, str]
     #reasonable? default
-    provider: Provider = Field(Provider.CSV, const=True)
+    provider: Provider = Field(Provider.CSV)
 
 class Time(BaseModel):
     """Model for ngen time configuraiton components
