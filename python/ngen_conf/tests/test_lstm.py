@@ -14,6 +14,7 @@ def test_no_lib(lstm_params):
     lstm = LSTM(**lstm_params)
     assert "library" not in lstm.dict().keys()
 
+@pytest.mark.parametrize("forcing",["csv", "netcdf"], indirect=True )
 def test_lstm_formulation(lstm_params, forcing):
     lstm = LSTM(**lstm_params)
     f = {"params":lstm, "name":"bmi_python"}

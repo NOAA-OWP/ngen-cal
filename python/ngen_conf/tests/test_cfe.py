@@ -14,6 +14,8 @@ def test_name_map_override(cfe_params):
     cfe = CFE(**cfe_params)
     assert cfe.name_map["atmosphere_water__liquid_equivalent_precipitation_rate"] == 'RAINRATE'
 
+
+@pytest.mark.parametrize("forcing",["csv", "netcdf"], indirect=True )
 def test_cfe_formulation(cfe_params, forcing):
     cfe = CFE(**cfe_params)
     f = {"params":cfe, "name":"bmi_c"}
