@@ -14,10 +14,17 @@ _workdir=Path(__file__).parent
 Fixtures for setting up various ngen-conf components for testing
 """
 @pytest.fixture
-def forcing():
+def forcing(request):
+    which = request.param
+    if which == "netcdf":
+        provider = Forcing.Provider.NetCDF
+    else:
+        #default to csv
+        provider = Forcing.Provider.CSV
+    print(provider)
     forcing = _workdir.joinpath("data/forcing/")
     #Share forcing for all formulations
-    return Forcing(file_pattern=".*{{id}}.*.csv", path=forcing, provider=Forcing.Provider.CSV)
+    return Forcing(file_pattern=".*{{id}}.*.csv", path=forcing, provider=provider)
 
 @pytest.fixture
 def time():
