@@ -14,6 +14,7 @@ def test_name_map_override(topmod_params):
     topmod = Topmod(**topmod_params)
     assert topmod.name_map["atmosphere_water__liquid_equivalent_precipitation_rate"] == 'RAINRATE'
 
+@pytest.mark.parametrize("forcing",["csv", "netcdf"], indirect=True )
 def test_topmodformulation(topmod_params, forcing):
     topmod = Topmod(**topmod_params)
     f = {"params":topmod, "name":"bmi_c"}
