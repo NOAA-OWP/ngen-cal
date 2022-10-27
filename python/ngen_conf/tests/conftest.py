@@ -3,6 +3,7 @@ from pathlib import Path
 from ngen.config.configurations import Forcing, Time, Routing
 from ngen.config.formulation import Formulation
 from ngen.config.cfe import CFE
+from ngen.config.sloth import SLOTH
 from ngen.config.noahowp import NoahOWP
 from ngen.config.multi import MultiBMI
 
@@ -46,6 +47,17 @@ def cfe_params():
     return data
 
 @pytest.fixture
+def sloth_params():
+    path = _workdir.joinpath("data/sloth/")
+    data = {'config_prefix':path, 
+            # 'config': "{{id}}_config.txt", 
+            'config': "config.txt", 
+            'library_prefix':path,
+            'library': 'libfakesloth.so',
+            'main_output_variable': 'TEST'}
+    return data
+
+@pytest.fixture
 def topmod_params():
     path = _workdir.joinpath("data/CFE/")
     data = {'config_prefix':path, 
@@ -70,6 +82,10 @@ def noahowp_params():
 @pytest.fixture
 def cfe(cfe_params):
     return CFE(**cfe_params)
+
+@pytest.fixture
+def sloth(sloth_params):
+    return SLOTH(**sloth_params)
 
 @pytest.fixture
 def noahowp(noahowp_params):
