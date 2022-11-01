@@ -5,9 +5,9 @@ import numpy as np # type: ignore
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ngen_cal import Adjustable, Evaluatable, CalibrationMeta, CalibrationSet
+    from ngen.cal import Adjustable, Evaluatable, CalibrationMeta, CalibrationSet
 
-from ngen_cal.objectives import custom
+from ngen.cal.objectives import custom
 
 def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range=None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
