@@ -1,6 +1,6 @@
 from pathlib import Path
 import matplotlib.pylab as plt
-from ngen_cal import plot_objective, plot_stuff, plot_obs, plot_output, plot_parameter_space
+from ngen.cal import plot_objective, plot_stuff, plot_obs, plot_output, plot_parameter_space
 
 workdir = Path("../data/calibration")
 
