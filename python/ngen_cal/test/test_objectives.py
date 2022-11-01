@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import pandas as pd # type: ignore
 if TYPE_CHECKING:
     from pandas import DataFrame
-from ngen_cal.objectives import *
+from ngen.cal.objectives import *
 
 #A data frame of "perfectly simulated" data
 perfect_data = pd.DataFrame({'Simulated_cms':[0,1,2,3,4,5], 'Observed_cms':[0,1,2,3,4,5]})

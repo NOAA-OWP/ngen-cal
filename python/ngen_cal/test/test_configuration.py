@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Generator
 from .utils import config
 
 if TYPE_CHECKING:
-    from ..configuration import Configuration
+    from ngen.cal.configuration import Configuration
 """
     Test suite for reading and manipulating ngen configration files
 """

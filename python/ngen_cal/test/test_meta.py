@@ -4,7 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..meta import CalibrationMeta
+    from ngen.cal.meta import CalibrationMeta
 
 """
     Test suite for reading and manipulating ngen configration files
