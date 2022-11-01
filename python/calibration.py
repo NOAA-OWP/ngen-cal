@@ -2,9 +2,9 @@
 import yaml
 from os import chdir
 from pathlib import Path
-from ngen_cal.configuration import General, Model
-from ngen_cal.meta import CalibrationMeta
-from ngen_cal.search import dds, dds_set
+from ngen.cal.configuration import General, Model
+from ngen.cal.meta import CalibrationMeta
+from ngen.cal.search import dds, dds_set
 
 def main(general: General, model: Model):
     #seed the random number generators if requested
