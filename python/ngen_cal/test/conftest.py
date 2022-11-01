@@ -5,10 +5,10 @@ from copy import deepcopy
 import json
 import pandas as pd # type: ignore
 import geopandas as gpd # type: ignore
-from ..configuration import General
-from ..ngen import Ngen
-from ..meta import CalibrationMeta
-from ..calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
+from ngen.cal.configuration import General
+from ngen.cal.ngen import Ngen
+from ngen.cal.meta import CalibrationMeta
+from ngen.cal.calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
 from hypy import Nexus, HydroLocation
 
 from .utils import *

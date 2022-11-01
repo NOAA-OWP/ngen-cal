@@ -1,11 +1,11 @@
 import pytest
 from typing import TYPE_CHECKING
 
-from ..search import dds
+from ngen.cal.search import dds
 
 if TYPE_CHECKING:
-    from ngen_cal.meta import CalibrationMeta
-    from ngen_cal.calibration_cathment import CalibrationCatchment
+    from ngen.cal.meta import CalibrationMeta
+    from ngen.cal.calibration_cathment import CalibrationCatchment
 
 """
     Test suite for calibrtion search algorithms

@@ -2,7 +2,7 @@ import pytest
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ngen_cal.calibration_cathment import CalibrationCatchment
+    from ngen.cal.calibration_cathment import CalibrationCatchment
 
 """
     Test suite for calibratable_catchment
