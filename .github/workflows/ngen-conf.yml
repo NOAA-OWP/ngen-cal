@@ -57,11 +57,11 @@ jobs:
         python -m venv venv
         source ./venv/bin/activate
         pip install "python/ngen_cal[develop]"
+        # NOTE: Install checked out version of ngen_conf.
+        # This ensure ngen_cal tests test against ngen_conf source checked out by the runner.
+        pip install python/ngen_conf
 
     - name: Testing ngen_cal with pytest
       run: |
         source ./venv/bin/activate
-        # NOTE: Install checked out version of ngen_conf.
-        # This ensure ngen_cal tests test against ngen_conf source checked out by the runner.
-        pip install python/ngen_conf
         pytest python/ngen_cal
