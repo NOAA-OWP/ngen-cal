@@ -38,27 +38,26 @@ jobs:
       run: |
         # setup virtual environment
         python -m venv venv
-        source ./venv/bin/activate
 
     - name: Testing ngen_conf with pytest
       run: |
+        source ./venv/bin/activate
         pip install "python/ngen_conf[develop]"
         pytest python/ngen_conf
 
     - name: Cleaning up python virtual environment
       run: |
         # cleanup virtual environment
-        deactivate
         rm -rf venv
 
     - name: Installing ngen_cal in python virtual environment
       run: |
         # setup virtual environment
         python -m venv venv
-        source ./venv/bin/activate
 
     - name: Testing ngen_cal with pytest
       run: |
+        source ./venv/bin/activate
         pip install "python/ngen_cal[develop]"
 
         # NOTE: Install checked out version of ngen_conf.
