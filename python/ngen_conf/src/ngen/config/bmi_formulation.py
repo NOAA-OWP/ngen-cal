@@ -36,7 +36,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     allow_exceed_end_time: bool = False
     fixed_time_step: bool = False
     uses_forcing_file: bool = False
-    name_map: Mapping[str, str] = Field({}, alias='variables_names_map')
+    name_map: Mapping[str, str] = Field(None, alias='variables_names_map')
 
     #strictly optional fields (null/none) by default
     output_vars: Optional[Sequence[str]] = Field(None, alias="output_variables")
