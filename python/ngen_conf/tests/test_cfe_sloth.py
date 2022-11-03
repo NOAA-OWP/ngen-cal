@@ -1,10 +1,12 @@
 import json
 import pytest
+from pathlib import Path
 from ngen.config.realization import Realization, NgenRealization
 
 @pytest.fixture()
 def data():
-    with open('test_config.json') as fp:
+    test_file = Path(__file__).parent/'test_config.json'
+    with open(test_file) as fp:
         data = json.load(fp)
     return data
 
