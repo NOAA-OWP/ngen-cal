@@ -9,7 +9,7 @@ class Formulation(BaseModel, smart_union=True):
     """
     #TODO make this an enum?
     name: str
-    params:  "KnownFormulations" = Field(descriminator="model_name")
+    params:  "KnownFormulations" = Field(discriminator="model_name")
 
     def resolve_paths(self, relative_to: 'Optional[Path]'=None):
         self.params.resolve_paths(relative_to)
