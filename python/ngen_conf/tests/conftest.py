@@ -101,7 +101,7 @@ def multi(cfe, noahowp, forcing):
     noahowp.allow_exceed_end_time=True
     f1 = Formulation(name=noahowp.name, params=noahowp)
     f2 = Formulation(name=cfe.name, params=cfe)
-    return MultiBMI(modules=[f1.dict(), f2.dict()], allow_exceed_end_time=True)
+    return MultiBMI(modules=[f1.dict(by_alias=True), f2.dict(by_alias=True)], allow_exceed_end_time=True)
 
 @pytest.fixture
 def lstm_params():
@@ -112,8 +112,8 @@ def lstm_params():
 
 @pytest.fixture
 def multi_params(cfe, noahowp):
-    data = {"modules":[Formulation(name=noahowp.name, params=noahowp).dict(), 
-                       Formulation(name=cfe.name, params=cfe).dict()]
+    data = {"modules":[Formulation(name=noahowp.name, params=noahowp).dict(by_alias=True),
+                       Formulation(name=cfe.name, params=cfe).dict(by_alias=True)]
             }
     return data
 
