@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 
 from .bmi_formulation import BMIC
@@ -19,7 +19,7 @@ class Topmod(BMIC):
     main_output_variable: str = 'Qout'
     registration_function: str = "register_bmi_topmodel"
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: str = Field("TOPMODEL", const=True, alias="model_type_name")
+    model_name: Literal["TOPMODEL"] = Field("TOPMODEL", const=True, alias="model_type_name")
 
     #can set some default name map entries...will be overridden at construction
     #if a name_map with the same key is passed in, otherwise the name_map

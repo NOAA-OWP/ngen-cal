@@ -9,7 +9,7 @@ class LSTM(BMIPython):
     python_type: Union[PyObject, str] = "bmi_lstm.bmi_LSTM"
     main_output_variable: Literal["land_surface_water__runoff_depth"] = "land_surface_water__runoff_depth"
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: str = Field("LSTM", alias="model_type_name")
+    model_name: Literal["LSTM"] = Field("LSTM", alias="model_type_name")
 
     _variable_names_map =  {
             "atmosphere_water__time_integral_of_precipitation_mass_flux":"RAINRATE"

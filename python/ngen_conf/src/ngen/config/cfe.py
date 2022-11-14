@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 
 from .bmi_formulation import BMIC
@@ -20,7 +20,7 @@ class CFE(BMIC):
     main_output_variable: str = 'Q_OUT'
     registration_function: str = "register_bmi_cfe"
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: str = Field("CFE", const=True, alias="model_type_name")
+    model_name: Literal["CFE"] = Field("CFE", const=True, alias="model_type_name")
 
     #can set some default name map entries...will be overridden at construction
     #if a name_map with the same key is passed in, otherwise the name_map
