@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel, Field
 
 from .bmi_formulation import BMIFortran
@@ -17,7 +18,7 @@ class NoahOWP(BMIFortran):
     model_params: NoahOWPParams = None
     main_output_variable: str = 'QINSUR'
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: str = Field("NoahOWP", const=True, alias="model_type_name")
+    model_name: Literal["NoahOWP"] = Field("NoahOWP", const=True, alias="model_type_name")
 
     _variable_names_map =  {
             "PRCPNONC": "atmosphere_water__liquid_equivalent_precipitation_rate",
