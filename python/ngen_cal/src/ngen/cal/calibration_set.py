@@ -5,6 +5,9 @@ import pandas as pd
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
+    from datetime import datetime
+    from typing import Tuple
+    from .model import EvaluationOptions
 from pathlib import Path
 from hypy.nexus import Nexus
 from .calibratable import Adjustable, Evaluatable
@@ -15,7 +18,7 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str):
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
         """
 
         """
@@ -31,6 +34,11 @@ class CalibrationSet(Evaluatable):
         #observations in ft^3/s convert to m^3/s
         self._observed = self._observed * 0.028316847
         self._output = None
+        self._eval_range = eval_params._eval_range
+    
+    @property
+    def evaluation_range(self) -> 'Tuple[datetime, datetime]':
+        return self._eval_range
 
     @property
     def adjustables(self):
@@ -114,11 +122,11 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str,  params: dict = {}):
+    def __init__(self, eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
         """
 
         """
-        super().__init__(adjustables=[self], eval_nexus=eval_nexus, routing_output=routing_output, start_time=start_time, end_time=end_time)
+        super().__init__(adjustables=[self], eval_nexus=eval_nexus, routing_output=routing_output, start_time=start_time, end_time=end_time, eval_params=eval_params)
         Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
 
         #For now, set this to None so meta update does the right thing

@@ -116,8 +116,6 @@ strategy_sensitivity = {"type": "sensitivity"}
 
 general_no_defaults = {"strategy":strategy_estimation, 
                     "iterations": 10,
-                    "evaluation_start": "2015-12-01 00:00:00", 
-                    "evaluation_stop": "2015-12-30 23:00:00",
                     "restart": True,
                     "start_iteration": 5,
                     "workdir": "/tmp",
@@ -130,4 +128,9 @@ general_w_defaults = {"strategy":strategy_estimation,
                     "evaluation_start": "2015-12-01 00:00:00", 
                     "evaluation_stop": "2015-12-30 23:00:00"}
 
-model_params = {"binary":"echo", "args":"ngen args"}
+evaluation_options = {"eval_params":{
+                        "evaluation_start": "2015-12-01 00:00:00", 
+                        "evaluation_stop": "2015-12-30 23:00:00"}
+                    }
+
+model_params = {"binary":"echo", "args":"ngen args", **evaluation_options}

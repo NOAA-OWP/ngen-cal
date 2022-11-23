@@ -41,13 +41,6 @@ general:
   # defaults to ./
   #workdir: ./
 
-  # This is the range of the hydrograph dates to run the objective function over
-  # To evaluate the entire period, make sure this range is the same as the simulation
-  # run time reange.  Future versions this will become optional and default to evaluating
-  # the entire range
-  evaluation_start: '2015-12-15 12:00:00'
-  evaluation_stop: '2015-12-30 23:00:00'
-
   # logging locations
   # location to output stdout/stderr from model runs
   # defaults to None, which sends all output to /dev/null
@@ -138,3 +131,9 @@ model:
     strategy: independent
     params: 
         CFE: *cfe_params
+    
+    eval_params:
+      # This is the range of the hydrograph dates to run the objective function over
+      # To evaluate the entire period, you can comment these lines out
+      #evaluation_start: '2015-12-15 12:00:00'
+      #evaluation_stop: '2015-12-30 23:00:00'

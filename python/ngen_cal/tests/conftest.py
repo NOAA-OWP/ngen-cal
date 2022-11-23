@@ -9,6 +9,7 @@ from ngen.cal.configuration import General
 from ngen.cal.ngen import Ngen
 from ngen.cal.meta import CalibrationMeta
 from ngen.cal.calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
+from ngen.cal.model import EvaluationOptions
 from hypy import Nexus, HydroLocation
 
 from .utils import *
@@ -78,6 +79,7 @@ def ngen_config(realization_config) -> Ngen:
                    "nexus": Path(__file__).parent/"data/nexus_data.geojson",
                    "crosswalk": Path(__file__).parent/"data/crosswalk.json",
                    "binary": "echo ngen"}
+    ngen_config.update(model_params)
     model = Ngen.parse_obj(ngen_config)
     return model
 
@@ -97,14 +99,6 @@ def meta(ngen_config, general_config, mocker) -> Generator[CalibrationMeta, None
         build up a meta object to test
     """
     m = CalibrationMeta(ngen_config, general_config)
-    #Override the eval range property
-    #should probably refactor to allow testing of eval range,
-    #but that also rquires creating a MockLocation using a time range
-    #that we can subset out of for creation of a meta object
-    mocker.patch(__name__+'.CalibrationMeta.evaluation_range',
-                new_callable=mocker.PropertyMock,
-                return_value = None
-                )
     yield m
 
 @pytest.fixture
@@ -158,7 +152,8 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = output.index[0]
     end = output.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, "Q_Out", data)
+    eval_options = EvaluationOptions(**evaluation_options)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, "Q_Out", eval_options, data)
     #Reset observed here since it does unit conversion from cfs -> cms
     catchment.observed = output.rename(columns={'sim_flow':'obs_flow'})
     return catchment
@@ -180,6 +175,7 @@ def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, 
     #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
     start = ts.index[0]
     end = ts.index[-1]
-    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', data)
+    eval_options = EvaluationOptions(**evaluation_options)
+    catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', eval_options, data)
 
     return catchment
