@@ -53,21 +53,6 @@ class Estimation(BaseModel):
     """
     algorithm: Algorithm
 
-    """
-        Optional objective function selector
-        TODO allow for additional kwargs to be supplied to these functions?
-        Document that all functions must take obs, sim args
-    """
-    objective: Optional[Union[Objective, PyObject]] = Objective.custom
-    target: Union[Literal['min'], Literal['max'], float] = 'min'
-
-    @validator("objective")
-    def validate_objective(cls, value):
-        if value is None:
-            raise ValueError("Objective function must not be None")
-        
-        return value
-
 class Sensitivity(BaseModel):
     """
         Sensitivity strategy for defining a sensitivity analysis

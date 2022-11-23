@@ -122,6 +122,10 @@ class EvaluatableCatchment(Evaluatable):
     @observed.setter
     def observed(self, df):
         self._observed = df
+    
+    @property
+    def objective(self, *args, **kwargs) -> 'Callable':
+        return self._objective
 
 class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
     """

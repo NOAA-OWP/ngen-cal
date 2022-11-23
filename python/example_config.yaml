@@ -12,18 +12,6 @@ general:
       type: estimation
       #defaults to dds (currently, the only supported algorithm)
       algorithm: "dds"
-      # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
-      #objective: nnse
-      # one can also provide a module path to any function that takes
-      # obs, sim array-like arguments and produces a single value float
-      # for example, nnse above could be called this way
-      #objective: "ngen_cal.objectives.normalized_nash_sutcliffe"
-      # Can choose to minimize the objective function or maximixe it
-      # choices are 'min', 'max'.
-      # An an explicit floating point value can be supplied instead, and the
-      # optmization will attempt to converge on that value
-      # Default: min
-      #target: 0.0
     #in theory, could do a senstivity strategy like this
     #sensitivity:
     #  objective: null
@@ -97,6 +85,20 @@ cfe_params: &cfe_params
       max: 8.0
       init: 6.0
 
+ngen_objective: &ngen_objective
+  # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
+  #objective: nnse
+  # one can also provide a module path to any function that takes
+  # obs, sim array-like arguments and produces a single value float
+  # for example, nnse above could be called this way
+  #objective: "ngen_cal.objectives.normalized_nash_sutcliffe"
+  # Can choose to minimize the objective function or maximixe it
+  # choices are 'min', 'max'.
+  # An an explicit floating point value can be supplied instead, and the
+  # optmization will attempt to converge on that value
+  # Default: min
+  #target: 0.0
+
 #Model specifc configuration
 model:
     # Which model to execute for the search optimization
@@ -137,3 +139,4 @@ model:
       # To evaluate the entire period, you can comment these lines out
       #evaluation_start: '2015-12-15 12:00:00'
       #evaluation_stop: '2015-12-30 23:00:00'
+      objective: *ngen_objective

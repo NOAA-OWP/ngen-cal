@@ -119,6 +119,18 @@ class Evaluatable(ABC):
             This should be a tuple in the form of (start_time, end_time).
         """
         pass
+    
+    @property
+    @abstractmethod
+    def objective(self, *args, **kwargs) -> 'Callable':
+        """
+            The objective function to compute cost values with.
+
+        Returns:
+            Callable: objective function which takes simulation and observation time series as args
+        """
+        pass
+        #return self._general.strategy.objective(*args, **kwargs)
  
 class Calibratable(Adjustable, Evaluatable):
     """

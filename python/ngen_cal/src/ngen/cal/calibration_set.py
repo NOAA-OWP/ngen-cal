@@ -117,6 +117,10 @@ class CalibrationSet(Evaluatable):
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(path/adjustable.check_point_file)
 
+    @property
+    def objective(self, *args, **kwargs) -> 'Callable':
+        return self._objective
+
 class UniformCalibrationSet(CalibrationSet, Adjustable):
     """
         A HY_Features based catchment with additional calibration information/functionality

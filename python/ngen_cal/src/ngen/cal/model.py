@@ -1,9 +1,9 @@
-from pydantic import BaseModel, DirectoryPath, conint
-from typing import Optional, Tuple
+from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator
+from typing import Optional, Tuple, Union, Literal
 from datetime import datetime
 from pathlib import Path
 from abc import ABC, abstractmethod
-
+from .strategy import Objective
 # additional constrained types
 PosInt = conint(gt=-1)
 
@@ -41,6 +41,13 @@ class EvaluationOptions(BaseModel):
     evaluation_start: Optional[datetime]
     evaluation_stop: Optional[datetime]
     _eval_range: Tuple[datetime, datetime] = None
+    """
+        Optional objective function selector
+        TODO allow for additional kwargs to be supplied to these functions?
+        Document that all functions must take obs, sim args
+    """
+    objective: Optional[Union[Objective, PyObject]] = Objective.custom
+    target: Union[Literal['min'], Literal['max'], float] = 'min'
 
     class Config:
         """Override configuration for pydantic BaseModel
@@ -57,6 +64,13 @@ class EvaluationOptions(BaseModel):
             self._eval_range = (self.evaluation_start, self.evaluation_stop)
         else: #TODO figure out open/close range???
             self._eval_range=None
+
+    @validator("objective")
+    def validate_objective(cls, value):
+        if value is None:
+            raise ValueError("Objective function must not be None")
+        
+        return value
 
 class ModelExec(BaseModel, Configurable):
     """
