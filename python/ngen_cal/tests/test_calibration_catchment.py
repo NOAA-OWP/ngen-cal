@@ -19,12 +19,12 @@ def test_df(catchment: 'CalibrationCatchment') -> None:
     assert catchment.df.iloc[0]['max'] == 1.0
 
 @pytest.mark.usefixtures("catchment2")
-def test_output(catchment2: 'CalibrationCatchment', mocker) -> None:
+def test_output(catchment2: 'CalibrationCatchment', monkeypatch) -> None:
     """
         Test proper handling of non-existent output
     """
-    mock = mocker.patch('builtins.open')
-    mock.mock_open.side_effect = FileNotFoundError()
+    import pandas as pd
+    monkeypatch.setattr(pd, "read_csv", lambda *args, **kwargs: FileNotFoundError())
     output = catchment2.output
     assert output == None
 
