@@ -159,6 +159,3 @@ class CalibrationMeta:
             start_iteration = 0
 
         return start_iteration
-
-    def objective(self, *args, **kwargs):
-        return self._general.strategy.objective(*args, **kwargs)
