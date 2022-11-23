@@ -6,6 +6,8 @@ from pathlib import Path
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
+    from datatime import datetime
+    from typing import Tuple
 
 class Adjustable(ABC):
     """
@@ -109,6 +111,15 @@ class Evaluatable(ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def evaluation_range(self) -> 'Tuple[datetime, datetime]':
+        """
+            The datetime range to evaluate the model results at.
+            This should be a tuple in the form of (start_time, end_time).
+        """
+        pass
+ 
 class Calibratable(Adjustable, Evaluatable):
     """
         A Calibratable interface defining required properties for a calibratable object

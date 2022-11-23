@@ -36,3 +36,6 @@ def test_observed(catchment: 'CalibrationCatchment') -> None:
     catchment.observed = None
     with pytest.raises(RuntimeError):
         obs = catchment.observed
+
+#TODO test catchment_set
+#TODO test evaluation_range?

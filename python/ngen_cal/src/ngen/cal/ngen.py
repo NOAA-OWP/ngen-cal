@@ -80,7 +80,7 @@ class NgenBase(ModelExec):
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
-    params: Optional[ Mapping[str, Parameters] ] 
+    params: Optional[ Mapping[str, Parameters] ]
     #dependent fields
     binary: str = 'ngen'
     args: Optional[str]
@@ -272,7 +272,7 @@ class NgenExplicit(NgenBase):
                 #read params from the realization calibration definition
                 params = {model:[Parameter(**p) for p in params] for model, params in catchment.calibration.items()}
                 params = _map_params_to_realization(params, catchment)
-                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, params))
+                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, self.eval_params, params))
 
     def update_config(self, i: int, params: 'pd.DataFrame', id: str):
         """_summary_
@@ -344,7 +344,7 @@ class NgenIndependent(NgenBase):
         if len(eval_nexus) != 1:
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
         # FIXME hard coded routing file name...
-        self._catchments.append(CalibrationSet(catchments, eval_nexus[0], "flowveldepth_Ngen1.h5", start_t, end_t))
+        self._catchments.append(CalibrationSet(catchments, eval_nexus[0], "flowveldepth_Ngen1.h5", start_t, end_t, self.eval_params))
 
 class NgenUniform(NgenBase):
     """
@@ -382,7 +382,7 @@ class NgenUniform(NgenBase):
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
         # FIXME hard coded routing file name...
         params = _params_as_df(self.params)
-        self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output="flowveldepth_Ngen1.h5", start_time=start_t, end_time=end_t, params=params))
+        self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output="flowveldepth_Ngen1.h5", start_time=start_t, end_time=end_t, eval_params=self.eval_params, params=params))
             
 class Ngen(BaseModel, Configurable, smart_union=True):
     __root__: Union[NgenExplicit, NgenIndependent, NgenUniform] = Field(discriminator="strategy")

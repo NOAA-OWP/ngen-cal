@@ -30,9 +30,6 @@ class General(BaseModel):
     #required fields
     strategy: Union[Estimation, Sensitivity] = Field(discriminator='type')
     iterations: int
-    #TODO make this optional, but co-dependent???
-    evaluation_start: Optional[datetime]
-    evaluation_stop: Optional[datetime]
     #Fields with reasonable defaults
     restart: bool = False
     start_iteration: PosInt = 0
@@ -43,7 +40,6 @@ class General(BaseModel):
     parameter_log_file: Optional[Path]
     objective_log_file: Optional[Path]
     random_seed: Optional[int]
-
 
 class NoModel(BaseModel):
     """

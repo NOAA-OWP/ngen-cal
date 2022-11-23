@@ -44,10 +44,6 @@ class CalibrationMeta:
             self._objective_log_file = self._workdir/"{}_objective.txt".format(self._id)
         else:
             self._objective_log_file = self._workdir/general.objective_log_file
-        if self._general.evaluation_start and self._general.evaluation_stop:
-            self._eval_range = (self._general.evaluation_start, self._general.evaluation_stop)
-        else: #TODO figure out open/close range???
-            self._eval_range=None
 
     def update_config(self, i: int, params: 'DataFrame', id: str):
         """
@@ -163,10 +159,6 @@ class CalibrationMeta:
             start_iteration = 0
 
         return start_iteration
-    
-    @property
-    def evaluation_range(self):
-        return self._eval_range
- 
+
     def objective(self, *args, **kwargs):
         return self._general.strategy.objective(*args, **kwargs)
