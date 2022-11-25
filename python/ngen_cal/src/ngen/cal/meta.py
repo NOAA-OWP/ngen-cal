@@ -8,8 +8,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from pandas import DataFrame
 
-
-class CalibrationMeta:
+class JobMeta:
     """
         Structure for holding calibration meta data
 
