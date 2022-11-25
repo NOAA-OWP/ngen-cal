@@ -102,6 +102,14 @@ def meta(ngen_config, general_config, mocker) -> Generator[CalibrationMeta, None
     yield m
 
 @pytest.fixture
+def eval(ngen_config) -> Generator[EvaluationOptions, None, None]:
+    """
+        build an eval options object to test
+    """
+    eval_options = EvaluationOptions(**evaluation_options)
+    yield eval_options
+
+@pytest.fixture
 def fabric():
     """
         Mock geoseries for defining catchment gemomentry/attributes

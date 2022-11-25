@@ -39,7 +39,7 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', meta: 'CalibrationMeta'
     #save the calibration state, just in case
     calibration_object.save_output(i)
     #update meta info based on latest score and write some log files
-    meta.update(i, score, log=True)
+    calibration_object.update(i, score, log=True)
 
     print("Current score {}\nBest score {}".format(score, calibration_object.best_score))
     print("Best parameters at iteration {}".format(calibration_object.best_params))
@@ -60,13 +60,13 @@ def dds_update(iteration: int, inclusion_probability: float, calibration_object:
         neighborhood = calibration_object.variables.sample(n=1)
     print( "neighborhood: {}".format(neighborhood) )
     #Copy the best parameter values so far into the next iterations parameter list
-    calibration_object.df[str(iteration)] = calibration_object.df[meta.best_params]
+    calibration_object.df[str(iteration)] = calibration_object.df[calibration_object.best_params]
     #print( data.calibration_df )
     for n in neighborhood:
         #permute the variables in neighborhood
         #using a random normal sample * sigma, sigma = 0.2*(max-min)
         #print(n, meta.best_params)
-        new = calibration_object.df.loc[n, meta.best_params] + calibration_object.df.loc[n, 'sigma']*np.random.normal(0,1)
+        new = calibration_object.df.loc[n, calibration_object.best_params] + calibration_object.df.loc[n, 'sigma']*np.random.normal(0,1)
         lower =  calibration_object.df.loc[n, 'min']
         upper = calibration_object.df.loc[n, 'max']
         #print( new )

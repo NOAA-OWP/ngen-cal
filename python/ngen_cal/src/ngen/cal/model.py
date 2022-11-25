@@ -61,6 +61,7 @@ class EvaluationOptions(BaseModel):
         """
         
         """
+        #FIXME init log_files!!!!!!!
         super().__init__(**kwargs)
         if self.evaluation_start and self.evaluation_stop:
             self._eval_range = (self.evaluation_start, self.evaluation_stop)
@@ -71,6 +72,57 @@ class EvaluationOptions(BaseModel):
         else: #must be min or value, either way this works
             self._best_score = float('inf')
         self._best_params_iteration = '0' #String representation of interger iteration
+
+    def update(self, i: int, score: float, log: bool) -> None:
+        """Update the meta state for iteration `i` having score `score`
+           logs objective information if log=True
+
+        Args:
+            i (int): iteration index to set score at
+            score (float): score value to save
+            log (bool): writes objective information to log file if True
+        """
+        if self.target == 'min':
+            if score <= self._best_score:
+                self._best_params_iteration = str(i)
+                self._best_score = score
+        elif self.target == 'max':
+            if score >= self._best_score:
+                self._best_params_iteration = str(i)
+                self._best_score = score
+        else: #target is a specific value
+            if abs( score - self.target ) <= abs(self._best_score - self.target):
+                self._best_params_iteration = str(i)
+                self._best_score = score
+        if log:
+            self.write_param_log_file(i)
+            self.write_objective_log_file(i, score)
+
+    def write_objective_log_file(self, i, score):
+        with open(self._objective_log_file, 'a+') as log_file:
+            log_file.write('{}, '.format(i))
+            log_file.write('{}\n'.format(score))
+    
+    def write_param_log_file(self, i):
+        with open(self._param_log_file, 'w+') as log_file:
+            log_file.write('{}\n'.format(i))
+            log_file.write('{}\n'.format(self.best_params))
+            log_file.write('{}\n'.format(self.best_score))
+
+    @property
+    def best_score(self) -> float:
+        """
+            Best score known to the current calibration
+        """
+        return self._best_score
+
+    @property
+    def best_params(self) -> str:
+        """
+            The integer iteration that contains the best parameter values, as a string
+        """
+        return self._best_params_iteration
+
 
     @validator("objective")
     def validate_objective(cls, value):
