@@ -59,20 +59,6 @@ class CalibrationMeta:
         return self._workdir
 
     @property
-    def best_score(self) -> float:
-        """
-            Best score known to the current calibration
-        """
-        return self._best_score
-
-    @property
-    def best_params(self) -> str:
-        """
-            The integer iteration that contains the best parameter values, as a string
-        """
-        return self._best_params_iteration
-
-    @property
     def cmd(self) -> str:
         """
 

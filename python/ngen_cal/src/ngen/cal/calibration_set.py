@@ -22,6 +22,7 @@ class CalibrationSet(Evaluatable):
         """
 
         """
+        super().__init__(eval_params)
         self._eval_nexus = eval_nexus
         self._adjustables = adjustables
         self._output_file = routing_output
@@ -34,7 +35,7 @@ class CalibrationSet(Evaluatable):
         #observations in ft^3/s convert to m^3/s
         self._observed = self._observed * 0.028316847
         self._output = None
-        self._eval_range = eval_params._eval_range
+        self._eval_range = self.eval_params._eval_range
     
     @property
     def evaluation_range(self) -> 'Tuple[datetime, datetime]':
@@ -116,10 +117,6 @@ class CalibrationSet(Evaluatable):
         """
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(path/adjustable.check_point_file)
-
-    @property
-    def objective(self, *args, **kwargs) -> 'Callable':
-        return self._objective
 
 class UniformCalibrationSet(CalibrationSet, Adjustable):
     """

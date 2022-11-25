@@ -63,6 +63,7 @@ class EvaluatableCatchment(Evaluatable):
             fabric (GeoSeries): The catchment hydrofabric representation
             params (dict, optional): _description_. Defaults to {}.
         """
+        super().__init__(eval_params)
         self._outflow = nexus
         #For BMI modules, look up name from realization config
         #If no `main_output_variable`, default to Q_OUT
@@ -76,7 +77,7 @@ class EvaluatableCatchment(Evaluatable):
         self._observed = self._observed * 0.028316847
         self._output = None
         self._fabric = fabric
-        self._eval_range = eval_params._eval_range
+        self._eval_range = self.eval_params._eval_range
         
     @property
     def evaluation_range(self) -> 'Tuple[datetime, datetime]':
@@ -122,10 +123,6 @@ class EvaluatableCatchment(Evaluatable):
     @observed.setter
     def observed(self, df):
         self._observed = df
-    
-    @property
-    def objective(self, *args, **kwargs) -> 'Callable':
-        return self._objective
 
 class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
     """
