@@ -90,38 +90,6 @@ class CalibrationMeta:
     def log_file(self, path: 'Path') -> None:
         self._log_file = path
 
-    def update(self, i: int, score: float, log: bool):
-        """
-            Update the meta state for iteration `i` having score `score`
-            logs parameter and objective information if log=True
-        """
-        if self._general.strategy.target == 'min':
-            if score <= self.best_score:
-                self._best_params_iteration = str(i)
-                self._best_score = score
-        elif self._general.strategy.target == 'max':
-            if score >= self.best_score:
-                self._best_params_iteration = str(i)
-                self._best_score = score
-        else: #target is a specific value
-            if abs( score - self._general.strategy.target ) <= abs(self._best_score - self._general.strategy.target):
-                self._best_params_iteration = str(i)
-                self._best_score = score
-        if log:
-            self.write_param_log_file(i)
-            self.write_objective_log_file(i, score)
-
-    def write_objective_log_file(self, i, score):
-        with open(self._objective_log_file, 'a+') as log_file:
-            log_file.write('{}, '.format(i))
-            log_file.write('{}\n'.format(score))
-
-    def write_param_log_file(self, i):
-        with open(self._param_log_file, 'w+') as log_file:
-            log_file.write('{}\n'.format(i))
-            log_file.write('{}\n'.format(self.best_params))
-            log_file.write('{}\n'.format(self.best_score))
-
     def read_param_log_file(self):
         with open(self._param_log_file, 'r') as log_file:
             iteration = int(log_file.readline())

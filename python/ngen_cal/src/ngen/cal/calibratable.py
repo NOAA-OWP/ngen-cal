@@ -51,8 +51,10 @@ class Adjustable(ABC):
     @abstractmethod
     def update(self, iteration: int) -> None:
         """
-            Update the models information to prepare for the next model run
-            FIXME this is currently done in the CalibrationMeta
+            FIXME update of parameter dataframe is currently done "inplace" -- there is no interface function
+            There likely *should* be one -- the big question is can it be "bundled" with the Evaluatable update function
+            or should it be a unique update/name, e.g. update_params(...) that does this?  With the CalibrationMeta 
+            refactored largely under the Evaluatable interface, there are a few options for this to consider.
             Need to decide if this needs to remain???
             Parameters
             ----------
@@ -132,6 +134,19 @@ class Evaluatable(ABC):
         pass
         #return self._general.strategy.objective(*args, **kwargs)
  
+    def update(self, i: int, score: float, log: bool) -> None:
+        """_summary_
+
+        Args:
+            i (int): _description_
+            score (float): _description_
+            log (bool): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        self.eval_params.update(i, score, log)
+
 class Calibratable(Adjustable, Evaluatable):
     """
         A Calibratable interface defining required properties for a calibratable object
