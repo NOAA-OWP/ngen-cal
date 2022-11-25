@@ -272,7 +272,10 @@ class NgenExplicit(NgenBase):
                 #read params from the realization calibration definition
                 params = {model:[Parameter(**p) for p in params] for model, params in catchment.calibration.items()}
                 params = _map_params_to_realization(params, catchment)
-                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, self.eval_params, params))
+                #TODO define these extra params in the realization config and parse them out explicity per catchment, cause why not?
+                eval_params = self.eval_params.copy()
+                eval_params.id = id
+                self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, eval_params, params))
 
     def update_config(self, i: int, params: 'pd.DataFrame', id: str):
         """_summary_
