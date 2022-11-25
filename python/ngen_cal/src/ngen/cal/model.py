@@ -50,6 +50,9 @@ class EvaluationOptions(BaseModel):
     target: Union[Literal['min'], Literal['max'], float] = 'min'
     _best_score: float
     _best_params_iteration: str = '0'
+    id: Optional[str]
+    _param_log_file: Path
+    _objective_log_file: Path
 
     class Config:
         """Override configuration for pydantic BaseModel
@@ -61,7 +64,8 @@ class EvaluationOptions(BaseModel):
         """
         
         """
-        #FIXME init log_files!!!!!!!
+        self._param_log_file = kwargs.pop('param_log_file', Path('best_params.txt'))
+        self._objective_log_file = kwargs.pop('objective_log_file', Path('objective_log.txt'))
         super().__init__(**kwargs)
         if self.evaluation_start and self.evaluation_stop:
             self._eval_range = (self.evaluation_start, self.evaluation_stop)
@@ -123,6 +127,27 @@ class EvaluationOptions(BaseModel):
         """
         return self._best_params_iteration
 
+    @property
+    def param_log_file(self) -> Path:
+        """
+            The path to the best parameter log file
+        """
+        if id is not None:
+            prefix = ""
+        else:
+            prefix = f"{self.id}_"
+        return Path(self._param_log_file.parent, prefix + self._param_log_file.stem + self._param_log_file.suffix)
+
+    @property
+    def objective_log_file(self) -> Path:
+        """
+            The path to the best parameter log file
+        """
+        if id is not None:
+            prefix = ""
+        else:
+            prefix = f"{self.id}_"
+        return Path(self._objective_log_file.parent, prefix + self._objective_log_file.stem + self._objective_log_file.suffix)
 
     @validator("objective")
     def validate_objective(cls, value):
