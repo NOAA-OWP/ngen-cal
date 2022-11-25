@@ -60,7 +60,7 @@ def general_config_custom(workdir) -> General:
     return general
 
 @pytest.fixture(scope="session")
-def ngen_config(realization_config) -> Ngen:
+def ngen_config(realization_config, workdir) -> Ngen:
     """Fixture to provided a staged ngen configuration
 
     Args:
@@ -80,6 +80,7 @@ def ngen_config(realization_config) -> Ngen:
                    "crosswalk": Path(__file__).parent/"data/crosswalk.json",
                    "binary": "echo ngen"}
     ngen_config.update(model_params)
+    ngen_config.update({"workdir": workdir})
     model = Ngen.parse_obj(ngen_config)
     return model
 

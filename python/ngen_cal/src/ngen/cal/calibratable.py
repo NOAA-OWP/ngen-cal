@@ -172,6 +172,9 @@ class Evaluatable(ABC):
             float: _description_
         """
         return self.eval_params.best_score
+    
+    def restart(self) -> int:
+        return self.eval_params.restart()
 
 class Calibratable(Adjustable, Evaluatable):
     """

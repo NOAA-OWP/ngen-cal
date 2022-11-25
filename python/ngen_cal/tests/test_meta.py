@@ -23,55 +23,5 @@ def test_update_config(meta: 'CalibrationMeta', realization_config: str) -> None
         data = json.load(fp)
     assert data['catchments'][id]['formulations'][0]['params']['model_params']['some_param'] == 4.2
 
-@pytest.mark.usefixtures("meta")
-def test_update(meta: 'CalibrationMeta') -> None:
-    """
-        Test score update function with a worse score
-    """
-    meta._best_score = 0.5
-    i = 1
-    score = 1.0
-    log = False
-    meta.update(i, score, log)
-    assert meta.best_score == 0.5
-    assert meta.best_params == '0'
-
-@pytest.mark.usefixtures("meta")
-def test_update_1(meta: 'CalibrationMeta') -> None:
-    """
-        Test score update function with a better score
-    """
-    meta._best_score = 1
-    i = 1
-    score = 0.1
-    log = False
-    meta.update(i, score, log)
-    assert meta.best_score == 0.1
-    assert meta.best_params == '1'
-
 #FIXME expand update unit tests...specifically that optmizing min/max and values
 #is consistent, for example
-@pytest.mark.usefixtures("meta")
-def test_restart(meta: 'CalibrationMeta') -> None:
-    """
-        Test restarting from minimal meta, no logs available
-        should "restart" at iteration 0
-    """
-    iteration = meta.restart()
-    assert iteration == 0
-
-@pytest.mark.usefixtures("meta")
-def test_restart_1(meta: 'CalibrationMeta') -> None:
-    """
-        Test retarting from serialized logs
-    """
-    meta._best_score = 1
-    meta._best_params_iteration = "1"
-    meta.write_param_log_file(2)
-    #make sure the catchment param df is saved before trying to restart
-    meta._model.hy_catchments[0].check_point(meta._workdir)
-
-    iteration = meta.restart()
-    assert iteration == 3
-    assert meta.best_score == 1
-    assert meta.best_params == '1'
