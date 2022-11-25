@@ -48,6 +48,8 @@ class EvaluationOptions(BaseModel):
     """
     objective: Optional[Union[Objective, PyObject]] = Objective.custom
     target: Union[Literal['min'], Literal['max'], float] = 'min'
+    _best_score: float
+    _best_params_iteration: str = '0'
 
     class Config:
         """Override configuration for pydantic BaseModel
@@ -64,6 +66,11 @@ class EvaluationOptions(BaseModel):
             self._eval_range = (self.evaluation_start, self.evaluation_stop)
         else: #TODO figure out open/close range???
             self._eval_range=None
+        if self.target == 'max':
+            self._best_score = float('-inf')
+        else: #must be min or value, either way this works
+            self._best_score = float('inf')
+        self._best_params_iteration = '0' #String representation of interger iteration
 
     @validator("objective")
     def validate_objective(cls, value):

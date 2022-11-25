@@ -41,8 +41,8 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', meta: 'CalibrationMeta'
     #update meta info based on latest score and write some log files
     meta.update(i, score, log=True)
 
-    print("Current score {}\nBest score {}".format(score, meta.best_score))
-    print("Best parameters at iteration {}".format(meta.best_params))
+    print("Current score {}\nBest score {}".format(score, calibration_object.best_score))
+    print("Best parameters at iteration {}".format(calibration_object.best_params))
 
 def dds_update(iteration: int, inclusion_probability: float, calibration_object: 'Adjustable', meta: 'CalibrationMeta'):
     """_summary_
