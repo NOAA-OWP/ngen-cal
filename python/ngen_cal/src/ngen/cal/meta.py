@@ -28,17 +28,6 @@ class CalibrationMeta:
         self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
         self._bin = model.get_binary()
         self._args = model.get_args()
-        
-        self._id = general.name #a unique identifier to prepend to log files
-        #FIXME another reason to refactor meta under catchment, logs per catchment???
-        if general.parameter_log_file is None:
-            self._param_log_file = self._workdir/"{}_best_params.txt".format(self._id)
-        else:
-            self._param_log_file = self._workdir/general.parameter_log_file
-        if general.objective_log_file is None:
-            self._objective_log_file = self._workdir/"{}_objective.txt".format(self._id)
-        else:
-            self._objective_log_file = self._workdir/general.objective_log_file
 
     def update_config(self, i: int, params: 'DataFrame', id: str):
         """
