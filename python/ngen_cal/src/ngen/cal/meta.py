@@ -26,11 +26,6 @@ class CalibrationMeta:
         if(self._log_file is not None):
             self._log_file = self._workdir/self._log_file
         self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
-        if self._general.strategy.target == 'max':
-            self._best_score = float('-inf')
-        else: #must be min or value, either way this works
-            self._best_score = float('inf')
-        self._best_params_iteration = '0' #String representation of interger iteration
         self._bin = model.get_binary()
         self._args = model.get_args()
         
