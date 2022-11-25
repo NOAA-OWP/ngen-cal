@@ -7,7 +7,8 @@ if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
     from datatime import datetime
-    from typing import Tuple
+    from typing import Tuple, Callable
+    from .model import EvaluationOptions
 
 class Adjustable(ABC):
     """
@@ -94,6 +95,15 @@ class Evaluatable(ABC):
         An Evaluatable interface defining required properties for a evaluating and object's state
     """
 
+    eval_params: 'EvaluationOptions'
+
+    def __init__(self, eval_params: 'EvaluationOptions', **kwargs):
+        """
+        Args:
+            eval_params (EvaluationOptions): The options configuring this evaluatable
+        """
+        self.eval_params = eval_params
+
     @property
     @abstractmethod
     def output(self) -> 'DataFrame':
@@ -123,7 +133,6 @@ class Evaluatable(ABC):
         pass
     
     @property
-    @abstractmethod
     def objective(self, *args, **kwargs) -> 'Callable':
         """
             The objective function to compute cost values with.
@@ -131,8 +140,7 @@ class Evaluatable(ABC):
         Returns:
             Callable: objective function which takes simulation and observation time series as args
         """
-        pass
-        #return self._general.strategy.objective(*args, **kwargs)
+        return self.eval_params.objective
  
     def update(self, i: int, score: float, log: bool) -> None:
         """_summary_
@@ -146,6 +154,24 @@ class Evaluatable(ABC):
             _type_: _description_
         """
         self.eval_params.update(i, score, log)
+    
+    @property
+    def best_params(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
+        return self.eval_params._best_params_iteration
+    
+    @property
+    def best_score(self) -> float:
+        """_summary_
+
+        Returns:
+            float: _description_
+        """
+        return self.eval_params.best_score
 
 class Calibratable(Adjustable, Evaluatable):
     """
