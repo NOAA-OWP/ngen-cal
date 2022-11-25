@@ -50,7 +50,7 @@ class Adjustable(ABC):
         return Series(self.df.index.values)
 
     @abstractmethod
-    def update(self, iteration: int) -> None:
+    def update_params(self, iteration: int) -> None:
         """
             FIXME update of parameter dataframe is currently done "inplace" -- there is no interface function
             There likely *should* be one -- the big question is can it be "bundled" with the Evaluatable update function

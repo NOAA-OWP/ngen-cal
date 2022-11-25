@@ -151,7 +151,7 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         shutil.move(self._output_file, '{}_last'.format(self._output_file))
     
     #update handled in meta, TODO remove this method???
-    def update(self, iteration: int) -> None:
+    def update_params(self, iteration: int) -> None:
         pass
 
     #Override this file name
