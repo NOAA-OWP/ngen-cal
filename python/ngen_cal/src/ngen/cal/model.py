@@ -156,13 +156,43 @@ class EvaluationOptions(BaseModel):
         
         return value
 
+    def read_param_log_file(self):
+        with open(self.param_log_file, 'r') as log_file:
+            iteration = int(log_file.readline())
+            best_params = int(log_file.readline())
+            best_score = float(log_file.readline())
+        return iteration, best_params, best_score
+
+    def restart(self) -> int:
+        """
+            Attempt to restart a calibration from a previous state.
+            If no previous state is available, start from 0
+
+            Returns
+            -------
+            int iteration to start calibration at
+        """
+        try:
+            last_iteration, best_params, best_score = self.read_param_log_file()
+            self._best_params_iteration = str(best_params)
+            self._best_score = best_score
+            start_iteration = last_iteration + 1
+
+            #TODO verify that loaded calibration info aligns with iteration?  Anther reason to consider making this meta
+            #per catchment???
+
+        except FileNotFoundError:
+            start_iteration = 0
+
+        return start_iteration
+
 class ModelExec(BaseModel, Configurable):
     """
         The data class for a given model, which must also be Configurable
     """
     binary: str
     args: Optional[str]
-    workdir: DirectoryPath = Path("./")
+    workdir: DirectoryPath = Path("./") #FIXME test the various workdirs
     eval_params: EvaluationOptions
 
     def get_binary(self)->str:

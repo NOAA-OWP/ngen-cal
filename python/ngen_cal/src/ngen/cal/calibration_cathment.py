@@ -35,6 +35,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
         #FIXME paramterize
         self._output_file = workdir/'{}.csv'.format(self.id)
+        self._workdir = workdir
     
     def save_output(self, i) -> None:
         """
@@ -131,3 +132,14 @@ class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
     def __init__(self, workdir: str, id: str, nexus: Nexus, start_time: str, end_time: str, fabric: "GeoSeries", output_var: str, eval_params: 'EvaluationOptions', params: dict = {}):
         EvaluatableCatchment.__init__(self, nexus, start_time, end_time, fabric, output_var, eval_params)
         AdjustableCatchment.__init__(self,  workdir, id, nexus, params)
+
+    def restart(self) -> int:
+        #TODO validate the dataframe
+        restart_iteration = 0
+        try:
+            super(AdjustableCatchment, self).load_df(self._workdir)
+            restart_iteration = super(EvaluatableCatchment, self).restart()
+        except FileNotFoundError:
+            pass
+        return restart_iteration
+        

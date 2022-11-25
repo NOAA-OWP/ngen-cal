@@ -17,5 +17,5 @@ def test_dds(catchment: 'CalibrationCatchment', meta: 'CalibrationMeta') -> None
         Test dds is callable
     """
     ret = dds(1, 2, catchment, meta)
-    assert meta.best_score == 0.0
-    assert meta.best_params == '2'
+    assert catchment.best_score == 0.0
+    assert catchment.best_params == '2'

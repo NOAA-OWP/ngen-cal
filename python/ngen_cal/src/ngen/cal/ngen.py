@@ -405,3 +405,15 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     @property
     def strategy(self):
         return self.__root__.strategy
+    
+    def restart(self) -> int:
+        starts = []
+        for catchment in self.hy_catchments:
+            starts.append(catchment.restart())
+        print(starts)
+        if all( x == starts[0] for x in starts):
+            #if everyone agress on the iteration...
+            return starts[0]
+        else:
+            
+            return 0
