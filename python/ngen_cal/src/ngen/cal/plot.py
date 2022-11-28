@@ -2,6 +2,8 @@ import geopandas as gpd
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
+import re
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from hypy.hydrolocation import NWISLocation # type: ignore
@@ -131,6 +133,24 @@ def get_output_flow(output_file: 'Path'):
     # CHECK OUT GIUH ORDINATES/INPUT/USAGE
     return output['Flow']
 
+def get_routed_output_flow(output_file: 'Path', id: str, start_dt: datetime, end_dt: datetime):
+    id = re.sub(r"^cat-([0-9]+)[^0-9]*", "\\1", id)
+    df = pd.read_hdf(output_file)
+    df.index = df.index.map(lambda x: 'wb-'+str(x))
+    df.columns = pd.MultiIndex.from_tuples(df.columns)
+    
+    #df = df.loc[self._eval_nexus.contributing_catchments[0].replace('cat', 'wb')] # TODO should contributing_catchments be singular??? assuming it is for now...
+    df = df.loc['wb-'+id]
+    output = df.xs('q', level=1, drop_level=False)
+    #This is a hacky way to get the time index...pass the time around???
+    dt_range = pd.date_range(start_dt, end_dt, len(output.index)).round('min')
+    output.index = dt_range
+    #this may not be strictly nessicary...I think the _evalutate will align these...
+    output = output.resample('1H').first()
+    output.name="sim_flow"
+    return output
+
+
 def plot_parameter_space(path: 'Path'):
     params = pd.read_parquet(path)
     params.drop(columns=['min', 'max', 'sigma', 'model'], inplace=True)
@@ -141,7 +161,11 @@ def plot_parameter_space(path: 'Path'):
 def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, output_file: 'Path'):
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
     for nwis in obs_dict:
-        output = get_output_flow(output_file)
+        if output_file.suffix.startswith(".h5"):
+            #TODO: for now times MUST match routing range (and routing range must match simulation range)
+            output = get_routed_output_flow(output_file, id, datetime.fromisoformat(start_dt), datetime.fromisoformat(end_dt))
+        else:
+            output = get_output_flow(output_file)
         output.rename('simulated', inplace=True)
         merged = pd.merge(obs_dict[nwis], output, right_index=True, left_index=True)
         #plt.figure()
