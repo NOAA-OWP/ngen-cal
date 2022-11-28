@@ -50,7 +50,7 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
                 #TODO log WARNING:
                 continue
             try:
-                nwis = x_walk[id]['site_no']
+                nwis = x_walk[id]['Gage_no']
             except KeyError:
                 raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
             try:
@@ -72,7 +72,7 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
         ax2 = catchment.observed.plot(label='observed')
         catchment.output.plot(ax=ax2, label='simulated')
 
-def plot_obs(id, catchment_data, nexus_data, cross_walk):
+def plot_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
     #Read the catchment hydrofabric data
     catchment_hydro_fabric = gpd.read_file(catchment_data)
     catchment_hydro_fabric.set_index('id', inplace=True)
@@ -84,7 +84,7 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     except KeyError:
         raise(RuntimeError("No data for id {}".format(id)))
     try:
-        nwis = x_walk[id]['site_no']
+        nwis = x_walk[id]['Gage_no']
     except KeyError:
         raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
     try:
@@ -97,9 +97,9 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     nexus = Nexus(nexus_data.name, location, id)
     #use the nwis location to get observation data
     #TODO/FIXME make a more general hydrofabric object
-    obs = nexus._hydro_location.get_data("2015-12-01 00:00:00", "2015-12-30 23:00:00")
+    obs = nexus._hydro_location.get_data(start_dt, end_dt)
     #make sure data is hourly
-    obs = obs.set_index('value_date')['value'].resample('1H').nearest()
+    obs = obs.set_index('value_time')['value'].resample('1H').nearest()
     obs = obs * 0.028316847 #convert to m^3/s
     obs.rename('obs_flow', inplace=True)
     plt.figure()
@@ -108,8 +108,12 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
 def plot_output(output_file: 'Path'):
     #output = pd.read_csv(output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
     #output.rename(columns={'Flow':'sim_flow'}, inplace=True)
-    output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
-    original_output_vars = ['Rainfall', 'Direct Runoff', 'GIUH Runoff', 'Lateral Flow', 'Base Flow', 'Total Discharge']
+    try:
+        output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
+        original_output_vars = ['Rainfall', 'Direct Runoff', 'GIUH Runoff', 'Lateral Flow', 'Base Flow', 'Total Discharge']
+    except:
+        output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time', names=["Timestep", "Time", "Flow"])
+        original_output_vars = ['Flow']
     output[original_output_vars].plot(subplots=True)
     #original_output_vars.extend( [])
     # CHECK OUT GIUH ORDINATES/INPUT/USAGE
@@ -118,7 +122,7 @@ def plot_output(output_file: 'Path'):
 
 def plot_parameter_space(path: 'Path'):
     params = pd.read_parquet(path)
-    params.drop(columns=['min', 'max', 'sigma'], inplace=True)
+    params.drop(columns=['min', 'max', 'sigma', 'model'], inplace=True)
     params.set_index('param', inplace=True)
 
     params.T.plot(subplots=True)
