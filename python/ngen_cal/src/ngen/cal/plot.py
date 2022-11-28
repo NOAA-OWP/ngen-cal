@@ -73,6 +73,12 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
         catchment.output.plot(ax=ax2, label='simulated')
 
 def plot_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
+    obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
+    for nwis in obs_dict:
+        plt.figure()
+        obs_dict[nwis].plot(title='Observation at USGS {}'.format(nwis))
+
+def get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
     #Read the catchment hydrofabric data
     catchment_hydro_fabric = gpd.read_file(catchment_data)
     catchment_hydro_fabric.set_index('id', inplace=True)
@@ -102,10 +108,16 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
     obs = obs.set_index('value_time')['value'].resample('1H').nearest()
     obs = obs * 0.028316847 #convert to m^3/s
     obs.rename('obs_flow', inplace=True)
-    plt.figure()
-    obs.plot(title='Observation at USGS {}'.format(nwis))
+    r = {}
+    r[nwis] = obs
+    return r
 
 def plot_output(output_file: 'Path'):
+    output = get_output_flow(output_file)
+    plt.figure()
+    output.plot(title='simulated flow')
+
+def get_output_flow(output_file: 'Path'):
     #output = pd.read_csv(output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
     #output.rename(columns={'Flow':'sim_flow'}, inplace=True)
     try:
@@ -114,11 +126,10 @@ def plot_output(output_file: 'Path'):
     except:
         output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time', names=["Timestep", "Time", "Flow"])
         original_output_vars = ['Flow']
-    output[original_output_vars].plot(subplots=True)
+    #output[original_output_vars].plot(subplots=True)
     #original_output_vars.extend( [])
     # CHECK OUT GIUH ORDINATES/INPUT/USAGE
-    plt.figure()
-    output['Flow'].plot(title='simulated flow')
+    return output['Flow']
 
 def plot_parameter_space(path: 'Path'):
     params = pd.read_parquet(path)
@@ -126,3 +137,13 @@ def plot_parameter_space(path: 'Path'):
     params.set_index('param', inplace=True)
 
     params.T.plot(subplots=True)
+
+def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, output_file: 'Path'):
+    obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
+    for nwis in obs_dict:
+        output = get_output_flow(output_file)
+        output.rename('simulated', inplace=True)
+        merged = pd.merge(obs_dict[nwis], output, right_index=True, left_index=True)
+        #plt.figure()
+        merged.plot(title='Observation at USGS {}'.format(nwis))
+        

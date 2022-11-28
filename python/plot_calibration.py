@@ -18,5 +18,5 @@ plot_stuff(workdir, catchment_data, nexus_data, x_walk, config)
 
 plot_obs('cat-10883', catchment_data, nexus_data, x_walk, '2018-10-01 00:00:00', '2018-12-01 00:00:00')
 plot_output(output)
-plot_parameter_space(params)
+plot_hydrograph('cat-10883', catchment_data, nexus_data, x_walk, '2018-10-01 00:00:00', '2018-12-01 00:00:00', output)
 plt.show()
