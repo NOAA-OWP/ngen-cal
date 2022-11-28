@@ -144,12 +144,20 @@ def get_precip_one_file(output_file: 'Path'):
         return output['atmosphere_water__liquid_equivalent_precipitation_rate']
     else:
         raise(RuntimeError("No recognized precip data in provided file!"))
-    #output = output * fabric['area_sqkm']*1000000/3600 #need something like this!
 
-def get_precip_files_list(output_files: list):
+def get_precip_files_list(output_files: list, catchment_data: str):
     totals = None
+    catchment_hydro_fabric = gpd.read_file(catchment_data)
+    catchment_hydro_fabric.set_index('id', inplace=True)
     for f in output_files:
         output = get_precip_one_file(f)
+        id = re.sub(r".*(cat-[0-9]+)[^0-9]*", "\\1", f.name)
+        try:
+            fabric = catchment_hydro_fabric.loc[id]
+        except KeyError:
+            raise(RuntimeError(f"No catchment hydrofabric data for id {id}"))
+        output = output * (fabric['areasqkm']*1000000/3600)
+        print(f"For catchment {id} with area {fabric['areasqkm']} added {output.sum()} m^3 of precip.")
         if totals is None:
             totals = output
         else:
@@ -181,31 +189,40 @@ def plot_parameter_space(path: 'Path'):
 
     params.T.plot(subplots=True)
 
-def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None):
+#TODO: Doesn't really work for a single catchment file (unrouted output), though most of the pieces are there.
+def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None, subtitle: str = None):
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
     for nwis in obs_dict:
         if routing_output_file is not None:
             #TODO: for now times MUST match routing range (and routing range must match simulation range)
             output = get_routed_output_flow(routing_output_file, id, datetime.fromisoformat(start_dt), datetime.fromisoformat(end_dt))
         else:
-            output = get_output_flow(catchment_output_file)
+            output = get_output_flow(catchment_output[0])
         output.rename('sim_flow', inplace=True)
-        precip = get_precip_files_list(catchment_output)
+        precip = get_precip_files_list(catchment_output, catchment_data)
         precip.rename('precip')
         print(precip)
 
-        merged = pd.merge(obs_dict[nwis], output, right_index=True, left_index=True)
         fig, ax = plt.subplots()
         ax2 = ax.twinx()
-        plt.figure()
-        ax2.plot(merged)
-        ax.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
-        ax.invert_yaxis()
-        #ax.set_xticklabels(merged.index)
-        ax.legend(loc='best')
-        #merged.plot(title='Observation at USGS {}'.format(nwis))
-        #plt.plot(merged['sim_flow'], label="Simulated", color="orange")
-        #plt.plot(merged['obs_flow'], label="Simulated", color="blue")
-        #plt.plot(precip['precip'], label="Precip", color="gray")
+        ax.plot(obs_dict[nwis], color="blue", label="Obs")
+        ax.plot(output, color="orange", label="Simulated")
+        ax2.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
+        ax2.invert_yaxis()
+        #ax.legend(loc='best')
+        ax.set_ylabel("Flow (cumecs)")
+        #ax2.legend(loc='best')
+        ax2.set_ylabel("Precip (cumecs)")
+        fig.autofmt_xdate(rotation=45)
+        #plt.title("Title String", fontsize=14)
+        fig.text(.5,.95,f"Gage {nwis}",fontsize=14,ha='center')
+        if None != "":
+            fig.text(.5,.9,subtitle,fontsize=10,ha='center')
+
+        # legend fix from https://stackoverflow.com/a/57484812/489116
+        lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
+        lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+        fig.legend(lines, labels)
+
         plt.show()
         
