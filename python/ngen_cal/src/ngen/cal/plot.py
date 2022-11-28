@@ -190,7 +190,7 @@ def plot_parameter_space(path: 'Path'):
     params.T.plot(subplots=True)
 
 #TODO: Doesn't really work for a single catchment file (unrouted output), though most of the pieces are there.
-def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None, subtitle: str = None):
+def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None, subtitle: str = None):
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
     for nwis in obs_dict:
         if routing_output_file is not None:
@@ -201,28 +201,31 @@ def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt
         output.rename('sim_flow', inplace=True)
         precip = get_precip_files_list(catchment_output, catchment_data)
         precip.rename('precip')
-        print(precip)
+        #print(precip)
+        #print(obs_dict[nwis])
+        plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle)
 
-        fig, ax = plt.subplots()
-        ax2 = ax.twinx()
-        ax.plot(obs_dict[nwis], color="blue", label="Obs")
-        ax.plot(output, color="orange", label="Simulated")
-        ax2.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
-        ax2.invert_yaxis()
-        #ax.legend(loc='best')
-        ax.set_ylabel("Flow (cumecs)")
-        #ax2.legend(loc='best')
-        ax2.set_ylabel("Precip (cumecs)")
-        fig.autofmt_xdate(rotation=45)
-        #plt.title("Title String", fontsize=14)
-        fig.text(.5,.95,f"Gage {nwis}",fontsize=14,ha='center')
-        if None != "":
-            fig.text(.5,.9,subtitle,fontsize=10,ha='center')
+def plot_hydrograph(output, obs, precip, title, subtitle: str = None):
+    fig, ax = plt.subplots()
+    ax2 = ax.twinx()
+    ax.plot(obs, color="blue", label="Obs")
+    ax.plot(output, color="orange", label="Simulated")
+    ax2.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
+    ax2.invert_yaxis()
+    #ax.legend(loc='best')
+    ax.set_ylabel("Flow (cumecs)")
+    #ax2.legend(loc='best')
+    ax2.set_ylabel("Precip (cumecs)")
+    fig.autofmt_xdate(rotation=45)
+    #plt.title("Title String", fontsize=14)
+    fig.text(.5,.95,title,fontsize=14,ha='center')
+    if None != "":
+        fig.text(.5,.9,subtitle,fontsize=10,ha='center')
 
-        # legend fix from https://stackoverflow.com/a/57484812/489116
-        lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
-        lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
-        fig.legend(lines, labels)
+    # legend fix from https://stackoverflow.com/a/57484812/489116
+    lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
+    lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+    fig.legend(lines, labels)
 
-        plt.show()
+    plt.show()
         
