@@ -122,16 +122,39 @@ def plot_output(output_file: 'Path'):
 def get_output_flow(output_file: 'Path'):
     #output = pd.read_csv(output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
     #output.rename(columns={'Flow':'sim_flow'}, inplace=True)
-    try:
+    try: #catchment csv file
         output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
         original_output_vars = ['Rainfall', 'Direct Runoff', 'GIUH Runoff', 'Lateral Flow', 'Base Flow', 'Total Discharge']
-    except:
+    except: #nexus csv file
         output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time', names=["Timestep", "Time", "Flow"])
         original_output_vars = ['Flow']
     #output[original_output_vars].plot(subplots=True)
     #original_output_vars.extend( [])
     # CHECK OUT GIUH ORDINATES/INPUT/USAGE
     return output['Flow']
+
+def get_precip_one_file(output_file: 'Path'):
+    output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
+    original_output_vars = ['Rainfall', 'Direct Runoff', 'GIUH Runoff', 'Lateral Flow', 'Base Flow', 'Total Discharge']
+    if "RAINRATE" in output:
+        return output['RAINRATE']
+    elif "APCP_Surface" in output:
+        return output['APCP_Surface']
+    elif "atmosphere_water__liquid_equivalent_precipitation_rate" in output:
+        return output['atmosphere_water__liquid_equivalent_precipitation_rate']
+    else:
+        raise(RuntimeError("No recognized precip data in provided file!"))
+    #output = output * fabric['area_sqkm']*1000000/3600 #need something like this!
+
+def get_precip_files_list(output_files: list):
+    totals = None
+    for f in output_files:
+        output = get_precip_one_file(f)
+        if totals is None:
+            totals = output
+        else:
+            totals = totals.add(output)
+    return totals
 
 def get_routed_output_flow(output_file: 'Path', id: str, start_dt: datetime, end_dt: datetime):
     id = re.sub(r"^cat-([0-9]+)[^0-9]*", "\\1", id)
@@ -158,16 +181,31 @@ def plot_parameter_space(path: 'Path'):
 
     params.T.plot(subplots=True)
 
-def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, output_file: 'Path'):
+def plot_hydrograph(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None):
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
     for nwis in obs_dict:
-        if output_file.suffix.startswith(".h5"):
+        if routing_output_file is not None:
             #TODO: for now times MUST match routing range (and routing range must match simulation range)
-            output = get_routed_output_flow(output_file, id, datetime.fromisoformat(start_dt), datetime.fromisoformat(end_dt))
+            output = get_routed_output_flow(routing_output_file, id, datetime.fromisoformat(start_dt), datetime.fromisoformat(end_dt))
         else:
-            output = get_output_flow(output_file)
-        output.rename('simulated', inplace=True)
+            output = get_output_flow(catchment_output_file)
+        output.rename('sim_flow', inplace=True)
+        precip = get_precip_files_list(catchment_output)
+        precip.rename('precip')
+        print(precip)
+
         merged = pd.merge(obs_dict[nwis], output, right_index=True, left_index=True)
-        #plt.figure()
-        merged.plot(title='Observation at USGS {}'.format(nwis))
+        fig, ax = plt.subplots()
+        ax2 = ax.twinx()
+        plt.figure()
+        ax2.plot(merged)
+        ax.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
+        ax.invert_yaxis()
+        #ax.set_xticklabels(merged.index)
+        ax.legend(loc='best')
+        #merged.plot(title='Observation at USGS {}'.format(nwis))
+        #plt.plot(merged['sim_flow'], label="Simulated", color="orange")
+        #plt.plot(merged['obs_flow'], label="Simulated", color="blue")
+        #plt.plot(precip['precip'], label="Precip", color="gray")
+        plt.show()
         
