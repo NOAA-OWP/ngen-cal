@@ -26,9 +26,9 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
     catchments = []
     #Read the catchment hydrofabric data
     catchment_hydro_fabric = gpd.read_file(catchment_data)
-    catchment_hydro_fabric.set_index('ID', inplace=True)
+    catchment_hydro_fabric.set_index('id', inplace=True)
     nexus_hydro_fabric = gpd.read_file(nexus_data)
-    nexus_hydro_fabric.set_index('ID', inplace=True)
+    nexus_hydro_fabric.set_index('id', inplace=True)
 
     x_walk = pd.read_json(cross_walk, dtype=str)
 
@@ -54,7 +54,7 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
             except KeyError:
                 raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
             try:
-                nexus_data = nexus_hydro_fabric.loc[fabric['toID']]
+                nexus_data = nexus_hydro_fabric.loc[fabric['toid']]
             except KeyError:
                 raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
 
@@ -75,12 +75,12 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
 def plot_obs(id, catchment_data, nexus_data, cross_walk):
     #Read the catchment hydrofabric data
     catchment_hydro_fabric = gpd.read_file(catchment_data)
-    catchment_hydro_fabric.set_index('ID', inplace=True)
+    catchment_hydro_fabric.set_index('id', inplace=True)
     nexus_hydro_fabric = gpd.read_file(nexus_data)
-    nexus_hydro_fabric.set_index('ID', inplace=True)
+    nexus_hydro_fabric.set_index('id', inplace=True)
     x_walk = pd.read_json(cross_walk, dtype=str)
     try:
-        fabric = catchment_hydro_fabric.loc[id]
+        fabric = nexus_hydro_fabric.loc[id]
     except KeyError:
         raise(RuntimeError("No data for id {}".format(id)))
     try:
@@ -88,7 +88,7 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     except KeyError:
         raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
     try:
-        nexus_data = nexus_hydro_fabric.loc[fabric['toID']]
+        nexus_data = nexus_hydro_fabric.loc[fabric['toid']]
     except KeyError:
         raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
 
