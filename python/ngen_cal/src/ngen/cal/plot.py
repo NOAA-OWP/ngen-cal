@@ -88,7 +88,7 @@ def get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
     nexus_hydro_fabric.set_index('id', inplace=True)
     x_walk = pd.read_json(cross_walk, dtype=str)
     try:
-        fabric = nexus_hydro_fabric.loc[id]
+        fabric = catchment_hydro_fabric.loc[id]
     except KeyError:
         raise(RuntimeError("No data for id {}".format(id)))
     try:
