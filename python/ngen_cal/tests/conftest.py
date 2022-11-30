@@ -7,7 +7,7 @@ import pandas as pd # type: ignore
 import geopandas as gpd # type: ignore
 from ngen.cal.configuration import General
 from ngen.cal.ngen import Ngen
-from ngen.cal.meta import CalibrationMeta
+from ngen.cal.meta import JobMeta
 from ngen.cal.calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
 from ngen.cal.model import EvaluationOptions
 from hypy import Nexus, HydroLocation
@@ -95,11 +95,11 @@ def ngen_config(realization_config, workdir) -> Ngen:
 #     yield Configuration(realization_config, catchment_data, nexus_data, x_walk, workdir)
 
 @pytest.fixture
-def meta(ngen_config, general_config, mocker) -> Generator[CalibrationMeta, None, None]:
+def meta(ngen_config, general_config, mocker) -> Generator[JobMeta, None, None]:
     """
         build up a meta object to test
     """
-    m = CalibrationMeta(ngen_config, general_config)
+    m = JobMeta(ngen_config, general_config)
     yield m
 
 @pytest.fixture
