@@ -3,7 +3,7 @@ import yaml
 from os import chdir
 from pathlib import Path
 from ngen.cal.configuration import General, Model
-from ngen.cal.meta import CalibrationMeta
+from ngen.cal.meta import JobMeta
 from ngen.cal.search import dds, dds_set
 
 def main(general: General, model: Model):
@@ -21,7 +21,7 @@ def main(general: General, model: Model):
     into a single variable vector and calibrating a set of heterogenous formultions...
     """
 
-    meta = CalibrationMeta(model, general)
+    meta = JobMeta(model, general)
     start_iteration = general.start_iteration
     if general.restart:
         start_iteration = meta.restart()

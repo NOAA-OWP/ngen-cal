@@ -8,5 +8,5 @@ PyObject.__modify_schema__ = classmethod(pyobject_schema)
 from .configuration import General, Model
 from .calibratable import Calibratable, Adjustable, Evaluatable
 from .calibration_set import CalibrationSet, UniformCalibrationSet
-from .meta import CalibrationMeta
+from .meta import JobMeta
 from .plot import *
