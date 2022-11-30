@@ -19,11 +19,12 @@ class JobMeta:
         """
 
         """
-        self._workdir = general.workdir
-        self._log_file = general.log_file
-        self._general = general
+        self._workdir = general.workdir #FIXME workdir...?????
+        self._log_file = general.log_file #FIXME move log file to job specific log, not general
+        #self._general = general
         if(self._log_file is not None):
             self._log_file = self._workdir/self._log_file
+            #FIXME make all log file names generated, but allow path differentiation?
         self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
         self._bin = model.get_binary()
         self._args = model.get_args()
