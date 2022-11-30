@@ -1,5 +1,5 @@
 import pytest
-from typing import Generator
+from typing import Generator, List
 from pathlib import Path
 from copy import deepcopy
 import json
@@ -188,3 +188,27 @@ def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, 
     catchment = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', eval_options, data)
 
     return catchment
+
+@pytest.fixture
+def explicit_catchments(nexus, fabric, workdir) -> Generator[ List[ CalibrationCatchment ], None, None ]:
+    """
+        A list of explicitly defined calibration catchments
+    """
+    catchments = []
+    ts = nexus._hydro_location.get_data().rename(columns={'value':'obs_flow'})
+    ts.set_index('value_time', inplace=True)
+
+    id = 'tst-1'
+    data = deepcopy(config)['catchments'][id]['calibration']['CFE'] # type: ignore
+    data = pd.DataFrame(data)
+    data['model'] = 'CFE'
+    #now = pd.Timestamp.now().round('H')
+    #ts = pd.DataFrame({'obs_flow':[1,2,3,4,5]}, index=pd.date_range(now, periods=5, freq='H'))
+    start = ts.index[0]
+    end = ts.index[-1]
+    eval_options = EvaluationOptions(**evaluation_options)
+    for i in range(3):
+        id = f"tst-{i}"
+        cat = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', eval_options, data)
+        catchments.append(cat)
+    yield catchments
