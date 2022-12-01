@@ -119,7 +119,10 @@ class NgenBase(ModelExec):
             for id, values in data.items():
                 gage = values.get('Gage_no')
                 if gage:
-                    self._x_walk[id] = gage[0]
+                    if not isinstance(gage, str):
+                        gage = gage[0]
+                    if gage != "":
+                        self._x_walk[id] = gage
 
         #Read the calibration specific info
         with open(self.realization) as fp:
@@ -316,13 +319,20 @@ class NgenIndependent(NgenBase):
                 nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
             except KeyError:
                 raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+            nwis = None
             try:
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
+            except KeyError:
+                try: 
+                    nwis = self._x_walk.loc[id]
+                except KeyError:
+                    nwis = None
+            if nwis is not None:
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.name, location, (), id)
+                nexus = Nexus(nexus_data.poi_value, location, (), id)
                 eval_nexus.append( nexus ) # FIXME why did I make this a tuple???
-            except KeyError:
+            else:
                 #in this case, we don't care if all nexus are observable, just need one downstream
                 #FIXME use the graph to work backwards from an observable nexus to all upstream catchments
                 #and create independent "sets"
@@ -354,16 +364,20 @@ class NgenUniform(NgenBase):
         
         for id, toid in self._catchment_hydro_fabric['toid'].iteritems():
             #look for an observable nexus
+            nexus_data = self._nexus_hydro_fabric.loc[toid]
+            nwis = None
             try:
-                nexus_data = self._nexus_hydro_fabric.loc[toid]
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
-                #establish the hydro location for the observation nexus associated with this catchment
-                location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.name, location, (), id)
-                eval_nexus.append( nexus )
             except KeyError:
-                #not an observable nexus, try the next one
-                continue
+                try: 
+                    nwis = self._x_walk.loc[id]
+                except KeyError:
+                    #not an observable nexus, try the next one
+                    continue
+                #establish the hydro location for the observation nexus associated with this catchment
+            location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
+            nexus = Nexus(nexus_data.name, location, (), id)
+            eval_nexus.append( nexus )
         if len(eval_nexus) != 1:
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
         # FIXME hard coded routing file name...
