@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import re
 from datetime import datetime
 from typing import TYPE_CHECKING
+from datetime import datetime
 
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -133,6 +134,15 @@ def get_output_flow(output_file: 'Path'):
     # CHECK OUT GIUH ORDINATES/INPUT/USAGE
     return output['Flow']
 
+#assumes a column "Time" or times in the first column
+def get_time_range_from_csv(output_file: 'Path'):
+    output = None
+    try:
+        output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
+    except:
+        output = pd.read_csv(output_file, parse_dates={"Time": [0]}, index_col='Time')
+    return (output.first_valid_index(), output.last_valid_index())
+
 def get_precip_one_file(output_file: 'Path'):
     output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
     original_output_vars = ['Rainfall', 'Direct Runoff', 'GIUH Runoff', 'Lateral Flow', 'Base Flow', 'Total Discharge']
@@ -191,11 +201,18 @@ def plot_parameter_space(path: 'Path'):
 
 #TODO: Doesn't really work for a single catchment file (unrouted output), though most of the pieces are there.
 def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None, subtitle: str = None):
+    catchment_output = list(catchment_output)
+
+    data_start_dt = datetime.fromisoformat(start_dt)
+    data_end_dt = datetime.fromisoformat(end_dt)
+    if len(catchment_output) > 0:
+        (data_start_dt, data_end_dt) = get_time_range_from_csv(catchment_output[0])
+    
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
     for nwis in obs_dict:
         if routing_output_file is not None:
             #TODO: for now times MUST match routing range (and routing range must match simulation range)
-            output = get_routed_output_flow(routing_output_file, id, datetime.fromisoformat(start_dt), datetime.fromisoformat(end_dt))
+            output = get_routed_output_flow(routing_output_file, id, data_start_dt, data_end_dt)
         else:
             output = get_output_flow(catchment_output[0])
         output.rename('sim_flow', inplace=True)
@@ -203,9 +220,17 @@ def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, en
         precip.rename('precip')
         #print(precip)
         #print(obs_dict[nwis])
-        plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle)
+        plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle, start_dt=start_dt, end_dt=end_dt)
 
-def plot_hydrograph(output, obs, precip, title, subtitle: str = None):
+def plot_hydrograph(output, obs, precip, title, subtitle: str = None, start_dt: datetime = None, end_dt: datetime = None):
+    if start_dt is not None:
+        output = output.loc[start_dt:]
+        precip = precip.loc[start_dt:]
+        obs = obs.loc[start_dt:]
+    if end_dt is not None:
+        output = output.loc[:end_dt]
+        precip = precip.loc[:end_dt]
+        obs = obs.loc[:end_dt]
     fig, ax = plt.subplots()
     ax2 = ax.twinx()
     ax.plot(obs, color="blue", label="Obs")
