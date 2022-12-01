@@ -330,7 +330,7 @@ class NgenIndependent(NgenBase):
             if nwis is not None:
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.poi_value, location, (), id)
+                nexus = Nexus(nexus_data.name, location, (), id)
                 eval_nexus.append( nexus ) # FIXME why did I make this a tuple???
             else:
                 #in this case, we don't care if all nexus are observable, just need one downstream
