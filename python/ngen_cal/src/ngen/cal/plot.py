@@ -87,15 +87,27 @@ def get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt):
     catchment_hydro_fabric.set_index('id', inplace=True)
     nexus_hydro_fabric = gpd.read_file(nexus_data)
     nexus_hydro_fabric.set_index('id', inplace=True)
-    x_walk = pd.read_json(cross_walk, dtype=str)
+    #x_walk = pd.read_json(cross_walk, dtype=str)
+    x_walk = pd.Series()
+    with open(cross_walk) as fp:
+        data = json.load(fp)
+        for xwid, values in data.items():
+            gage = values.get('Gage_no')
+            if gage:
+                if not isinstance(gage, str):
+                    gage = gage[0]
+                if gage != "":
+                    x_walk[xwid.replace('wb-', 'cat-')] = gage
     try:
         fabric = catchment_hydro_fabric.loc[id]
     except KeyError:
         raise(RuntimeError("No data for id {}".format(id)))
     try:
-        nwis = x_walk[id]['Gage_no']
+        nwis = x_walk[id]
     except KeyError:
         raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+    if not isinstance(nwis, str):
+        nwis = nwis[0]
     try:
         nexus_data = nexus_hydro_fabric.loc[fabric['toid']]
     except KeyError:
@@ -166,8 +178,15 @@ def get_precip_files_list(output_files: list, catchment_data: str):
             fabric = catchment_hydro_fabric.loc[id]
         except KeyError:
             raise(RuntimeError(f"No catchment hydrofabric data for id {id}"))
-        output = output * (fabric['areasqkm']*1000000/3600)
-        print(f"For catchment {id} with area {fabric['areasqkm']} added {output.sum()} m^3 of precip.")
+        try:
+            areasqkm = fabric['areasqkm']
+        except:
+            try:
+                areasqkm = fabric['area_sqkm']
+            except:
+                raise(RuntimeError("Failed to get catchment area, cannot compute precip contributions."))
+        output = output * (areasqkm*1000000/3600)
+        print(f"For catchment {id} with area {areasqkm} added {output.sum()} m^3 of precip.")
         if totals is None:
             totals = output
         else:
