@@ -219,7 +219,7 @@ def plot_parameter_space(path: 'Path'):
     params.T.plot(subplots=True)
 
 #TODO: Doesn't really work for a single catchment file (unrouted output), though most of the pieces are there.
-def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output_file: 'Path' = None, subtitle: str = None):
+def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output: 'Path' = None, subtitle: str = None, output_labels: list = None, output_colors: list = None):
     catchment_output = list(catchment_output)
 
     data_start_dt = datetime.fromisoformat(start_dt)
@@ -228,48 +228,76 @@ def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, en
         (data_start_dt, data_end_dt) = get_time_range_from_csv(catchment_output[0])
     
     obs_dict = get_obs(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt)
+    #obs_dict = { 'X': pd.Series() } # Use this if obs service is down or to save resources
     for nwis in obs_dict:
-        if routing_output_file is not None:
-            #TODO: for now times MUST match routing range (and routing range must match simulation range)
-            output = get_routed_output_flow(routing_output_file, id, data_start_dt, data_end_dt)
+        if routing_output is not None:
+            if isinstance(routing_output, list):
+                output = []
+                for output_file in routing_output:
+                    output.append(get_routed_output_flow(output_file, id, data_start_dt, data_end_dt))
+            else:
+                output = get_routed_output_flow(routing_output, id, data_start_dt, data_end_dt)
+                output = [output]
         else:
             output = get_output_flow(catchment_output[0])
-        output.rename('sim_flow', inplace=True)
+            output = [output]
+        #output.rename('sim_flow', inplace=True)
         precip = get_precip_files_list(catchment_output, catchment_data)
         precip.rename('precip')
         #print(precip)
         #print(obs_dict[nwis])
-        plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle, start_dt=start_dt, end_dt=end_dt)
+        return plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle, start_dt=start_dt, end_dt=end_dt, output_colors=output_colors, output_labels=output_labels)
 
-def plot_hydrograph(output, obs, precip, title, subtitle: str = None, start_dt: datetime = None, end_dt: datetime = None):
+def plot_hydrograph(outputs: list, obs, precip, title, subtitle: str = None, start_dt: datetime = None, end_dt: datetime = None, output_labels: list = None, output_colors: list = None):
     if start_dt is not None:
-        output = output.loc[start_dt:]
+        outputs2 = []
+        for output in outputs:
+            output = output.loc[start_dt:]
+            outputs2.append(output)
+        outputs = outputs2
         precip = precip.loc[start_dt:]
         obs = obs.loc[start_dt:]
     if end_dt is not None:
-        output = output.loc[:end_dt]
+        outputs2 = []
+        for output in outputs:
+            output = output.loc[:end_dt]
+            outputs2.append(output)
+        outputs = outputs2
         precip = precip.loc[:end_dt]
         obs = obs.loc[:end_dt]
     fig, ax = plt.subplots()
+
     ax2 = ax.twinx()
-    ax.plot(obs, color="blue", label="Obs")
-    ax.plot(output, color="orange", label="Simulated")
-    ax2.bar(precip.index, precip, color="lightgray", width=0.2, linewidth=0, label="Precip")
-    ax2.invert_yaxis()
+
+    ax.invert_yaxis()
+    ax.yaxis.set_label_position("right")
+    ax.yaxis.tick_right()
+    ax.bar(precip.index, precip, color="lightgray", width=0.042, linewidth=0, label="Precip")
+
+    ax2.yaxis.set_label_position("left")
+    ax2.yaxis.tick_left()
+    ax2.plot(obs, color="blue", label="Obs")
+    for i, output in enumerate(outputs):
+        label = f"Simulated {i+1}" if output_labels is None else output_labels[i]
+        if output_colors is None:
+            ax2.plot(output, label=label)
+        else:
+            ax2.plot(output, label=label, color=output_colors[i])
     #ax.legend(loc='best')
-    ax.set_ylabel("Flow (cumecs)")
+    ax2.set_ylabel("Flow (cumecs)")
     #ax2.legend(loc='best')
-    ax2.set_ylabel("Precip (cumecs)")
+    ax.set_ylabel("Precip (cumecs)")
     fig.autofmt_xdate(rotation=45)
     #plt.title("Title String", fontsize=14)
-    fig.text(.5,.95,title,fontsize=14,ha='center')
+    fig.text(.1,.95,title,fontsize=14,ha='left')
     if None != "":
-        fig.text(.5,.9,subtitle,fontsize=10,ha='center')
+        fig.text(.1,.9,subtitle,fontsize=10,ha='left')
 
     # legend fix from https://stackoverflow.com/a/57484812/489116
     lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
     lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
-    fig.legend(lines, labels)
+    fig.legend(lines, labels, ncol=2)
 
-    plt.show()
+    #plt.show()
+    return fig
         
