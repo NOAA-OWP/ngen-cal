@@ -219,7 +219,7 @@ def plot_parameter_space(path: 'Path'):
     params.T.plot(subplots=True)
 
 #TODO: Doesn't really work for a single catchment file (unrouted output), though most of the pieces are there.
-def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output: 'Path' = None, subtitle: str = None, output_labels: list = None, output_colors: list = None):
+def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, end_dt, catchment_output: list, routing_output: 'Path' = None, subtitle: str = None, output_labels: list = None, output_colors: list = None, cumsum: bool = False):
     catchment_output = list(catchment_output)
 
     data_start_dt = datetime.fromisoformat(start_dt)
@@ -246,9 +246,9 @@ def plot_hydrograph_cal(id, catchment_data, nexus_data, cross_walk, start_dt, en
         precip.rename('precip')
         #print(precip)
         #print(obs_dict[nwis])
-        return plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle, start_dt=start_dt, end_dt=end_dt, output_colors=output_colors, output_labels=output_labels)
+        return plot_hydrograph(output, obs_dict[nwis], precip, f"Gage {nwis}", subtitle, start_dt=start_dt, end_dt=end_dt, output_colors=output_colors, output_labels=output_labels, cumsum=cumsum)
 
-def plot_hydrograph(outputs: list, obs, precip, title, subtitle: str = None, start_dt: datetime = None, end_dt: datetime = None, output_labels: list = None, output_colors: list = None):
+def plot_hydrograph(outputs: list, obs, precip, title, subtitle: str = None, start_dt: datetime = None, end_dt: datetime = None, output_labels: list = None, output_colors: list = None, cumsum: bool = False):
     if start_dt is not None:
         outputs2 = []
         for output in outputs:
@@ -265,6 +265,15 @@ def plot_hydrograph(outputs: list, obs, precip, title, subtitle: str = None, sta
         outputs = outputs2
         precip = precip.loc[:end_dt]
         obs = obs.loc[:end_dt]
+    if cumsum:
+        outputs2 = []
+        for output in outputs:
+            output = output.cumsum()
+            outputs2.append(output)
+        outputs = outputs2
+        precip = precip.cumsum()
+        obs = obs.cumsum()
+
     fig, ax = plt.subplots()
 
     ax2 = ax.twinx()
@@ -284,9 +293,9 @@ def plot_hydrograph(outputs: list, obs, precip, title, subtitle: str = None, sta
         else:
             ax2.plot(output, label=label, color=output_colors[i])
     #ax.legend(loc='best')
-    ax2.set_ylabel("Flow (cumecs)")
+    ax2.set_ylabel("Flow ($m^3$/s)")
     #ax2.legend(loc='best')
-    ax.set_ylabel("Precip (cumecs)")
+    ax.set_ylabel("Precip ($m^3$/s)")
     fig.autofmt_xdate(rotation=45)
     #plt.title("Title String", fontsize=14)
     fig.text(.1,.95,title,fontsize=14,ha='left')
