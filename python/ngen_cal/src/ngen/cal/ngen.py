@@ -114,7 +114,7 @@ class NgenBase(ModelExec):
         self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
         self._nexus_hydro_fabric.set_index('id', inplace=True)
 
-        self._x_walk = pd.Series()
+        self._x_walk = pd.Series(dtype=object)
         with open(self.crosswalk) as fp:
             data = json.load(fp)
             for id, values in data.items():
@@ -378,7 +378,7 @@ class NgenUniform(NgenBase):
         end_t = self.ngen_realization.time.end_time
         eval_nexus = []
         
-        for id, toid in self._catchment_hydro_fabric['toid'].iteritems():
+        for id, toid in self._catchment_hydro_fabric['toid'].items():
             #look for an observable nexus
             nexus_data = self._nexus_hydro_fabric.loc[toid]
             nwis = None
