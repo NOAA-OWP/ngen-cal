@@ -1,4 +1,4 @@
-from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator
+from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field
 from typing import Optional, Tuple, Union, Literal
 from datetime import datetime
 from pathlib import Path
@@ -86,6 +86,7 @@ class EvaluationOptions(BaseModel):
             score (float): score value to save
             log (bool): writes objective information to log file if True
         """
+        #TODO store current_score and current_iteration?
         if self.target == 'min':
             if score <= self._best_score:
                 self._best_params_iteration = str(i)
@@ -194,8 +195,9 @@ class ModelExec(BaseModel, Configurable):
     binary: str
     args: Optional[str]
     workdir: DirectoryPath = Path("./") #FIXME test the various workdirs
-    eval_params: EvaluationOptions
+    eval_params: Optional[EvaluationOptions] = Field(default=EvaluationOptions())
 
+    #FIXME formalize type: str = "ModelName"
     def get_binary(self)->str:
         """Get the binary string to execute
 
