@@ -1,5 +1,5 @@
 from pydantic import BaseModel, PyObject, validator
-from typing import Optional, Union
+from typing import Optional, Mapping, Any
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -52,6 +52,7 @@ class Estimation(BaseModel):
         Algorithm enum value defining the desired search algorithm to use
     """
     algorithm: Algorithm
+    parameters: Optional[Mapping[str, Any]] = {}
 
 class Sensitivity(BaseModel):
     """
