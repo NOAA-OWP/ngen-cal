@@ -292,13 +292,18 @@ class NgenExplicit(NgenBase):
         super().update_config(i, params, id, **kwargs)
 
 class NgenIndependent(NgenBase):
-    
+    # TODO Error if not routing block in ngen_realization
     strategy: Literal[NgenStrategy.independent]
     params: Mapping[str, Parameters] #required in this case...
 
     def __init__(self, **kwargs):
         #Let pydantic work its magic
         super().__init__(**kwargs)
+        # FIXME cannot strip all global params cause things like sloth depend on them
+        # but the global params may have defaults in place that are not the same as the requested
+        # calibration params.  This shouldn't be an issue since each catchment overrides the global config
+        # and it won't actually be used, but the global config definition may not be correct.
+        #self._strip_global_params()
         #now we work ours
         start_t = self.ngen_realization.time.start_time
         end_t = self.ngen_realization.time.end_time
@@ -359,13 +364,22 @@ class NgenIndependent(NgenBase):
         if len(eval_nexus) != 1:
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
         # FIXME hard coded routing file name...
-        self._catchments.append(CalibrationSet(catchments, eval_nexus[0], "flowveldepth_Ngen1.h5", start_t, end_t, self.eval_params))
+
+    def _strip_global_params(self) -> None:
+        module = self.ngen_realization.global_config.formulations[0].params
+        if isinstance(module, MultiBMI):
+            for m in module.modules:
+                m.params.model_params = None
+        else:
+            module.model_params = None
+            
 
 class NgenUniform(NgenBase):
     """
         Uses a global ngen configuration and permutes just this global parameter space
         which is applied to each catchment in the hydrofabric being simulated.
     """
+    # TODO Error if not routing block in ngen_realization
     strategy: Literal[NgenStrategy.uniform]
     params: Mapping[str, Parameters] #required in this case...
 
