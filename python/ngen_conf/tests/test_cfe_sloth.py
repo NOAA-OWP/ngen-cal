@@ -10,6 +10,7 @@ def data():
     with open(test_file) as fp:
         data = json.load(fp)
     data['routing']['t_route_config_file_with_path'] = test_dir/data['routing']['t_route_config_file_with_path']
+    data['global']['forcing']['path'] = test_dir/data['global']['forcing']['path']
     return data
 
 def test_ngen_global_realization(data):

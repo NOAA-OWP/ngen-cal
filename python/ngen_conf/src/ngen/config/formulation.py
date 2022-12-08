@@ -7,6 +7,9 @@ class Formulation(BaseModel, smart_union=True):
     name: str
     params:  "KnownFormulations" = Field(descriminator="model_name")
 
+    def resolve_paths(self):
+        self.params.resolve_paths()
+
 #NOTE To avoid circular import and support recrusive modules
 #note that `params` is one of KnownFormulations, 
 #of which MultiBMI may be one of those.  

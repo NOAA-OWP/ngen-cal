@@ -28,6 +28,10 @@ class MultiBMI(BMIParams, smart_union=True):
     name_map: Mapping[str, str] = Field(None, const=True) #not relevant for multi-bmi
     model_params: Optional[Mapping[str, str]] = Field(None, const=True) #not relevant for multi-bmi
     
+    def resolve_paths(self):
+        for m in self.modules:
+            m.resolve_paths()
+
     @root_validator(pre=True)
     def build_model_name(cls, values: Mapping[str, Any]):
         """Construct the model name, if none provided.

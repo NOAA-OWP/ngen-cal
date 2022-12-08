@@ -2,6 +2,7 @@ from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, DirectoryPath, FilePath, conint, Field
 from typing import Union, Optional
+from pathlib import Path
 
 PosInt = conint(gt=0)
 
@@ -17,9 +18,14 @@ class Forcing(BaseModel, smart_union=True):
     
     #required
     file_pattern: Optional[Union[FilePath, str]]
-    path: Union[DirectoryPath, FilePath, str]
+    path: Union[DirectoryPath, FilePath]
     #reasonable? default
     provider: Provider = Field(Provider.CSV)
+    
+    def resolve_paths(self):
+        if isinstance(self.file_pattern, Path):
+            self.file_pattern = self.file_pattern.resolve()
+        self.path = self.path.resolve()
 
 class Time(BaseModel):
     """Model for ngen time configuraiton components
@@ -47,6 +53,9 @@ class Routing(BaseModel):
     config: FilePath = Field(alias='t_route_config_file_with_path')
     #optional/not used TODO make default None?
     path: Optional[str] = Field('', alias='t_route_connection_path') #TODO deprecate this field?
+
+    def resolve_paths(self):
+        self.config = self.config.resolve()
 
     def dict(self, **kwargs):
         #Can override the `dict` call so we ALWAYS `use_aliases` when this model

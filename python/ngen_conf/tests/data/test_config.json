@@ -80,7 +80,7 @@
             }
         ], 
         "forcing": {
-            "file_pattern": "cat-1.csv", 
+            "file_pattern": "cat-*.csv", 
             "path": "data/forcing", 
             "provider": "CsvPerFeature"
         }
