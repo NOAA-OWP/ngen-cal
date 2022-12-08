@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from datetime import datetime
     from typing import Tuple
     from .model import EvaluationOptions
+import os
 from pathlib import Path
 from hypy.nexus import Nexus
 from .calibratable import Adjustable, Evaluatable
@@ -66,7 +67,7 @@ class CalibrationSet(Evaluatable):
             df = df.loc[self._eval_nexus.contributing_catchments[0].replace('cat', 'wb')]
             self._output = df.xs('q', level=1, drop_level=False)
             #This is a hacky way to get the time index...pass the time around???
-            tnx_file = list(Path(self._output_file).parent.glob("tnx*.csv"))[0]
+            tnx_file = list(Path(self._output_file).parent.glob("nex*.csv"))[0]
             tnx_df = pd.read_csv(tnx_file, index_col=0, parse_dates=[1], names=['ts', 'time', 'Q']).set_index('time')
             dt_range = pd.date_range(tnx_df.index[0], tnx_df.index[-1], len(self._output.index)).round('min')
             self._output.index = dt_range
@@ -78,6 +79,8 @@ class CalibrationSet(Evaluatable):
             hydrograph = self._output
 
         except FileNotFoundError:
+            print("{} not found. Current working directory is {}".format(self._output_file, os.getcwd()))
+            print("Setting output to None")
             hydrograph = None
         except Exception as e:
             raise(e)
