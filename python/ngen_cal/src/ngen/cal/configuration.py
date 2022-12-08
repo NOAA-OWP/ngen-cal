@@ -36,7 +36,7 @@ class General(BaseModel):
     workdir: DirectoryPath = Path("./")
     name: str = "ngen-calibration"
     #Optional fields
-    log_file: Optional[Path]
+    log: Optional[bool] = False
     parameter_log_file: Optional[Path]
     objective_log_file: Optional[Path]
     random_seed: Optional[int]
