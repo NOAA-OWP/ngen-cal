@@ -27,8 +27,8 @@ class Adjustable(ABC):
 
             Must have the following columns:
             param: str Name of the parameters to calibrate
-            lower: float lower limit of the parameter value
-            upper: upper limit of the parameter value
+            min: float lower limit of the parameter value
+            max: upper limit of the parameter value
             0:     float initial value of the parameter
             #TODO do we need a group index???
         """
@@ -48,6 +48,15 @@ class Adjustable(ABC):
             Index series of variables
         """
         return Series(self.df.index.values)
+
+    @property
+    def bounds(self) -> 'Tuple[Series]':
+        """The bounds of each parameter that is adjustable
+
+        Returns:
+            Tuple[Series]: returns the (min,max) boundaries of the adjustable parameters
+        """
+        return (self.df['min'], self.df['max'])
 
     @abstractmethod
     def update_params(self, iteration: int) -> None:
