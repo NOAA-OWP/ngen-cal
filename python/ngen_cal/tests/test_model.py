@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from ngen.cal.ngen import Ngen
 if TYPE_CHECKING:
     from ngen.cal.model import EvaluationOptions
+    from pydantic import DirectoryPath
 
 """
     Test suite for reading and manipulating ngen configration files
@@ -62,3 +63,10 @@ def test_restart_1(ngen_config: 'Ngen', eval: 'EvaluationOptions', workdir: 'Dir
 
 #TODO test calibration_set/uniform
 #TODO test multiple explicit -- test_restart_1 uses explicit but only validates a single catchment
+def test_explicit(explicit_catchments) -> None:
+    """
+        Test that a set of independt, explicity handled catchments operates as intended
+    """
+
+
+    pass
