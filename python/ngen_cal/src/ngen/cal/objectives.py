@@ -19,6 +19,13 @@ def normalized_nash_sutcliffe(observed, simulated):
     nse = nash_sutcliffe(observed, simulated)
     return 1/(2-nse)
 
+def inverted_nnse(observed, simulated):
+    nnse = normalized_nash_sutcliffe(observed, simulated)
+    return 1 - nnse
+
+def kge(observed, simulated):
+    return 1 - kling_gupta_efficiency(observed, simulated)
+
 def peak_error_single(observed, simulated):
     max_sim = simulated.max()
     max_obs = observed.max()
