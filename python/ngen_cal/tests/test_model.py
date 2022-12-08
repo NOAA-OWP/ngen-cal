@@ -47,18 +47,18 @@ def test_restart_1(ngen_config: 'Ngen', eval: 'EvaluationOptions', workdir: 'Dir
         Test retarting from serialized logs
     """
     eval._best_score = 1
-    ngen_config.hy_catchments[0]._best_score = 1
+    ngen_config.adjustables[0]._best_score = 1
     eval._best_params_iteration = "1"
-    ngen_config.hy_catchments[0]._best_params = "1"
+    ngen_config.adjustables[0]._best_params = "1"
     eval.write_param_log_file(2)
     
     #make sure the catchment param df is saved before trying to restart
-    ngen_config.hy_catchments[0].check_point(workdir)
+    ngen_config.adjustables[0].check_point(workdir)
 
     iteration = ngen_config.restart()
     assert iteration == 3
-    assert ngen_config.hy_catchments[0].eval_params.best_score == 1
-    assert ngen_config.hy_catchments[0].eval_params.best_params == '1'
+    assert ngen_config.adjustables[0].eval_params.best_score == 1
+    assert ngen_config.adjustables[0].eval_params.best_params == '1'
 
 #TODO test calibration_set/uniform
 #TODO test multiple explicit -- test_restart_1 uses explicit but only validates a single catchment

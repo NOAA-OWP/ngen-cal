@@ -27,8 +27,8 @@ class Adjustable(ABC):
 
             Must have the following columns:
             param: str Name of the parameters to calibrate
-            min: float lower limit of the parameter value
-            max: upper limit of the parameter value
+            lower: float lower limit of the parameter value
+            upper: upper limit of the parameter value
             0:     float initial value of the parameter
             #TODO do we need a group index???
         """
@@ -98,6 +98,9 @@ class Adjustable(ABC):
             Save the last output of the runtime for iteration i
         """
         pass
+
+    def restart(self) -> None:
+            self.load_df('./')
 
 class Evaluatable(ABC):
     """
