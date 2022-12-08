@@ -58,7 +58,7 @@ class EvaluationOptions(BaseModel):
         """Override configuration for pydantic BaseModel
         """
         underscore_attrs_are_private = True
-        use_enum_values = True
+        use_enum_values = False #if true, then objective turns into a str, and things blow up
 
     def __init__(self, **kwargs):
         """
