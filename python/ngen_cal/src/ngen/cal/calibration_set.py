@@ -118,6 +118,14 @@ class CalibrationSet(Evaluatable):
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(path/adjustable.check_point_file)
 
+    def restart(self) -> int:
+        try:
+            for adjustable in self.adjustables:
+                adjustable.restart()
+        except FileNotFoundError:
+            return 0
+        return super().restart()
+
 class UniformCalibrationSet(CalibrationSet, Adjustable):
     """
         A HY_Features based catchment with additional calibration information/functionality
@@ -158,3 +166,12 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
     @property
     def check_point_file(self) -> 'Path':
         return Path('{}_parameter_df_state.parquet'.format(self._eval_nexus.id))
+
+    def restart(self):
+        try:
+            #reload the param space for the adjustable
+            Adjustable.restart(self)
+        except FileNotFoundError:
+            return 0
+        #Reload the evaluation information
+        return Evaluatable.restart(self)

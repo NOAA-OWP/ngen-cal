@@ -399,8 +399,8 @@ class Ngen(BaseModel, Configurable, smart_union=True):
         return self.__root__.update_config(*args, **kwargs)
     #proxy methods for model
     @property
-    def hy_catchments(self):
-        return self.__root__.hy_catchments
+    def adjustables(self):
+        return self.__root__._catchments
 
     @property
     def strategy(self):
@@ -408,12 +408,10 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     
     def restart(self) -> int:
         starts = []
-        for catchment in self.hy_catchments:
+        for catchment in self.adjustables:
             starts.append(catchment.restart())
-        print(starts)
         if all( x == starts[0] for x in starts):
             #if everyone agress on the iteration...
             return starts[0]
         else:
-            
             return 0
