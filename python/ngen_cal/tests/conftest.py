@@ -10,6 +10,7 @@ from ngen.cal.ngen import Ngen
 from ngen.cal.meta import JobMeta
 from ngen.cal.calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
 from ngen.cal.model import EvaluationOptions
+from ngen.cal.agent import Agent
 from hypy import Nexus, HydroLocation
 
 from .utils import *
@@ -99,8 +100,13 @@ def meta(ngen_config, general_config, mocker) -> Generator[JobMeta, None, None]:
     """
         build up a meta object to test
     """
-    m = JobMeta(ngen_config, general_config)
+    m = JobMeta(ngen_config.type, general_config.workdir)
     yield m
+
+@pytest.fixture
+def agent(ngen_config, general_config) -> Generator['Agent', None, None]:
+    a = Agent(ngen_config.__root__.dict(), general_config.workdir, general_config.log)
+    yield a
 
 @pytest.fixture
 def eval(ngen_config) -> Generator[EvaluationOptions, None, None]:
