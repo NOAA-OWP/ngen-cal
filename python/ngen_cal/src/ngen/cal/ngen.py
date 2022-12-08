@@ -140,7 +140,7 @@ class NgenBase(ModelExec):
         return self.realization
 
     @property
-    def hy_catchments(self) -> Sequence['CalibrationCatchment']:
+    def adjustables(self) -> Sequence['CalibrationCatchment']:
         """A list of Catchments for calibration
         
         These catchments hold information about the parameters/calibration data for that catchment
@@ -177,7 +177,7 @@ class NgenBase(ModelExec):
 
         custom_args = False
         if( args is None ):
-            args = '{} "all" {} "all" {}'.format(catchments, nexus, realization)
+            args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
             values['args'] = args
         else:
             custom_args = True
@@ -211,7 +211,7 @@ class NgenBase(ModelExec):
             raise ValueError("Must provide partitions if using parallel")
         return values
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str = None):
+    def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
         """_summary_
 
         Args:
@@ -235,8 +235,7 @@ class NgenBase(ModelExec):
         else:
             p = groups.get_group(module.model_name)
             module.model_params = p[str(i)].to_dict()
-        
-        with open(self.realization, 'w') as fp:
+        with open(path/self.realization.name, 'w') as fp:
                 fp.write( self.ngen_realization.json(by_alias=True, exclude_none=True, indent=4))
     
 class NgenExplicit(NgenBase):
@@ -278,7 +277,7 @@ class NgenExplicit(NgenBase):
                 eval_params.id = id
                 self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, eval_params, params))
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str):
+    def update_config(self, i: int, params: 'pd.DataFrame', id: str, **kwargs):
         """_summary_
 
         Args:
@@ -290,7 +289,7 @@ class NgenExplicit(NgenBase):
         if id is None:
             raise RuntimeError("NgenExplicit calibration must recieve an id to update, not None")
         
-        super().update_config(i, params, id)
+        super().update_config(i, params, id, **kwargs)
 
 class NgenIndependent(NgenBase):
     
@@ -428,3 +427,17 @@ class Ngen(BaseModel, Configurable, smart_union=True):
             return starts[0]
         else:
             return 0
+
+    @property
+    def type(self):
+        return self.__root__.type
+
+    def resolve_paths(self):
+        """resolve any possible relative paths in the realization
+        """
+        if(self.__root__.ngen_realization != None):
+            self.__root__.ngen_realization.resolve_paths()
+
+    @property
+    def best_params(self):
+        return self.__root__.eval_params.best_params
