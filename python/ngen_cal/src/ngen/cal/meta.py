@@ -1,6 +1,7 @@
 import json
 import pandas as pd # type: ignore
 from pathlib import Path
+from tempfile import mkdtemp
 from typing import TYPE_CHECKING
 from .configuration import General, Model
 
@@ -10,57 +11,39 @@ if TYPE_CHECKING:
 
 class JobMeta:
     """
-        Structure for holding calibration meta data
-
-        ###TODO can we hold enough `configuration` information to make it possible to update global config
+        Structure for holding model job meta data
     """
 
-    def __init__(self, model: Model, general: General):
-        """
+    def __init__(self, name: str, parent_workdir: Path, workdir: Path=None, log=False):
+        """Create a job meta data structure
 
+        Args:
+            name (str): name of the job, is used to construct log files
+            workdir (Path): working directory to stage the job under
+            log (bool, optional): Whether or not to create a log file for the job. Defaults to False.
         """
-        self._workdir = general.workdir #FIXME workdir...?????
-        self._log_file = general.log_file #FIXME move log file to job specific log, not general
-        #self._general = general
-        if(self._log_file is not None):
-            self._log_file = self._workdir/self._log_file
-            #FIXME make all log file names generated, but allow path differentiation?
-        self._model = model #This is the Model Configuration object that knows how to operate on model configuration files
-        self._bin = model.get_binary()
-        self._args = model.get_args()
+        if(workdir is None):
+            self._workdir = Path( mkdtemp(dir=parent_workdir, prefix=name+"_", suffix="_worker") ).resolve()
+        else:
+            self._workdir = workdir
 
-    def update_config(self, i: int, params: 'DataFrame', id: str):
-        """
-            For a given calibration iteration, i, update the input files/configuration to prepare for that iterations
-            calibration run.
-
-            parameters
-            ---------
-            i: int
-                current iteration of calibration
-            params: pandas.DataFrame
-                DataFrame containing the parameter name in `param` and value in `i` columns
-        """
-        return self._model.update_config(i, params, id)
+        self._log_file = None
+        if(log):
+            self._log_file = self._workdir/Path(name+".log")
 
     @property
     def workdir(self) -> 'Path':
         return self._workdir
-
-    @property
-    def cmd(self) -> str:
-        """
-
-        """
-        return "{} {}".format(self._bin, self._args)
+    
+    @workdir.setter
+    def workdir(self, path: 'Path') -> None:
+        self._workdir = path
+        if(self._log_file is not None):
+            self._log_file = self._workdir/Path(self._log_file.name)
 
     @property
     def log_file(self) -> 'Path':
         """
-
+            Path to the job's log file, or None.
         """
         return self._log_file
-
-    @log_file.setter
-    def log_file(self, path: 'Path') -> None:
-        self._log_file = path
