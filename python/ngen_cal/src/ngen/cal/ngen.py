@@ -14,6 +14,7 @@ import geopandas as gpd
 import pandas as pd
 import shutil
 from enum import Enum
+import re
 from ngen.config.realization import NgenRealization, Realization, CatchmentRealization
 from ngen.config.multi import MultiBMI
 from .model import ModelExec, PosInt, Configurable
@@ -306,11 +307,23 @@ class NgenIndependent(NgenBase):
         catchments = []
         eval_nexus = []
         catchment_realizations = {}
-        g_conf = self.ngen_realization.global_config.dict(by_alias=True)
-        g_conf.pop('forcing')
+        g_conf = self.ngen_realization.global_config.copy(deep=True).dict(by_alias=True)
         for id in self._catchment_hydro_fabric.index:
             #Copy the global configuration into each catchment
             catchment_realizations[id] = CatchmentRealization(**g_conf)
+            #Need to fix the forcing definition or ngen will not work
+            #for individual catchment configs, it doesn't apply pattern resolution
+            #and will read the directory `path` key as the file key and will segfault
+            pattern = catchment_realizations[id].forcing.file_pattern
+            path = catchment_realizations[id].forcing.path
+            catchment_realizations[id].forcing.file_pattern = None
+            pattern = pattern.replace("{{id}}", id)
+            pattern = re.compile(pattern.replace("{{ID}}", id))
+            for f in path.iterdir():
+                if pattern.match(f.name):
+                    catchment_realizations[id].forcing.path = f.resolve()
+            
+
         self.ngen_realization.catchments = catchment_realizations
         
         for id, catchment in self.ngen_realization.catchments.items():#data['catchments'].items():
