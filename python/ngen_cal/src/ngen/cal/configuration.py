@@ -4,7 +4,6 @@ import logging
 
 #Typing, datamodel
 from pydantic import BaseModel, Field, DirectoryPath
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
