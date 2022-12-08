@@ -152,8 +152,9 @@ class EvaluationOptions(BaseModel):
     @validator("objective")
     def validate_objective(cls, value):
         if value is None:
-            raise ValueError("Objective function must not be None")
-        
+            #raise ValueError("Objective function must not be None")
+            print("Objective cannot be none -- setting default objective")
+            value = Objective.custom
         return value
 
     def read_param_log_file(self):
