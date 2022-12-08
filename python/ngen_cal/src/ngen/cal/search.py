@@ -3,12 +3,21 @@ import pandas as pd # type: ignore
 from math import log
 import numpy as np # type: ignore
 from typing import TYPE_CHECKING
+from functools import partial
+from multiprocessing import pool
 from ngen.cal.utils import pushd
 if TYPE_CHECKING:
     from ngen.cal import Adjustable, Evaluatable
     from ngen.cal.agent import Agent
 
-from ngen.cal.objectives import custom
+
+"""Global private iteration counter
+
+This counter is used by PSO search so that iteration information can be captured
+and recorded from within a generic functional representation of an abstract model
+managed by a calibration agent.
+"""
+__iteration_counter = 0
 
 def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range=None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
@@ -181,3 +190,89 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
                 _evaluate(i, calibration_set, info=True)
             calibration_set.check_point(agent.job.workdir)
 
+def compute(calibration_object, iteration, input) -> float:
+    params = input[0]
+    agent = input[1]
+    
+    #Update the meta info and prepare for next iteration
+    #Pass the parameter and interation columns of the object we are calibrating to the update function
+    calibration_object.df[str(iteration)] = params
+    #print(calibration_object.df[str(iteration)])
+    with pushd(agent.job.workdir):
+        agent.update_config(iteration, calibration_object.df[[str(iteration), 'param', 'model']], calibration_object.id)
+        _execute(agent)
+        cost = _evaluate(iteration, calibration_object)
+        calibration_object.check_point(agent.workdir)
+        #cost = _objective_func(calibration_object.output, calibration_object.observed, calibration_object.objective, calibration_object.evaluation_range)
+    return cost
+
+def cost_func( calibration_object: 'Adjustable', agents: 'Agent', pool, params):
+    """_summary_
+
+    Args:
+        meta (CalibrationMeta): _description_
+        calibration_object (Adjustable): _description_
+        params (_type_): _description_
+    """
+    global __iteration_counter
+    #TODO implement multi-processing here???
+    func = partial(compute, calibration_object, __iteration_counter)
+    costs = np.fromiter(pool.imap(func, zip(params, agents)), dtype=float)
+    # for r in :
+    #     costs.append(r)
+    #Update global iteration counter 
+    __iteration_counter = __iteration_counter + 1
+
+    return costs
+
+def pso_search(start_iteration: int, iterations: int,  agent):
+    """_summary_
+
+    Args:
+        start_iteration (int): _description_
+        iterations (int): _description_
+        calibration_set (CalibrationSet): _description_
+        meta (CalibrationMeta): _description_
+    """
+    import pyswarms as ps
+
+    """
+        Utilizing PSO optimizers requires n "particles" to run -- so we need to take the existing meta
+        and create a unique copy customized for each particle, so then each one gets an execution/update
+    """
+
+    #TODO run first iteration?
+    num_particles = agent.parameters.get('particles', 4)
+    pool_size = agent.parameters.get("pool", 1)
+    print("Running PSO with {} particles using {} processes".format(num_particles, pool_size))
+    #TODO warn about potential loss of data when particles > pool
+    _pool = pool.Pool(pool_size)
+    agents = [agent] + [ agent.duplicate() for i in range(num_particles-1) ]
+    default_options = {'c1': 0.5, 'c2': 0.3, 'w':0.9}
+    options = agent.parameters.get("options", default_options)
+    for calibration_object in agent.model.adjustables:
+        bounds = calibration_object.bounds
+        bounds = (bounds[0].values, bounds[1].values)
+        # Call instance of PSO
+        # TODO hook other pyswarm algorithms by user selection
+        # TODO hook swarmpackagepy algorithms by user selection (they follow a very similar functional pattern)
+        # A quick look at swarmpackagepy shows that it might be a little more challenging since it does this to update states:
+        """
+            Pbest = self.__agents[
+                np.array([function(x) for x in self.__agents]).argmin()]
+            if function(Pbest) < function(Gbest):
+                Gbest = Pbest
+        """
+        # meaning that the cost_func is called multiple time PER ITERATION, which doesn't coincide with the architecture
+        # we are using here to interface with pyswarm, which only calls the cost_func once per iteration, and tracks other states internally
+        # this is a significant problem, especially considering the computation costs of our "cost_function"
+        optimizer = ps.single.GlobalBestPSO(n_particles=num_particles, dimensions=len(calibration_object.df), options=options, bounds=bounds)
+        cf = partial(cost_func, calibration_object, agents, _pool)
+        # Perform optimization
+        #For pyswarm, DO NOT use the embedded multi-processing -- it is impossible to track the mapping of an agent to the params
+        cost, pos = optimizer.optimize(cf, iters=iterations, n_processes=None)
+        calibration_object.df.loc[:,'global_best'] = pos
+        calibration_object.check_point("./")
+        print("Best params with cost {}:".format(cost))
+        print(calibration_object.df[['param','global_best']].set_index('param'))
+    
