@@ -11,6 +11,12 @@ class Realization(BaseModel):
     forcing: Forcing
     calibration: Optional[ Mapping[ str, Sequence[ Any ]] ]
 
+    def resolve_paths(self):
+        for f in self.formulations:
+            f.resolve_paths()
+        if(self.forcing):
+            self.forcing.resolve_paths()
+
 class CatchmentRealization(Realization):
     forcing: Optional[Forcing]
 
@@ -32,3 +38,12 @@ class NgenRealization(BaseModel):
         json_encoders = {
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
         }
+
+    def resolve_paths(self):
+        """resolve possible relative paths in configuration
+        """
+        self.global_config.resolve_paths()
+        for k,v in self.catchments.items():
+            v.resolve_paths()
+        if(self.routing != None):
+            self.routing.resolve_paths()
