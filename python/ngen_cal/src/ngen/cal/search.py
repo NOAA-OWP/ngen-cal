@@ -100,6 +100,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
         raise(ValueError("start_iteration must be <= iterations"))
 
     init = start_iteration - 1 if start_iteration > 0 else start_iteration
+    neighborhood_size = agent.parameters.get('neighborhood', 0.2)
 
     #precompute sigma for each variable based on neighborhood_size and bounds
     calibration_object.df['sigma'] = neighborhood_size*(calibration_object.df['max'] - calibration_object.df['min'])
@@ -144,9 +145,9 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
         raise(ValueError("iterations must be >= 2"))
     if start_iteration > iterations:
         raise(ValueError("start_iteration must be <= iterations"))
-    #TODO make this a parameter
-    neighborhood_size = 0.2
 
+    neighborhood_size = agent.parameters.get('neighborhood', 0.2)
+    
     calibration_sets = agent.model.adjustables
     init = start_iteration - 1 if start_iteration > 0 else start_iteration
     for calibration_set in calibration_sets:
