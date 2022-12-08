@@ -6,7 +6,7 @@ from pathlib import Path
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
-    from datatime import datetime
+    from datetime import datetime
     from typing import Tuple, Callable
     from .model import EvaluationOptions
 

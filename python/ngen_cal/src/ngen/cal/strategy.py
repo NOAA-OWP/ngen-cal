@@ -15,6 +15,7 @@ class Algorithm(str, Enum):
     """Dynamic Dimensioned Search Algorithm
     """
     dds = "dds"
+    pso = "pso"
 
 class Objective(Enum):
     """Enumeration of supported search algorithms
