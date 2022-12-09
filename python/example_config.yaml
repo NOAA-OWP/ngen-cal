@@ -12,12 +12,24 @@ general:
       type: estimation
       #defaults to dds (currently, the only supported algorithm)
       algorithm: "dds"
+      # To adjuts the neighborhood size parameter of the dds algorithm, uncomment the following two lines
+      #parameters:
+      #  neighborhood: 0.5
+      # To use PSO optmization, select the pso algorithm and configure its parameters as follows
+      #algorithm: "pso"
+      #parameters:
+      #    pool: 4 #number of processors to use (by default, uses 1)
+      #    particles: 8 #number of particles to use (by default, uses 4)
+      #    options: #the PSO parameters (defaults to c1: 0.5, c2: 0.3, w:0.9)
+      #        c1: 0.1
+      #        c2: 0.1
+      #        w: 0.42
     #in theory, could do a senstivity strategy like this
     #sensitivity:
     #  objective: null
 
   # Attempt to restart a previous calibration.
-  # Will look for log and parameter information in the `workdir` to restart
+  # Will look for log and parameter information in an exististing worker dir to restart
   # If the required restart information cannot be found, will start back from the 0 iteration
   # Defaults to false
   #restart: false
@@ -29,10 +41,10 @@ general:
   # defaults to ./
   #workdir: ./
 
-  # logging locations
-  # location to output stdout/stderr from model runs
-  # defaults to None, which sends all output to /dev/null
-  log_file: "test_log"
+  # Enable model runtime logging (captures standard out and error and writes to file)
+  # logs will be written to <model.type>.log when enabled
+  # defaults to False, which sends all output to /dev/null
+  log: True
   # Name of the best parameter log file, defaults to `name`_best_params.txt
   #parameter_log_file: null
   # Name of the objective function log file, defaults to `name`_objective.txt
@@ -75,29 +87,10 @@ cfe_params: &cfe_params
 #       max: 21.9
 #       init: 4.05
   - 
-      name: multiplier
-      min: 10.7
-      max: 9997.3
-      init: 100.0
-  - 
       name: expon
       min: 1.0
       max: 8.0
       init: 6.0
-
-ngen_objective: &ngen_objective
-  # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
-  #objective: nnse
-  # one can also provide a module path to any function that takes
-  # obs, sim array-like arguments and produces a single value float
-  # for example, nnse above could be called this way
-  #objective: "ngen_cal.objectives.normalized_nash_sutcliffe"
-  # Can choose to minimize the objective function or maximixe it
-  # choices are 'min', 'max'.
-  # An an explicit floating point value can be supplied instead, and the
-  # optmization will attempt to converge on that value
-  # Default: min
-  #target: 0.0
 
 #Model specifc configuration
 model:
@@ -139,4 +132,15 @@ model:
       # To evaluate the entire period, you can comment these lines out
       #evaluation_start: '2015-12-15 12:00:00'
       #evaluation_stop: '2015-12-30 23:00:00'
-      objective: *ngen_objective
+      # choices are "kling_gupta", "nnse", "custom", "single_peak", "volume"
+      objective: "kling_gupta"
+      # one can also provide a module path to any function that takes
+      # obs, sim array-like arguments and produces a single value float
+      # for example, nnse above could be called this way
+      #objective: "ngen_cal.objectives.normalized_nash_sutcliffe"
+      # Can choose to minimize the objective function or maximixe it (only when using the DDS algorithm)
+      # choices are 'min', 'max'.
+      # An an explicit floating point value can be supplied instead, and the
+      # optmization will attempt to converge on that value
+      # Default: min
+      #target: 0.0
