@@ -1,5 +1,9 @@
 from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field
-from typing import Optional, Tuple, Union, Literal
+from typing import Optional, Tuple, Union
+try: #to get literal in python 3.7, it was added to typing in 3.8
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from datetime import datetime
 from pathlib import Path
 from abc import ABC, abstractmethod
