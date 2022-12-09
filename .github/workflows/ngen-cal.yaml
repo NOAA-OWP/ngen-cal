@@ -1,0 +1,60 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Calibration
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        #3.10 ends up building a lot of python deps as whls (e.g. pandas) and it takes a LONG time (11m42s)
+        #so for now, don't enable testing on 3.10.  3.11 similarly builds some deps, but it
+        #particaularly fails to build the tables dep since the ubuntu image doesn't have hdf5
+        #When 3.11 tables wheel is available, then add it?  Also, put 3.10 in quotes or it turns into 3.1
+        python-version: [3.7, 3.8, 3.9] #, '3.10', 3.11] 
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Lint with flake8
+      run: |
+        pip install -U pip
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 ./python/ngen_cal --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 ./python/ngen_cal --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Installing ngen_cal in python virtual environment
+      run: |
+        # setup virtual environment
+        python -m venv venv
+        source ./venv/bin/activate
+        # upgrade pip
+        pip install -U pip
+        pip install "python/ngen_cal[develop]"
+        # NOTE: Install checked out version of ngen_conf.
+        # This ensure ngen_cal tests test against ngen_conf source checked out by the runner.
+        pip install python/ngen_conf
+      #3.11 on GH runner can't install tables correctly, so this will fail...
+      #appearently this doesn't do what I want, it still cancels any outstanding jobs...
+      #for now, just turning off 3.11 for this test...
+      #continue-on-error: ${{matrix.python-version == 3.11 }}
+
+    - name: Testing ngen_cal with pytest
+      run: |
+        source ./venv/bin/activate
+        pytest python/ngen_cal

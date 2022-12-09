@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python package
+name: Configuration
 
 on:
   push:
@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -30,9 +30,9 @@ jobs:
         pip install -U pip
         pip install flake8
         # stop the build if there are Python syntax errors or undefined names
-        flake8 ./python --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 ./python/ngen_conf --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 ./python --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 ./python/ngen_conf --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Installing ngen_conf in python virtual environment
       run: |
@@ -46,25 +46,3 @@ jobs:
       run: |
         source ./venv/bin/activate
         pytest python/ngen_conf
-
-    - name: Cleaning up python virtual environment
-      run: |
-        # cleanup virtual environment
-        rm -rf venv
-
-    - name: Installing ngen_cal in python virtual environment
-      run: |
-        # setup virtual environment
-        python -m venv venv
-        source ./venv/bin/activate
-        # upgrade pip
-        pip install -U pip
-        pip install "python/ngen_cal[develop]"
-        # NOTE: Install checked out version of ngen_conf.
-        # This ensure ngen_cal tests test against ngen_conf source checked out by the runner.
-        pip install python/ngen_conf
-
-    - name: Testing ngen_cal with pytest
-      run: |
-        source ./venv/bin/activate
-        pytest python/ngen_cal
