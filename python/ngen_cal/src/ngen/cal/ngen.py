@@ -78,6 +78,7 @@ class NgenBase(ModelExec):
     nexus: FilePath
     crosswalk: FilePath
     ngen_realization: Optional[NgenRealization]
+    routing_output: Optional[Path] = Field(default=Path("flowveldepth_Ngen.h5"))
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
@@ -362,8 +363,8 @@ class NgenIndependent(NgenBase):
             catchments.append(AdjustableCatchment(self.workdir, id, nexus, params))
 
         if len(eval_nexus) != 1:
-            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
-        # FIXME hard coded routing file name...
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")     
+        self._catchments.append(CalibrationSet(catchments, eval_nexus[0], self.routing_output, start_t, end_t, self.eval_params))
 
     def _strip_global_params(self) -> None:
         module = self.ngen_realization.global_config.formulations[0].params
@@ -409,9 +410,8 @@ class NgenUniform(NgenBase):
             eval_nexus.append( nexus )
         if len(eval_nexus) != 1:
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
-        # FIXME hard coded routing file name...
         params = _params_as_df(self.params)
-        self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output="flowveldepth_Ngen1.h5", start_time=start_t, end_time=end_t, eval_params=self.eval_params, params=params))
+        self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output=self.routing_output, start_time=start_t, end_time=end_t, eval_params=self.eval_params, params=params))
             
 class Ngen(BaseModel, Configurable, smart_union=True):
     __root__: Union[NgenExplicit, NgenIndependent, NgenUniform] = Field(discriminator="strategy")
