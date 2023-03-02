@@ -1,0 +1,20 @@
+[lists]
+bool_list = [
+    true,
+    false,
+]
+float_list = [
+    1.0,
+    2.0,
+]
+int_list = [
+    1,
+    2,
+]
+str_list = [
+    "a",
+    "b",
+]
+
+[key_object]
+key = "value"
