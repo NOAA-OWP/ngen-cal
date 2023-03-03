@@ -1,4 +1,4 @@
-# Entry point to validating NGen realization files
+# Entry point to validating NGen catchment,nexus, and realization files
 
 import sys, json
 from ngen.config.realization import NgenRealization
@@ -84,13 +84,16 @@ def validate_catchmentnexus(catch_pair,nexus_pair,catch_sub,nexus_sub):
 
 
 def validate_realization(conf):
-
+    """
+    Validate that the provided realization file
+    """
     #Read the calibration specific info
     with open(conf) as fp:
         data = json.load(fp)
     ngen_realization = NgenRealization(**data)
 
     # Validate crosswalk
+    #TODO
 
 if __name__ == "__main__":
     # 0 conf_validation.py 
@@ -100,18 +103,20 @@ if __name__ == "__main__":
     # 4 "nex-26,nex-34" 
     # 5 ./data/refactored_example_realization_config.json
 
-    # Get realization file
-    # python conf_validation.py realization.json
+    # Validate Catchment config
     catchment_file = sys.argv[1]
     catchment_subset_file = sys.argv[2]
     catch_pair, catch_sub = validate_catchment(catchment_file,catchment_subset_file)
 
+    # Validate Nexus config
     nexus_file = sys.argv[3]
     nexus_subset_file = sys.argv[4]
     nexus_pair, nexus_sub = validate_nexus(nexus_file,nexus_subset_file)
 
+    # Validate Catchment-Nexus pairs
     validate_catchmentnexus(catch_pair,nexus_pair,catch_sub,nexus_sub)
 
+    # Validate Realization file
     rel_file = sys.argv[5]
     validate_realization(rel_file)
 
