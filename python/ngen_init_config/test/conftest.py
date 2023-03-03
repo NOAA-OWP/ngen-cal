@@ -9,6 +9,7 @@ __INI_CONFIG = "test.ini"
 __INI_NO_HEADER_CONFIG = "test_no_header.ini"
 __INI_NO_SPACES_CONFIG = "test_no_space_around_delimiters.ini"
 __YAML_CONFIG = "test.yaml"
+__JSON_CONFIG = "test.json"
 __NAMELIST_CONFIG = "test.namelist"
 __TOML_CONFIG = "test.toml"
 
@@ -44,6 +45,11 @@ def ini_no_spaces_around_delimiter_test() -> str:
 @fixture
 def yaml_test() -> str:
     return (DATA_DIR / __YAML_CONFIG).read_text()
+
+
+@fixture
+def json_test() -> str:
+    return (DATA_DIR / __JSON_CONFIG).read_text()
 
 
 @fixture

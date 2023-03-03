@@ -4,6 +4,7 @@ from ngen.init_config import (
     NamelistSerializerDeserializer,
     YamlSerializerDeserializer,
     TomlSerializerDeserializer,
+    JsonSerializerDeserializer,
 )
 from ngen.init_config.core import Base
 from typing import Any, Callable, Dict, List
@@ -24,6 +25,7 @@ class Model(
     NamelistSerializerDeserializer,
     YamlSerializerDeserializer,
     TomlSerializerDeserializer,
+    JsonSerializerDeserializer,
 ):
     lists: Lists
     key_object: KeyObject
@@ -37,6 +39,7 @@ class Model(
         ("yaml_test", Model.from_yaml_str),
         ("namelist_test", Model.from_namelist_str),
         ("toml_test", Model.from_toml_str),
+        ("json_test", Model.from_json_str),
     ],
 )
 def test_deserialize(
@@ -50,7 +53,7 @@ def test_deserialize(
     assert o.dict() == test_data_as_dict
 
 
-def test_serialize(toml_test: str, yaml_test: str, namelist_test: str):
+def test_serialize(toml_test: str, yaml_test: str, namelist_test: str, json_test: str):
     # NOTE: `to_ini_str` is not included. python's `configparser` library does not natively support lists
     o = Model.from_toml_str(toml_test)
     assert o.to_yaml_str() == yaml_test
@@ -62,6 +65,9 @@ def test_serialize(toml_test: str, yaml_test: str, namelist_test: str):
     assert namelist_str == namelist_test[:-1]
 
     assert o.to_toml_str() == toml_test
+
+    # read in file has newline character.
+    assert o.to_json_str(indent=2) == json_test[:-1]
 
 
 # NOTE: python's `configparser` library does not natively support lists, only support bool, int,
