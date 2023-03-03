@@ -12,7 +12,7 @@
     "type": "Feature",
     "id": "nex-26",
     "properties": {
-        "toid": "cat-26"
+        "toid": "cat-27"
         }, 
     "geometry": {
         "type": "Point",
@@ -21,7 +21,7 @@
     "type": "Feature", 
     "id": "nex-34", 
     "properties": {
-        "toid": "cat-34"
+        "toid": "cat-52"
         }, 
     "geometry": {
         "type": "Point", 
@@ -30,7 +30,7 @@
     "type": "Feature", 
     "id": "nex-68", 
     "properties": {
-        "toid": "cat-68"
+        "toid": "cat-67"
         }, 
     "geometry": {
         "type": "Point", 
