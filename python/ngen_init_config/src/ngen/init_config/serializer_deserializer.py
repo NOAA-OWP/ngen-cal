@@ -57,3 +57,14 @@ class TomlSerializerDeserializer(ser.TomlSerializer, de.TomlDeserializer):
     """
 
     ...
+
+
+class JsonSerializerDeserializer(ser.JsonSerializer, de.JsonDeserializer):
+    """Blanket implementation for serializing and deserializing to and from `json` format. This
+    functionality is provided by `pydantic`. See `pydantic`'s documentation for other configuration
+    options.
+
+    Fields are serialized using their alias, if provided.
+    """
+
+    ...

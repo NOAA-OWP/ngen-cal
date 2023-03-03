@@ -109,3 +109,20 @@ class TomlSerializer(Base):
 
     def to_toml_str(self) -> str:
         return to_toml_str(self)
+
+
+class JsonSerializer(Base):
+    """Blanket implementation for serializing to `json` format. This functionality is provided by
+    `pydantic`. See `pydantic`'s documentation for other configuration options.
+
+    Fields are serialized using their alias, if provided.
+    """
+
+    def to_json(self, p: Path, *, indent: int = 0) -> None:
+        options = {} if not indent else {"indent": indent}
+        with open(p, "w") as f:
+            f.write(self.json(by_alias=True, **options))
+
+    def to_json_str(self, *, indent: int = 0) -> str:
+        options = {} if not indent else {"indent": indent}
+        return self.json(by_alias=True, **options)

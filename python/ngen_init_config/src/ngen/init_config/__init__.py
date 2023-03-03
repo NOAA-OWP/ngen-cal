@@ -7,12 +7,14 @@ from .deserializer import (
     NamelistDeserializer,
     YamlDeserializer,
     TomlDeserializer,
+    JsonDeserializer,
 )
 from .serializer import (
     IniSerializer,
     NamelistSerializer,
     YamlSerializer,
     TomlSerializer,
+    JsonSerializer,
 )
 
 from .serializer_deserializer import (
@@ -20,4 +22,5 @@ from .serializer_deserializer import (
     NamelistSerializerDeserializer,
     YamlSerializerDeserializer,
     TomlSerializerDeserializer,
+    JsonSerializerDeserializer,
 )
