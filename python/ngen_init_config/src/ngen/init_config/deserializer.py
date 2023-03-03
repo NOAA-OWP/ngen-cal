@@ -87,3 +87,17 @@ class TomlDeserializer(Base):
     @classmethod
     def from_toml_str(cls, s: str) -> Self:
         return from_toml_str(s, cls)
+
+
+class JsonDeserializer(Base):
+    """Blanket implementation for deserializing from `json` format. This functionality is provided
+    by `pydantic`. See `pydantic`'s documentation for other configuration options.
+    """
+
+    @classmethod
+    def from_json(cls, p: Path) -> Self:
+        return cls.parse_file(p)
+
+    @classmethod
+    def from_json_str(cls, s: str) -> Self:
+        return cls.parse_raw(s)
