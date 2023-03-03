@@ -1,17 +1,8 @@
 # Entry point to validating NGen realization files
 
-from pathlib import Path
-import sys, os, json
-from ngen.config.configurations import Forcing, Time, Routing
-from ngen.config.realization import NgenRealization, Realization, CatchmentRealization
+import sys, json
+from ngen.config.realization import NgenRealization
 from ngen.config.catchmentnexus import NGenCatchmentNexus
-from ngen.config.formulation import Formulation
-from ngen.config.cfe import CFE
-from ngen.config.sloth import SLOTH
-from ngen.config.noahowp import NoahOWP
-from ngen.config.multi import MultiBMI
-
-from ngen.cal.calibration_cathment import CalibrationCatchment, AdjustableCatchment
 
 def validate_catchment(catch,catch_subset):
     """
@@ -40,7 +31,7 @@ def validate_catchment(catch,catch_subset):
     msg += f'\nCatchments from config {catchments}\nCatchments in subset {subset_list}'
     assert all([jcatch in catchments for jcatch in subset_list]), msg
 
-    return pairs
+    return pairs, subset_list
 
 def validate_nexus(nexus,nexus_subset):
     """
@@ -68,9 +59,9 @@ def validate_nexus(nexus,nexus_subset):
     msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
     assert all([jnex in nexi for jnex in subset_list]), msg
 
-    return pairs
+    return pairs, subset_list
 
-def validate_catchmentnexus(catch_pair,nexus_pair):
+def validate_catchmentnexus(catch_pair,nexus_pair,catch_sub,nexus_sub):
     """
     Validate that the provided nexus and catchments match
     """
@@ -79,6 +70,18 @@ def validate_catchmentnexus(catch_pair,nexus_pair):
     msg += f'\nPairs from catchment config:{catch_pair}\nPairs from nexus config:{nexus_pair}'
     assert all([jpair in catch_pair for jpair in nexus_pair]), msg
     assert all([jpair in nexus_pair for jpair in catch_pair]), msg
+
+    # Validate the sub selected catchments and nexus are consistent
+    for jpair in catch_pair:
+        jcatch, jnexus = jpair
+        if jcatch in catch_sub:
+            assert jnexus in nexus_sub, 'Sub selected catchments/nexuses do not match!'
+
+    for jpair in nexus_pair:
+        jcatch, jnexus = jpair
+        if jnexus in nexus_sub:
+            assert jcatch in catch_sub, 'Sub selected catchments/nexuses do not match!'        
+
 
 def validate_realization(conf):
 
@@ -90,24 +93,24 @@ def validate_realization(conf):
     # Validate crosswalk
 
 if __name__ == "__main__":
-    # 0 ngen 
+    # 0 conf_validation.py 
     # 1 ./data/catchment_data.geojson 
-    # 2 "all" 
+    # 2 "cat-67,cat-27" 
     # 3 ./data/nexus_data.geojson 
-    # 4 "all" 
+    # 4 "nex-26,nex-34" 
     # 5 ./data/refactored_example_realization_config.json
 
     # Get realization file
     # python conf_validation.py realization.json
     catchment_file = sys.argv[1]
     catchment_subset_file = sys.argv[2]
-    catch_pair = validate_catchment(catchment_file,catchment_subset_file)
+    catch_pair, catch_sub = validate_catchment(catchment_file,catchment_subset_file)
 
     nexus_file = sys.argv[3]
     nexus_subset_file = sys.argv[4]
-    nexus_pair = validate_nexus(nexus_file,nexus_subset_file)
+    nexus_pair, nexus_sub = validate_nexus(nexus_file,nexus_subset_file)
 
-    validate_catchmentnexus(catch_pair,nexus_pair)
+    validate_catchmentnexus(catch_pair,nexus_pair,catch_sub,nexus_sub)
 
     rel_file = sys.argv[5]
     validate_realization(rel_file)
