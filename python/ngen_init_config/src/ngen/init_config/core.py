@@ -219,6 +219,8 @@ def _uses_composition(cls: Type[Base]) -> bool:
     for v in cls.__fields__.values():
         flat_type_hints = flatten_args(v.type_)
         for t in flat_type_hints:
-            if issubclass(t, Base):
+            # ensure `t` is a type not an instance. e.g. a flattened Literal will contain non
+            # instance type members.
+            if not isinstance(t, type) and issubclass(t, Base):
                 return True
     return False
