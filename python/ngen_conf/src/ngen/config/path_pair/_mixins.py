@@ -2,6 +2,7 @@ from itertools import zip_longest
 from pathlib import Path
 
 from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
+from ._utils import path_unlink_37
 
 from typing import Optional, Iterable
 from typing_extensions import Self
@@ -55,6 +56,9 @@ class PathPairMixin(AbstractPathPairMixin[T]):
 
         self._writer(self, self.serialize())
         return True
+
+    def unlink(self, missing_ok: bool = False):
+        path_unlink_37(Path(self), missing_ok=missing_ok)
 
 
 class PathPairCollectionMixin(AbstractPathPairCollectionMixin[T]):
