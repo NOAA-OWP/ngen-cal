@@ -1,6 +1,6 @@
 import pytest
 import tempfile
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from pathlib import Path
 
 from ngen.config.path_pair import (
@@ -10,6 +10,8 @@ from ngen.config.path_pair import (
     PosixPathPairCollection,
 )
 from ngen.config.path_pair.common import pydantic_deserializer, pydantic_serializer
+
+from typing import Union
 
 
 class InnerModel(BaseModel):
@@ -260,3 +262,47 @@ def test_path_pair_unlink(
 
     for path in temp_collection._get_filenames():
         assert not path.exists()
+
+
+class Inner(BaseModel):
+    foo: int
+
+
+class Outer(BaseModel):
+    path: PathPair[Inner]
+
+    @validator("path", pre=True)
+    def _coerce_path(cls, value: Union[PathPair[Inner], str]) -> PathPair[Inner]:
+        if isinstance(value, PathPair):
+            return value
+        value = PathPair(
+            value,
+            serializer=pydantic_serializer,
+            deserializer=pydantic_deserializer(Inner),
+        )
+        try:
+            # read and deserialize from path into Inner
+            value.read()
+        except:
+            ...
+        return value
+
+
+def test_integration_with_pydantic_model():
+    with tempfile.NamedTemporaryFile() as file:
+        path_to_file = Path(file.name)
+
+        inner = Inner(foo=12)
+        inner_path_pair = PathPair.with_object(
+            inner,
+            path=path_to_file,
+            serializer=pydantic_serializer,
+            deserializer=pydantic_deserializer(Inner),
+        )
+        # serialize inner T, Inner and write to disc
+        assert inner_path_pair.write() == True
+
+        # when pydanatic validates this, we will read in and deserialize into the Inner type
+        outer = Outer(path=path_to_file)
+        assert outer.path == path_to_file
+        assert outer.path.inner == inner
