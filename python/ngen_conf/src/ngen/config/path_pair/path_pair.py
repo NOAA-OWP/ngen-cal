@@ -16,6 +16,22 @@ from .typing import StrPath, T
 
 
 class PathPair(Path, Generic[T]):
+    """A `pathlib.Path` subclass that encapsulates some inner `T` and methods for reading, writing,
+    and de/serializing to and from a `T`. Similarly to `pathlib.Path`, creating a `PathPair` will
+    return a OS specific subclass (`PosixPathPair` or `WindowsPathPair`).
+
+    The default reader and writer implementations operate on disk. Alternative reader and writer
+    types can be provided assuming they following the `ngen.config.path_path.protocol` `Reader` and
+    `Writer` protocols (interfaces). This could, for example, enable reading and writing from the
+    network.
+
+    serializer's and deserializer's are type specific, and thus have no default. However,
+    `ngen.config.path_path.common` contains generic serializers and deserializer that may be of
+    interest (e.g. `pydantic_serializer` and `pydantic_deserializer`). Alternative serializer and
+    deserializer types can be provided assuming they follow the `ngen.config.path_path.protocol`
+    `Serializer` and `Deserializer` protocols (interfaces).
+    """
+
     def __new__(
         cls,
         *args: StrPath,
@@ -59,6 +75,24 @@ class PathPair(Path, Generic[T]):
 
 
 class PathPairCollection(Path, Generic[T]):
+    """A `pathlib.Path` subclass that encapsulates a collection of `T`'s and methods for reading,
+    writing, and de/serializing to and from a the collection of `T`'s. This type enables treating a
+    collection of paths, that follow some naming convention, as a single path object. Similarly to
+    `pathlib.Path`, creating a `PathPairCollection` will return a OS specific subclass
+    (`PosixPathPairCollection` or `WindowsPathPairCollection`).
+
+    The default reader and writer implementations operate on disk. Alternative reader and writer
+    types can be provided assuming they following the `ngen.config.path_path.protocol` `Reader` and
+    `Writer` protocols (interfaces). This could, for example, enable reading and writing from the
+    network.
+
+    serializer's and deserializer's are type specific, and thus have no default. However,
+    `ngen.config.path_path.common` contains generic serializers and deserializer that may be of
+    interest (e.g. `pydantic_serializer` and `pydantic_deserializer`). Alternative serializer and
+    deserializer types can be provided assuming they follow the `ngen.config.path_path.protocol`
+    `Serializer` and `Deserializer` protocols (interfaces).
+    """
+
     def __new__(
         cls,
         *args: StrPath,
