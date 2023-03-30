@@ -81,7 +81,7 @@ def test_path_write(path_pair: PosixPathPair[InnerModel]):
     with tempfile.NamedTemporaryFile() as f:
         p = Path(f.name)
         o = path_pair.with_path(p)
-        o.write()
+        assert o.write() == True
         assert p.read_bytes() == o.serialize()
         assert p.is_file()
         assert p.exists()
@@ -91,7 +91,7 @@ def test_path_read(path_pair: PosixPathPair[InnerModel]):
     with tempfile.NamedTemporaryFile() as f:
         p = Path(f.name)
         o = path_pair.with_path(p)
-        o.write()
+        assert o.write() == True
         o2 = PathPair(o, deserializer=path_pair._deserializer)
         assert p.is_file()
         assert p.exists()
@@ -142,7 +142,7 @@ def test_path_pair_collection_write(
     # assert no files have been written
     assert len(list(temp_collection.parent.glob(glob_term))) == 0
 
-    temp_collection.write()
+    assert temp_collection.write() == True
 
     # assert all files have been written
     assert len(list(temp_collection.parent.glob(glob_term))) == len(
@@ -158,7 +158,7 @@ def test_path_pair_collection_read(
 
     assert len(list(temp_collection.parent.glob(glob_term))) == 0
 
-    temp_collection.write()
+    assert temp_collection.write() == True
 
     c2 = PathPairCollection(
         temp_collection,
