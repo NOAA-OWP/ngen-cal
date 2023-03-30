@@ -33,7 +33,7 @@ def path_pair() -> PosixPathPair[InnerModel]:
 
 def test_path_pair_from_object():
     m = InnerModel(foo=12)
-    o = PathPair.from_object(m, serializer=pydantic_serializer)
+    o = PathPair.with_object(m, serializer=pydantic_serializer)
     assert o == Path("")
     assert o.inner == m
 
@@ -106,7 +106,7 @@ def collection() -> PosixPathPairCollection[InnerModel]:
     models = [InnerModel(foo=i) for i in range(12)]
     ids = list(map(lambda s: str(s), range(12)))
 
-    return PathPairCollection.from_objects(
+    return PathPairCollection.with_objects(
         models,
         pattern=pattern,
         path=p,
