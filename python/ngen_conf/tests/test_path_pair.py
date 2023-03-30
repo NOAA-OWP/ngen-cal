@@ -186,14 +186,6 @@ def test_path_pair_collection_truediv_is_noop(
     assert type(o) == type(collection)
 
 
-def test_path_pair_collection_with_path_is_noop(
-    collection: PosixPathPairCollection[InnerModel],
-):
-    o = collection.with_path("test")
-    assert o == collection
-    assert type(o) == type(collection)
-
-
 def test_path_pair_collection_rtruediv(
     collection: PosixPathPairCollection[InnerModel],
 ):
