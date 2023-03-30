@@ -1,6 +1,12 @@
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
 from pathlib import Path
 
-from typing import Protocol
 from .typing import T, S
 
 
