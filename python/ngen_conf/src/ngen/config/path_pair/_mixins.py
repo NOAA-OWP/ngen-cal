@@ -96,7 +96,7 @@ class PathPairCollectionMixin(PathPairMixin[T]):
     @property
     def inner(self) -> Iterable[T]:
         for item in self._inner:
-            yield item
+            yield item.inner
 
     @property
     def inner_pair(
