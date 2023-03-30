@@ -6,13 +6,8 @@ from .common import path_reader, path_writer
 from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
 from ._mixins import PathPairMixin, PathPairCollectionMixin
 
-from typing import (
-    Any,
-    Generic,
-    Optional,
-    Union,
-    List,
-)
+from typing import Any, Dict, Generic, Optional, Union, List
+from typing_extensions import Self
 from .typing import StrPath, T
 
 
@@ -72,8 +67,22 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
             writer=writer,
             serializer=serializer,
             deserializer=deserializer,
-        )
+        )  # type: ignore
 
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def __modify_schema__(cls, field_schema: Dict[str, Any]):
+        field_schema.clear()
+        field_schema["format"] = "path"
+        field_schema["type"] = "string"
+
+    @classmethod
+    def validate(cls, value: Any) -> Self:
+        if isinstance(value, PathPair):
+            return value
 
         return PathPair(value)
 
@@ -203,6 +212,23 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
             serializer=serializer,
             deserializer=deserializer,
         )
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def __modify_schema__(cls, field_schema: Dict[str, Any]):
+        field_schema.clear()
+        field_schema["format"] = "path"
+        field_schema["type"] = "string"
+
+    @classmethod
+    def validate(cls, value: Any) -> Self:
+        if isinstance(value, PathPairCollection):
+            return value
+
+        return PathPairCollection(value, pattern="")
 
 
 class PosixPathPair(PathPairMixin[T], PathPair[T], PosixPath):
