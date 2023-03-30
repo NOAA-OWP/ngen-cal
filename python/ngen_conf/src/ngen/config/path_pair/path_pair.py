@@ -3,6 +3,7 @@ from pathlib import Path, PosixPath, WindowsPath
 
 from .protocol import Reader, Writer, Serializer, Deserializer
 from .common import path_reader, path_writer
+from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
 from ._mixins import PathPairMixin, PathPairCollectionMixin
 
 from typing import (
@@ -15,7 +16,7 @@ from typing import (
 from .typing import StrPath, T
 
 
-class PathPair(Path, Generic[T]):
+class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
     """A `pathlib.Path` subclass that encapsulates some inner `T` and methods for reading, writing,
     and de/serializing to and from a `T`. Similarly to `pathlib.Path`, creating a `PathPair` will
     return a OS specific subclass (`PosixPathPair` or `WindowsPathPair`).
@@ -74,7 +75,10 @@ class PathPair(Path, Generic[T]):
         )
 
 
-class PathPairCollection(Path, Generic[T]):
+        return PathPair(value)
+
+
+class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
     """A `pathlib.Path` subclass that encapsulates a collection of `T`'s and methods for reading,
     writing, and de/serializing to and from a the collection of `T`'s. This type enables treating a
     collection of paths, that follow some naming convention, as a single path object. Similarly to
