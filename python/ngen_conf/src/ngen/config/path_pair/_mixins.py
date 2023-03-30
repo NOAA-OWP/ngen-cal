@@ -25,7 +25,7 @@ class PathPairMixin(Generic[T]):
         return self._inner
 
     def with_path(self, *args: StrPath) -> Self:
-        return self.from_object(
+        return self.with_object(
             self.inner,
             path=Path(*args),
             reader=self._reader,
@@ -149,7 +149,7 @@ class PathPairCollectionMixin(PathPairMixin[T]):
         if paths is None:
             deserialized_path = Path(self)
             deserialized = [
-                PathPair.from_object(
+                PathPair.with_object(
                     self._deserializer(item),
                     path=deserialized_path,
                     reader=self._reader,
@@ -168,7 +168,7 @@ class PathPairCollectionMixin(PathPairMixin[T]):
                 if item == ValueError or path == ValueError:
                     raise ValueError(error_message)
 
-                path_pair = PathPair.from_object(
+                path_pair = PathPair.with_object(
                     self._deserializer(item),
                     path=path,
                     reader=self._reader,

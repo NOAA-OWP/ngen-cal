@@ -38,7 +38,7 @@ class PathPair(Path, Generic[T]):
         return self
 
     @classmethod
-    def from_object(
+    def with_object(
         cls,
         o: T,
         *,
@@ -127,7 +127,7 @@ class PathPairCollection(Path, Generic[T]):
         return Path.home()
 
     @classmethod
-    def from_objects(
+    def with_objects(
         cls,
         o: List[T],
         *,
@@ -146,7 +146,7 @@ class PathPairCollection(Path, Generic[T]):
         pairs = []
         for idx, item in enumerate(o):
             fp = path.parent / f"{prefix}{ids[idx]}{suffix}"
-            pair = PathPair.from_object(
+            pair = PathPair.with_object(
                 item,
                 path=fp,
                 reader=reader,
