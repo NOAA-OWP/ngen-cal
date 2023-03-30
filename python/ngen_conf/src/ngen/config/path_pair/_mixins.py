@@ -1,3 +1,4 @@
+from itertools import zip_longest
 from pathlib import Path
 
 from typing import Generic, Optional, Union, Iterator, Iterable, TYPE_CHECKING
@@ -129,49 +130,60 @@ class PathPairCollectionMixin(PathPairMixin[T]):
         for item in self.inner:
             yield self._serializer(item)
 
-    def deserialize(self, data: Iterable[bytes]) -> bool:
+    def deserialize(
+        self, data: Iterable[bytes], *, paths: Optional[Iterable[StrPath]] = None
+    ) -> bool:
+        """
+        Deserialize collection of bytes into T's and wrap each T as a `PathPair[T]`. Replace
+        `self`'s inner collection with the deserialized collection. Returns `False` if there is no
+        deserializer on `self`.
+
+        If `paths` is None, the inner `PathPair[T]`'s have `self`'s path.
+        """
         # avoid circular import
         from .path_pair import PathPair
 
-        if self._deserializer is None or self._reader is None:
+        if self._deserializer is None:
             return False
 
-        deserialized = [
-            PathPair.from_object(
-                self._deserializer(self._reader(item)),
-                path="",
-                reader=self._reader,
-                writer=self._writer,
-                serializer=self._serializer,
-                deserializer=self._deserializer,
+        if paths is None:
+            deserialized_path = Path(self)
+            deserialized = [
+                PathPair.from_object(
+                    self._deserializer(item),
+                    path=deserialized_path,
+                    reader=self._reader,
+                    writer=self._writer,
+                    serializer=self._serializer,
+                    deserializer=self._deserializer,
+                )
+                for item in data
+            ]
+        else:
+            error_message = (
+                "Iterators `data` and `paths` have different stopping points."
             )
-            for item in data
-        ]
+            deserialized = []
+            for item, path in zip_longest(data, paths, fillvalue=ValueError):
+                if item == ValueError or path == ValueError:
+                    raise ValueError(error_message)
+
+                path_pair = PathPair.from_object(
+                    self._deserializer(item),
+                    path=path,
+                    reader=self._reader,
+                    writer=self._writer,
+                    serializer=self._serializer,
+                    deserializer=self._deserializer,
+                )
+                deserialized.append(path_pair)
 
         self._inner = deserialized
         return True
 
     def read(self) -> bool:
-        # avoid circular import
-        from .path_pair import PathPair
-
-        if self._deserializer is None or self._reader is None:
-            return False
-
-        deserialized = [
-            PathPair.from_object(
-                self._deserializer(self._reader(file)),
-                path=file,
-                reader=self._reader,
-                writer=self._writer,
-                serializer=self._serializer,
-                deserializer=self._deserializer,
-            )
-            for file in self._get_filenames()
-        ]
-
-        self._inner = deserialized
-        return True
+        data = (self._reader(path) for path in self._get_filenames())
+        return self.deserialize(data, paths=self._get_filenames())
 
     def write(self) -> bool:
         if self._serializer is None or self._inner is None or self._writer is None:
