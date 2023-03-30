@@ -1,15 +1,14 @@
 from itertools import zip_longest
 from pathlib import Path
 
-from typing import Generic, Optional, Union, Iterator, Iterable, TYPE_CHECKING
+from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
+
+from typing import Optional, Iterable
 from typing_extensions import Self
 from .typing import StrPath, T
 
-if TYPE_CHECKING:
-    from .path_pair import PosixPathPair, WindowsPathPair, PathPairCollection
 
-
-class PathPairMixin(Generic[T]):
+class PathPairMixin(AbstractPathPairMixin[T]):
     def __truediv__(self, key: StrPath) -> Self:
         return self.with_path(Path(self).joinpath(Path(key)))
 
@@ -58,7 +57,7 @@ class PathPairMixin(Generic[T]):
         return True
 
 
-class PathPairCollectionMixin(PathPairMixin[T]):
+class PathPairCollectionMixin(AbstractPathPairCollectionMixin[T]):
     def __truediv__(self, key: StrPath) -> Self:
         # noop
         return self
@@ -79,15 +78,14 @@ class PathPairCollectionMixin(PathPairMixin[T]):
             deserializer=self._deserializer,
         )
 
-    def _get_filenames(self) -> Iterator[Path]:
+    def _get_filenames(self) -> Iterable[Path]:
         prefix, _, suffix = self.name.partition(self.pattern)
         glob_term = f"{prefix}*{suffix}"
         yield from self.parent.glob(glob_term)
 
-    def with_path(self, *args: StrPath) -> Self:
-        # TODO: this seems like the _right_ thing to do here, but this could change in the future.
-        # noop
-        return self
+    @property
+    def parent(self) -> Path:
+        return Path(self).parent
 
     @property
     def pattern(self) -> str:
@@ -101,15 +99,11 @@ class PathPairCollectionMixin(PathPairMixin[T]):
     @property
     def inner_pair(
         self,
-    ) -> Union[Iterator["PosixPathPair[T]"], Iterable["WindowsPathPair[T]"]]:
+    ) -> Iterable[AbstractPathPairMixin[T]]:
         for item in self._inner:
             yield item
 
-    def with_path(self, *args: StrPath) -> Self:
-        # noop
-        return self
-
-    def with_pattern(self, pattern: str) -> "PathPairCollection[T]":
+    def with_pattern(self, pattern: str) -> Self:
         # avoid circular import
         from .path_pair import PathPairCollection
 
