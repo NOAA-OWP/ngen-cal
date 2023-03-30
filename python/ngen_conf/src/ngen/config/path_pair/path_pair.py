@@ -60,8 +60,8 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
         o: T,
         *,
         path: StrPath = "",
-        reader: Optional[Reader] = path_reader,
-        writer: Optional[Writer] = path_writer,
+        reader: Reader = path_reader,
+        writer: Writer = path_writer,
         serializer: Optional[Serializer[T]] = None,
         deserializer: Optional[Deserializer[T]] = None,
     ) -> Union["PosixPathPair[T]", "WindowsPathPair[T]"]:
