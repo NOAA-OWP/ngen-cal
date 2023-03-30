@@ -8,6 +8,7 @@ def path_unlink_37(p: Path, missing_ok: bool):
     # TODO: remove once we drop 3.7 support
     if sys.version_info >= (3, 8):
         p.unlink(missing_ok=missing_ok)
+        return
     if missing_ok and not p.exists():
         return
     p.unlink()
