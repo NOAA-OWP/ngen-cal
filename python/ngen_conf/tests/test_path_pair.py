@@ -1,4 +1,3 @@
-import inspect
 import pytest
 import tempfile
 from pydantic import BaseModel
