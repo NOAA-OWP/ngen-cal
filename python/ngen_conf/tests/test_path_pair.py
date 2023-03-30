@@ -184,6 +184,15 @@ def test_path_pair_collection_truediv_is_noop(
 ):
     o = collection / "test"
     assert o == collection
+    assert type(o) == type(collection)
+
+
+def test_path_pair_collection_with_path_is_noop(
+    collection: PosixPathPairCollection[InnerModel],
+):
+    o = collection.with_path("test")
+    assert o == collection
+    assert type(o) == type(collection)
 
 
 def test_path_pair_collection_rtruediv(
@@ -197,3 +206,66 @@ def test_path_pair_collection_rtruediv(
     for prev_pair, new_pair in zip(collection.inner_pair, o.inner_pair):
         assert prev_pair.name == new_pair.name
         assert new_pair.parent == new_root
+
+
+def test_path_pair_serialize(collection: PosixPathPairCollection[InnerModel]):
+    serial = [item.serialize() for item in collection.inner_pair]
+    assert list(collection.serialize()) == serial
+
+
+def test_path_pair_deserialize(collection: PosixPathPairCollection[InnerModel]):
+    empty_collection = PosixPathPairCollection(
+        Path(collection),
+        pattern=collection.pattern,
+        deserializer=collection._deserializer,
+    )
+    assert empty_collection.deserialize(collection.serialize()) == True
+    for item in empty_collection.inner_pair:
+        # assert item's path == collection's path
+        assert item == collection
+
+
+def test_path_pair_deserialize_provide_path(
+    collection: PosixPathPairCollection[InnerModel],
+):
+    empty_collection = PosixPathPairCollection(
+        Path(collection),
+        pattern=collection.pattern,
+        deserializer=collection._deserializer,
+    )
+    collection_paths = (Path(item) for item in collection.inner_pair)
+    assert (
+        empty_collection.deserialize(collection.serialize(), paths=collection_paths)
+        == True
+    )
+    assert list(empty_collection.inner_pair) == list(collection.inner_pair)
+
+
+def test_path_pair_deserialize_raises_when_iterators_have_different_stopping_points(
+    collection: PosixPathPairCollection[InnerModel],
+):
+    empty_collection = PosixPathPairCollection(
+        Path(collection),
+        pattern=collection.pattern,
+        deserializer=collection._deserializer,
+    )
+    collection_paths = (Path(item) for item in [])
+    with pytest.raises(ValueError):
+        empty_collection.deserialize(collection.serialize(), paths=collection_paths)
+
+
+def test_path_pair_unlink(
+    temp_collection: PosixPathPairCollection[InnerModel],
+):
+    for path in temp_collection._get_filenames():
+        assert not path.exists()
+
+    assert temp_collection.write() == True
+
+    for path in temp_collection._get_filenames():
+        assert path.exists()
+
+    temp_collection.unlink()
+
+    for path in temp_collection._get_filenames():
+        assert not path.exists()
