@@ -83,6 +83,11 @@ class PathPairCollectionMixin(PathPairMixin[T]):
         glob_term = f"{prefix}*{suffix}"
         yield from self.parent.glob(glob_term)
 
+    def with_path(self, *args: StrPath) -> Self:
+        # TODO: this seems like the _right_ thing to do here, but this could change in the future.
+        # noop
+        return self
+
     @property
     def pattern(self) -> str:
         return self._pattern
