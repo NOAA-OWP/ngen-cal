@@ -6,7 +6,7 @@
                 "name": "bmi_multi", 
                 "params": {
                     "name": "bmi_multi", 
-                    "model_type_name": "NoahOWP_CFE", 
+                    "model_type_name": "BMIMulti", 
                     "main_output_variable": "Q_OUT", 
                     "init_config": "", 
                     "allow_exceed_end_time": false, 
