@@ -25,11 +25,14 @@ class IniSerializer(Base):
             If True, output ini will not have section headers (default: `False`)
         - `space_around_delimiters`: bool
             If True, delimiters between keys and values are surrounded by spaces (default: `True`)
+        - `preserve_key_case`: bool
+            If True, keys will be case sensitively serialized (default: `False`)
     """
 
     class Config(Base.Config):
         no_section_headers: bool = False
         space_around_delimiters: bool = True
+        preserve_key_case: bool = False
 
     def to_ini(self, p: Path) -> None:
         with open(p, "w") as f:
@@ -60,6 +63,10 @@ class IniSerializer(Base):
     @property
     def _no_section_headers(self) -> bool:
         return merge_class_attr(type(self), "Config.no_section_headers", False)  # type: ignore
+
+    @property
+    def _preserve_key_case(self) -> bool:
+        return merge_class_attr(type(self), "Config.preserve_key_case", False)  # type: ignore
 
 
 class NamelistSerializer(Base):
