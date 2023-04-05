@@ -10,6 +10,8 @@ from ngen.config.multi import MultiBMI
 #set the workdir relative to this test config
 #and use that to look for test data
 _workdir=Path(__file__).parent
+_datadir = _workdir / "data"
+_cfe_config_data_path = _datadir / "init_config_data" / "cat_87_bmi_config_cfe.ini"
 
 """
 Fixtures for setting up various ngen-conf components for testing
@@ -112,3 +114,7 @@ def multi_params(cfe, noahowp):
                        Formulation(name=cfe.name, params=cfe).dict()]
             }
     return data
+
+@pytest.fixture
+def cfe_init_config() -> str:
+    return _cfe_config_data_path.read_text()
