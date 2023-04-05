@@ -12,6 +12,7 @@ from ngen.config.multi import MultiBMI
 _workdir=Path(__file__).parent
 _datadir = _workdir / "data"
 _cfe_config_data_path = _datadir / "init_config_data" / "cat_87_bmi_config_cfe.ini"
+_pet_config_data_path = _datadir / "init_config_data" / "pet.ini"
 
 """
 Fixtures for setting up various ngen-conf components for testing
@@ -118,3 +119,7 @@ def multi_params(cfe, noahowp):
 @pytest.fixture
 def cfe_init_config() -> str:
     return _cfe_config_data_path.read_text()
+
+@pytest.fixture
+def pet_init_config() -> str:
+    return _pet_config_data_path.read_text()
