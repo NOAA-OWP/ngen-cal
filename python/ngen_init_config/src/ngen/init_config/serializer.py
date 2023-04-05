@@ -39,22 +39,34 @@ class IniSerializer(Base):
             if self._no_section_headers:
                 f.write(
                     to_ini_no_section_header_str(
-                        self, space_around_delimiters=self._space_around_delimiters
+                        self,
+                        space_around_delimiters=self._space_around_delimiters,
+                        preserve_key_case=self._preserve_key_case,
                     )
                 )
                 return
 
             f.write(
-                to_ini_str(self, space_around_delimiters=self._space_around_delimiters)
+                to_ini_str(
+                    self,
+                    space_around_delimiters=self._space_around_delimiters,
+                    preserve_key_case=self._preserve_key_case,
+                )
             )
 
     def to_ini_str(self) -> str:
         if self._no_section_headers:
             return to_ini_no_section_header_str(
-                self, space_around_delimiters=self._space_around_delimiters
+                self,
+                space_around_delimiters=self._space_around_delimiters,
+                preserve_key_case=self._preserve_key_case,
             )
 
-        return to_ini_str(self, space_around_delimiters=self._space_around_delimiters)
+        return to_ini_str(
+            self,
+            space_around_delimiters=self._space_around_delimiters,
+            preserve_key_case=self._preserve_key_case,
+        )
 
     @property
     def _space_around_delimiters(self) -> bool:
