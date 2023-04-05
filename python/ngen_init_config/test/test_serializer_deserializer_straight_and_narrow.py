@@ -97,6 +97,15 @@ class IniNoSpacesAroundDelimiterModel(IniWithHeaderModel):
         space_around_delimiters = False
 
 
+class IniCaseSensitiveKeys(IniSerializerDeserializer):
+    UPPER: bool
+    lower: bool
+
+    class Config(IniSerializerDeserializer.Config):
+        no_section_headers = True
+        preserve_key_case = True
+
+
 @pytest.mark.parametrize(
     "test_file_fixture, deserializer, expected",
     [
@@ -161,3 +170,11 @@ def test_serialize_to_ini(
     )
 
     assert deserialized.to_ini_str() == expected
+
+
+def test_case_sensitivity_key_to_ini():
+    o = IniCaseSensitiveKeys(UPPER=True, lower=False)
+
+    s = o.to_ini_str()
+    lines = s.split("\n")[:-1]
+    assert lines == ["UPPER = True", "lower = False"]
