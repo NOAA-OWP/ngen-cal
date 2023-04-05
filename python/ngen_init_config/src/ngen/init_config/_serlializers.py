@@ -17,9 +17,12 @@ def to_namelist_str(m: BaseModel) -> str:
     return str(namelist)
 
 
-def to_ini_str(m: BaseModel, space_around_delimiters: bool = True) -> str:
+def to_ini_str(
+    m: BaseModel, space_around_delimiters: bool = True, preserve_key_case: bool = False
+) -> str:
     cp = configparser.ConfigParser(interpolation=None)
-    # cp.optionxform = str
+    if preserve_key_case:
+        cp.optionxform = str
     cp.read_dict(m.dict(by_alias=True))
     with StringIO() as s:
         cp.write(s, space_around_delimiters=space_around_delimiters)
@@ -28,9 +31,11 @@ def to_ini_str(m: BaseModel, space_around_delimiters: bool = True) -> str:
 
 
 def to_ini_no_section_header_str(
-    m: BaseModel, space_around_delimiters: bool = True
+    m: BaseModel, space_around_delimiters: bool = True, preserve_key_case: bool = False
 ) -> str:
     cp = configparser.ConfigParser(interpolation=None)
+    if preserve_key_case:
+        cp.optionxform = str
     data = {NO_SECTIONS: m.dict(by_alias=True)}
     cp.read_dict(data)
     with StringIO() as s:
