@@ -1,8 +1,30 @@
 # Entry point to validating NGen catchment,nexus, and realization files
 
 import sys, json
+from typing import Dict
 from ngen.config.realization import NgenRealization
-from ngen.config.catchmentnexus import NGenCatchmentNexus
+from geojson_pydantic import Feature, FeatureCollection
+from geojson_pydantic import Point, Polygon, LineString, MultiPoint, MultiPolygon, MultiLineString
+
+def validate_feature_collection(data):
+    type2feat = {"Point":            Point,
+                "Polygon":          Polygon,
+                "LineString":       LineString,
+                "MultiPoint":       MultiPoint,
+                "MultiPolygon":     MultiPolygon,                
+                "MultiLineString":  MultiLineString
+    }
+        
+    fc = FeatureCollection(features=data['features'])
+        
+    # Validate each feature
+    for j,jfeat in enumerate(fc.features):
+        jfeat_json = data['features'][j]
+        type = jfeat.geometry.type              
+        model = Feature[type2feat[type], Dict]
+
+        feat_model = model(**jfeat_json) # Actual validation step
+
 
 def validate_catchment(catch,catch_subset):
     """
@@ -12,7 +34,14 @@ def validate_catchment(catch,catch_subset):
     # Validate the catchment config
     with open(catch) as fp:
         data = json.load(fp)
-    ngen_realization = NGenCatchmentNexus(**data)
+
+        assert data['type'] == "FeatureCollection", "catchment_config requires the type to be FeatureCollection"
+        assert data['name'] == "catchment_data", "catchment_config requires the type to be FeatureCollection"
+
+        # TODO: crs validation
+
+        validate_feature_collection(data)
+
 
     # Validate catchment subset
     # Get list of catchments
@@ -40,7 +69,13 @@ def validate_nexus(nexus,nexus_subset):
     # Validate the nexus config
     with open(nexus) as fp:
         data = json.load(fp)
-    ngen_realization = NGenCatchmentNexus(**data)
+
+        assert data['type'] == "FeatureCollection", "nexus_config requires the type to be FeatureCollection"
+        assert data['name'] == "nexus_data", "nexus_config requires the type to be FeatureCollection"
+
+        # TODO: crs validation
+
+        validate_feature_collection(data)
 
     # Validate catchment subset
     # Get list of catchments
