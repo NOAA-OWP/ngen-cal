@@ -1,6 +1,7 @@
 from ngen.init_config import utils
 from ngen.config.init_config.cfe import CFE
 from ngen.config.init_config.pet import PET
+from ngen.config.init_config.noahowp import NoahOWP
 
 
 def test_cfe(cfe_init_config: str):
@@ -15,3 +16,8 @@ def test_pet(pet_init_config: str):
     assert utils.merge_class_attr(PET, "Config.no_section_headers") is True
     o = PET.from_ini_str(pet_init_config)
     assert o.to_ini_str() == pet_init_config
+
+
+def test_noah_owp(noah_owp_init_config: str):
+    o = NoahOWP.from_namelist_str(noah_owp_init_config)
+    assert o.to_namelist_str() == noah_owp_init_config
