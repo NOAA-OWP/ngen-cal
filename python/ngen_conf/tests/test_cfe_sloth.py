@@ -6,7 +6,7 @@ from ngen.config.realization import Realization, NgenRealization
 @pytest.fixture()
 def data():
     test_dir = Path(__file__).parent
-    test_file = test_dir/'test_config.json'
+    test_file = test_dir/'data/test_config.json'
     with open(test_file) as fp:
         data = json.load(fp)
     data['routing']['t_route_config_file_with_path'] = test_dir/data['routing']['t_route_config_file_with_path']
