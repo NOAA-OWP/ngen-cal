@@ -1,30 +1,46 @@
-import pytest
+import pytest, json
 from pathlib import Path
-from ngen.config.conf_validation import *
+from ngen.config.realization import NgenRealization
+from ngen.config.hydrofabric import NGenNexusFile, NGenCatchmentFile
 
 @pytest.fixture()
-def data():
+def catchmentdata():
+    test_dir = Path(__file__).parent
+    test_file = test_dir/'data/hydrofabric/test_catchment_config.geojson'
+    with open(test_file) as fp:
+        catchmentdata = json.load(fp)
+    return catchmentdata
+
+def test_catchment(catchmentdata):
+    NGenCatchmentFile(**catchmentdata)  
+
+@pytest.fixture()
+def nexusdata():
+    test_dir = Path(__file__).parent
+    test_file = test_dir/'data/hydrofabric/test_nexus_config.geojson'
+    with open(test_file) as fp:
+        nexusdata = json.load(fp)
+    return nexusdata
+
+def test_nexus(nexusdata):
+    NGenNexusFile(**nexusdata)   
+
+@pytest.fixture()
+def realizationdata():
     test_dir = Path(__file__).parent
     test_file = test_dir/'data/test_config.json'
     with open(test_file) as fp:
-        data = json.load(fp)
-    data['routing']['t_route_config_file_with_path'] = test_dir/data['routing']['t_route_config_file_with_path']
-    return data
+        realizationdata = json.load(fp)
+    realizationdata['routing']['t_route_config_file_with_path'] = test_dir/realizationdata['routing']['t_route_config_file_with_path']
+    return realizationdata
 
-def test_catchment_nexus():
-    test_dir = Path(__file__).parent
-    test_file = test_dir/'data/hydrofabric/test_catchment_config.geojson'
-    subset = "cat-67,cat-27"
-    catch_pair, catch_sub = validate_catchment(test_file,subset)
+def test_ngen_realization_config(realizationdata):
+    g = NgenRealization(**realizationdata)
 
-    test_file = test_dir/'data/hydrofabric/test_nexus_config.geojson'
-    subset = "nex-26,nex-68"
-    nexus_pair, nexus_sub = validate_nexus(test_file,subset)
 
-    validate_catchmentnexus(catch_pair,nexus_pair,catch_sub,nexus_sub)
+  
 
-def test_ngen_realization_config(data):
-    g = NgenRealization(**data)
+
 
 
 

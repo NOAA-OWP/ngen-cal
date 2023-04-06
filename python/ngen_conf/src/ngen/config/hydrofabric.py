@@ -71,5 +71,4 @@ class NGenNexusFile(BaseModel):
     type: Literal["FeatureCollection"]
     name: Literal["nexus_data"]
     crs: CRS
-    # Need to loop through all features supplied in config
     features: List[NexusFeature]
