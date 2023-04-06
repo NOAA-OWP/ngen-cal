@@ -1,4 +1,6 @@
 import re
+from enum import Enum
+
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -92,3 +94,7 @@ class FloatUnitPair(GenericModel, Generic[L]):
         exclude_none: bool = False,
     ) -> "DictStrAny":
         return str(self)
+
+
+def serialize_enum_value(e: Enum) -> Any:
+    return e.value
