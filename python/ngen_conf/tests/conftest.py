@@ -13,6 +13,7 @@ _workdir=Path(__file__).parent
 _datadir = _workdir / "data"
 _cfe_config_data_path = _datadir / "init_config_data" / "cat_87_bmi_config_cfe.ini"
 _pet_config_data_path = _datadir / "init_config_data" / "pet.ini"
+_noah_owp_config_data_path = _datadir / "init_config_data" / "noah_owp.namelist"
 
 """
 Fixtures for setting up various ngen-conf components for testing
@@ -123,3 +124,7 @@ def cfe_init_config() -> str:
 @pytest.fixture
 def pet_init_config() -> str:
     return _pet_config_data_path.read_text()
+
+@pytest.fixture
+def noah_owp_init_config() -> str:
+    return _noah_owp_config_data_path.read_text()
