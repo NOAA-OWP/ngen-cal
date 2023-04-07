@@ -13,23 +13,23 @@ class CatchmentFeatureProperty(BaseModel):
     areasqkm : float
 
     @validator('toid')
-    def _validate_prefix(cls, value: str) -> str:
+    def _validate_toid(cls, value: str) -> str:
         if _TOID_REGEX.search(value) is None:
             raise ValueError(f"Invalid 'toid' property value: {value!r}")
         return value
     
-    _validate_prefix = validator("toid", allow_reuse=True)(_validate_prefix)
+    _validate_toid = validator("toid", allow_reuse=True)(_validate_toid)
     
 class NexusFeatureProperty(BaseModel):
     toid: str
 
     @validator('toid')
-    def _check_prefix(cls, value: str) -> str:
+    def _check_toid(cls, value: str) -> str:
         if _TOID_REGEX.search(value) is None:
             raise ValueError(f"Invalid 'toid' property value: {value!r}")
         return value
     
-    _check_prefix = validator("toid", allow_reuse=True)(_check_prefix)
+    _check_toid = validator("toid", allow_reuse=True)(_check_toid)
 
 CatchmentGeoJSON = FeatureCollection[MultiPolygon, CatchmentFeatureProperty]
 NexusGeoJSON     = FeatureCollection[Point, NexusFeatureProperty]
