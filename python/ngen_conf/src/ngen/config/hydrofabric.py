@@ -8,8 +8,7 @@ import re
 _TOID_REGEX_STR = ".\w+-\d+$"
 _TOID_REGEX = re.compile(_TOID_REGEX_STR)
 
-@validator('toid')
-def _validate_toid(cls, value: str) -> str:
+def validate_toid(value: str) -> str:
     if _TOID_REGEX.search(value) is None:
         raise ValueError(f"Invalid 'toid' property value: {value!r}")
     return value
@@ -17,11 +16,11 @@ def _validate_toid(cls, value: str) -> str:
 class CatchmentFeatureProperty(BaseModel):
     toid: str
     areasqkm : float
-    _validate_toid = validator("toid", allow_reuse=True)(_validate_toid)
+    _validate_toid = validator("toid", allow_reuse=True)(validate_toid)
 
 class NexusFeatureProperty(BaseModel):
     toid: str
-    _check_toid = validator("toid", allow_reuse=True)(_validate_toid)
+    _check_toid = validator("toid", allow_reuse=True)(validate_toid)
 
 CatchmentGeoJSON = FeatureCollection[MultiPolygon, CatchmentFeatureProperty]
 NexusGeoJSON     = FeatureCollection[Point, NexusFeatureProperty]
