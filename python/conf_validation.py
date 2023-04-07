@@ -1,7 +1,7 @@
 # Entry point to validating NGen catchment,nexus, and realization files
 import sys, json
 from ngen.config.realization import NgenRealization
-from ngen.config.hydrofabric import NGenCatchmentFile, NGenNexusFile
+from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON 
 
 def main(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file):
     """
@@ -10,19 +10,20 @@ def main(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file):
     # Validate Catchment config
     with open(catchment_file) as fp:
         data = json.load(fp)
-        NGenCatchmentFile(**data)
+        CatchmentGeoJSON(**data)
+
+        serialized_catchments = CatchmentGeoJSON.parse_file(catchment_file)
 
         # Validate catchment subset
         # Get list of catchments
-        nfeat = len(data['features'])
         catchments = []
         catchment_pairs = []
-        for jfeat in range(nfeat):
-            id   = data['features'][jfeat]['id']
-            toid = data['features'][jfeat]['properties']['toid']
+        for jfeat in serialized_catchments.features:
+            id   = jfeat.id
+            toid = jfeat.properties.toid
             catchment_pairs.append([id,toid])
             catchments.append(id)
-        
+
         # Convert to list
         subset_list = catchment_subset.split(',')
         msg = 'Catchment subset includes catchments that were not found in nexus config'
@@ -32,16 +33,17 @@ def main(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file):
     # Validate Nexus config
     with open(nexus_file) as fp:
         data = json.load(fp)
-        NGenNexusFile(**data)  
+        NexusGeoJSON(**data)  
 
-        # Validate catchment subset
+        serialized_nexus = NexusGeoJSON.parse_file(nexus_file)
+
+        # Validate nexus subset
         # Get list of catchments
-        nfeat = len(data['features'])
         nexi = []
         nexus_pairs = []
-        for jfeat in range(nfeat):
-            id   = data['features'][jfeat]['id']
-            toid = data['features'][jfeat]['properties']['toid']
+        for jfeat in serialized_nexus.features:
+            id   = jfeat.id
+            toid = jfeat.properties.toid
             nexus_pairs.append([toid,id])
             nexi.append(id)
         
