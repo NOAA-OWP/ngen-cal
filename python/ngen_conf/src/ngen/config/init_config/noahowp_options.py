@@ -178,7 +178,7 @@ class CanopyStomResistOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L71-L74
     """
 
-    Ball_Beryy = 1
+    Ball_Berry = 1
     Jarvis = 2
 
 
