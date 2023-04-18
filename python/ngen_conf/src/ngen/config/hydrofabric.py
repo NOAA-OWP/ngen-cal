@@ -1,5 +1,5 @@
 
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel, validator
 from geojson_pydantic import FeatureCollection, Point,  MultiPolygon
 import re
@@ -14,11 +14,13 @@ def validate_toid(value: str) -> str:
     return value
     
 class CatchmentFeatureProperty(BaseModel):
+    id : Optional[str] = None
     toid: str
     areasqkm : float
     _validate_toid = validator("toid", allow_reuse=True)(validate_toid)
 
 class NexusFeatureProperty(BaseModel):
+    id : Optional[str] = None
     toid: str
     _check_toid = validator("toid", allow_reuse=True)(validate_toid)
 
