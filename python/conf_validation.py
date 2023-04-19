@@ -68,7 +68,7 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file=No
             data = json.load(fp)
             NgenRealization(**data)  
     else:
-        print(f'Did not validate realization file!!!')
+        print('Did not validate realization file!!!')
 
     print(f'NGen config validations complete')
 
