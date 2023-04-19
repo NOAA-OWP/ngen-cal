@@ -8,51 +8,43 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file=No
     validate the three config files and sub selections
     """
     # Validate Catchment config
-    with open(catchment_file) as fp:
-        data = json.load(fp)
-        CatchmentGeoJSON(**data)
+    serialized_catchments = CatchmentGeoJSON.parse_file(catchment_file)
 
-        serialized_catchments = CatchmentGeoJSON.parse_file(catchment_file)
+    # Validate catchment subset
+    # Get list of catchments
+    catchments = []
+    catchment_pairs = []
+    for jfeat in serialized_catchments.features:
+        id   = jfeat.id
+        if id is None: id = jfeat.properties.id # descrapancy between geopandas and pydantic
+        toid = jfeat.properties.toid
+        catchment_pairs.append([id,toid])
+        catchments.append(id)
 
-        # Validate catchment subset
-        # Get list of catchments
-        catchments = []
-        catchment_pairs = []
-        for jfeat in serialized_catchments.features:
-            id   = jfeat.id
-            if id is None: id = jfeat.properties.id # descrapancy between geopandas and pydantic
-            toid = jfeat.properties.toid
-            catchment_pairs.append([id,toid])
-            catchments.append(id)
-
-        # Convert to list
-        subset_list = catchment_subset.split(',')
-        msg = 'Catchment subset includes catchments that were not found in nexus config'
-        msg += f'\nCatchments from config {catchments}\nCatchments in subset {subset_list}'
-        assert all([jcatch in catchments for jcatch in subset_list]), msg
+    # Convert to list
+    subset_list = catchment_subset.split(',')
+    msg = 'Catchment subset includes catchments that were not found in nexus config'
+    msg += f'\nCatchments from config {catchments}\nCatchments in subset {subset_list}'
+    assert all([jcatch in catchments for jcatch in subset_list]), msg
 
     # Validate Nexus config
-    with open(nexus_file) as fp:
-        data = json.load(fp)
-        NexusGeoJSON(**data)  
+    serialized_nexus = NexusGeoJSON.parse_file(nexus_file)
 
-        serialized_nexus = NexusGeoJSON.parse_file(nexus_file)
-
-        # Validate nexus subset
-        # Get list of catchments
-        nexi = []
-        nexus_pairs = []
-        for jfeat in serialized_nexus.features:
-            id   = jfeat.id
-            if id is None: id = jfeat.properties.id # descrapancy between geopandas and pydantic
-            toid = jfeat.properties.toid
-            nexi.append(id)
-        
-        # Convert to list
-        subset_list = nexus_subset.split(',')
-        msg = 'Nexus subset includes nexus that were not found in nexus config'
-        msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
-        assert all([jnex in nexi for jnex in subset_list]), msg
+    # Validate nexus subset
+    # Get list of catchments
+    nexi = []
+    nexus_pairs = []
+    for jfeat in serialized_nexus.features:
+        id   = jfeat.id
+        if id is None: id = jfeat.properties.id # descrapancy between geopandas and pydantic
+        toid = jfeat.properties.toid
+        nexi.append(id)
+    
+    # Convert to list
+    subset_list = nexus_subset.split(',')
+    msg = 'Nexus subset includes nexus that were not found in nexus config'
+    msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
+    assert all([jnex in nexi for jnex in subset_list]), msg
 
     # Validate all nexus in catchment config match those provided 
     msg = 'Nexus-Catchment pairs do not match! Check Catchment and Nexus config files!'
