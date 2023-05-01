@@ -1,4 +1,3 @@
-
 {
     "global": {
         "formulations": [
@@ -13,29 +12,6 @@
                     "fixed_time_step": false, 
                     "uses_forcing_file": false, 
                     "modules": [
-                        {
-                            "name": "bmi_fortran", 
-                            "params": {
-                                "name": "bmi_fortran", 
-                                "model_type_name": "NoahOWP", 
-                                "main_output_variable": "QINSUR", 
-                                "init_config": "data/NOAH/cat-1.input", 
-                                "allow_exceed_end_time": true, 
-                                "fixed_time_step": false, 
-                                "uses_forcing_file": false, 
-                                "variables_names_map": {
-                                    "PRCPNONC": "atmosphere_water__liquid_equivalent_precipitation_rate", 
-                                    "Q2": "atmosphere_air_water~vapor__relative_saturation", 
-                                    "SFCTMP": "land_surface_air__temperature", 
-                                    "UU": "land_surface_wind__x_component_of_velocity", 
-                                    "VV": "land_surface_wind__y_component_of_velocity", 
-                                    "LWDN": "land_surface_radiation~incoming~longwave__energy_flux", 
-                                    "SOLDN": "land_surface_radiation~incoming~shortwave__energy_flux", 
-                                    "SFCPRS": "land_surface_air__pressure"
-                                }, 
-                                "library_file": "data/NOAH/libfakenoah.dylib"
-                            }
-                        }, 
                         {
                             "name": "bmi_c", 
                             "params": {
