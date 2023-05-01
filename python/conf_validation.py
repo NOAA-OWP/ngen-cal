@@ -22,10 +22,11 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization
         catchments.append(id)
 
     # Convert to list
-    catch_subset_list = catchment_subset.split(',')
-    msg = 'Catchment subset includes catchments that were not found in nexus config'
-    msg += f'\nCatchments from config {catchments}\nCatchments in subset {catchment_subset}'
-    assert all([jcatch in catchments for jcatch in catch_subset_list]), msg
+    if len(catchment_subset) > 0:
+        catch_subset_list = catchment_subset.split(',')
+        msg = 'Catchment subset includes catchments that were not found in nexus config'
+        msg += f'\nCatchments from config {catchments}\nCatchments in subset {catchment_subset}'
+        assert all([jcatch in catchments for jcatch in catch_subset_list]), msg
 
     # Validate Nexus config
     serialized_nexus = NexusGeoJSON.parse_file(nexus_file)
@@ -40,10 +41,11 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization
         nexi.append(id)
 
     # Convert to list
-    nex_subset_list = nexus_subset.split(',')
-    msg = 'Nexus subset includes nexus that were not found in nexus config'
-    msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
-    assert all([jnex in nexi for jnex in nex_subset_list]), msg
+    if len(nexus_subset) > 0:
+        nex_subset_list = nexus_subset.split(',')
+        msg = 'Nexus subset includes nexus that were not found in nexus config'
+        msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
+        assert all([jnex in nexi for jnex in nex_subset_list]), msg
 
     # Validate all nexus in catchment config match those provided 
     msg = 'Nexus-Catchment pairs do not match! Check Catchment and Nexus config files!'
@@ -72,8 +74,9 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization
                 realization_catchments = list(catch_property.keys())
 
                 # Verify that all subset catchments are in realization file.
-                msg = f'At least one of the catchments within the subset({catch_subset_list}) is not found within the realization file!'
-                assert all([jcatch in realization_catchments for jcatch in catch_subset_list]), msg
+                if len(catchment_subset) > 0:
+                    msg = f'At least one of the catchments within the subset({catch_subset_list}) is not found within the realization file!'
+                    assert all([jcatch in realization_catchments for jcatch in catch_subset_list]), msg
 
                 # Verify that all realization catchments are in the catchment geojson
                 msg = f'At least one of the catchments within the realization file is not found within the catchment geojson!'
