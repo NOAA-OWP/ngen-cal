@@ -11,7 +11,9 @@ class Realization(BaseModel):
     forcing: Forcing
     calibration: Optional[ Mapping[ str, Sequence[ Any ]] ]
 
-class CatchmentRealization(Realization):
+class CatchmentRealization(BaseModel):
+    # TODO: validate catchment formulations.
+    # formulations: Sequence[Formulation]
     forcing: Optional[Forcing]
 
 class NgenRealization(BaseModel):
