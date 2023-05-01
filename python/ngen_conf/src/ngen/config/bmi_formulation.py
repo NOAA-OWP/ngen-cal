@@ -2,6 +2,7 @@ from pydantic import BaseModel, FilePath, DirectoryPath, PyObject, Field, root_v
 from typing import Mapping, Optional, Union, Sequence, Any
 from pathlib import Path
 from sys import platform
+import os
 
 import logging
 logger = logging.getLogger('bmi_formulation')
@@ -129,6 +130,14 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
             #or look for a filepath
             if "{{" in conf_str and "}}" in conf_str:
                 values['config'] = conf_str
+
+            full_path = os.path.join(os.getcwd(),values['config'])
+            assert os.path.exists(full_path)
+
+        if 'init_config' in values:
+            full_path = os.path.join(os.getcwd(),values['init_config'])
+            assert os.path.exists(full_path)
+
         return values
 
     @classmethod
@@ -151,6 +160,7 @@ class BMILib(BMIParams):
     library: Union[FilePath, str] = Field(alias="library_file")
     #optional
     _library_prefix: Optional[DirectoryPath] = Field(None, alias="library_prefix")
+
     
     @root_validator(pre=True)
     def build_library_path(cls, values: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -174,6 +184,9 @@ class BMILib(BMIParams):
         if lib_path:
             lib = lib_path.joinpath(lib)
         values['library'] = Path(lib).with_suffix( cls.get_system_lib_extension() )
+        
+        full_path = os.path.join(os.getcwd(),values['library'])
+        assert os.path.exists(full_path)
         return values
 
 class BMIC(BMILib):
@@ -209,3 +222,4 @@ class BMICxx(BMILib):
     """
     registration_function: str
     name: str = Field("bmi_c++", const=True)
+    
