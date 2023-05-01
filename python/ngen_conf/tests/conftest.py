@@ -73,7 +73,7 @@ def noahowp_params():
     path = _workdir.joinpath("data/NOAH/")
     libpath = _workdir.joinpath("data/CFE")
     data = {'config_prefix':path, 
-            'config': "{{id}}.input", 
+            'config': "cat-1.input", 
             'library_prefix': libpath,
             'library': 'libfakecfe.so'
             }
@@ -103,7 +103,7 @@ def multi(cfe, noahowp, forcing):
 def lstm_params():
     path = _workdir.joinpath("data/CFE/")
     data = {'config_prefix':path, 
-            'config': "{{id}}_config.txt"}
+            'config': "config.txt"}
     return data
 
 @pytest.fixture
