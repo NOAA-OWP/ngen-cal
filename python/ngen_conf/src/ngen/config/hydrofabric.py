@@ -1,5 +1,5 @@
 
-from typing import List, Literal, Optional
+from typing import Optional
 from pydantic import BaseModel, validator
 from geojson_pydantic import FeatureCollection, Point,  MultiPolygon
 import re
