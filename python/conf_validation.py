@@ -1,7 +1,16 @@
-# Entry point to validating NGen catchment,nexus, and realization files
-import sys, json, os
+import sys, os
 from ngen.config.realization import NgenRealization
 from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON 
+
+def validate_paths(dict_obj, key_list):
+    """
+    Validate properties optionally
+    """
+    for jkey in key_list:
+        if hasattr(dict_obj,jkey):
+            # TODO: confirm the os.getcwd(), maybe we want to pass this as an arg
+            full_path = os.path.join(os.getcwd(),getattr(dict_obj,jkey))
+            assert os.path.exists(full_path), f'{jkey} file path could not be validated! : {dict_obj.jkey}'
 
 def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization_file=None):
     """
@@ -65,40 +74,49 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization
 
     # Validate Realization config
     if realization_file is not None:
-        with open(realization_file) as fp:
-            data = json.load(fp)
-            NgenRealization(**data)  
 
-            if 'catchments' in data:
-                catch_property = data['catchments']
-                realization_catchments = list(catch_property.keys())
+        serialized_realization = NgenRealization.parse_file(realization_file)
 
-                # Verify that all subset catchments are in realization file.
-                if len(catchment_subset) > 0:
-                    msg = f'At least one of the catchments within the subset({catch_subset_list}) is not found within the realization file!'
-                    assert all([jcatch in realization_catchments for jcatch in catch_subset_list]), msg
+        if True: # Turn off path validation if ya want
+            fm = serialized_realization.global_config.formulations
+            for j,jform in enumerate(fm):
+                parms = jform.params
+                mods = jform.params.modules
+                # We can configuire the key list as to what properties we want to validate
+                validate_paths(parms,['config','init_config','library_file'])
+                for jmod in mods:
+                    validate_paths(jmod.params,['config','init_config','library','library_file'])
 
-                # Verify that all realization catchments are in the catchment geojson
-                msg = f'At least one of the catchments within the realization file is not found within the catchment geojson!'
-                assert all([jcatch in catchments for jcatch in realization_catchments])
+        if hasattr(serialized_realization,'catchments'):
+            catch_property = serialized_realization.catchments
+            realization_catchments = list(catch_property.keys())
 
-                # Verify that a file exists for every catchment provided in the realization file
-                # The forcing path can either be explicit or to a folder to lookin to match a filename pattern
-                for jcatch in catch_property:
-                    ii_found = False
-                    forcing_path = os.path.join(os.getcwd(),catch_property[jcatch]['forcing']['path'])
-                    id = jcatch.split('-')[1]
+            # Verify that all subset catchments are in realization file.
+            if len(catchment_subset) > 0:
+                msg = f'At least one of the catchments within the subset({catch_subset_list}) is not found within the realization file!'
+                assert all([jcatch in realization_catchments for jcatch in catch_subset_list]), msg
 
-                    for jfile in os.listdir(forcing_path):
-                        jfile_id = jfile.split('_')[1][:-4]
-                        if jfile_id == id: 
-                            ii_found = True
-                            break
+            # Verify that all realization catchments are in the catchment geojson
+            msg = f'At least one of the catchments within the realization file is not found within the catchment geojson!'
+            assert all([jcatch in catchments for jcatch in realization_catchments]), msg
 
-                    if not ii_found:
-                        raise Exception(f'Could not locate forcing file for {jcatch} in {forcing_path}')
-            else:
-                pass
+            # Verify that a file exists for every catchment provided in the realization file
+            # The forcing path can either be explicit or to a folder to lookin to match a filename pattern
+            for jcatch in catch_property:
+                ii_found = False
+                forcing_path = os.path.join(os.getcwd(),catch_property[jcatch].forcing.path)
+                id = jcatch.split('-')[1]
+
+                for jfile in os.listdir(forcing_path):
+                    jfile_id = jfile.split('_')[1][:-4]
+                    if jfile_id == id: 
+                        ii_found = True
+                        break
+
+                if not ii_found:
+                    raise Exception(f'Could not locate forcing file for {jcatch} in {forcing_path}')
+        else:
+            pass
 
     else:
         print('Did not validate realization file!!!')
