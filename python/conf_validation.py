@@ -125,10 +125,17 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization
 
 if __name__ == "__main__":
 
-    catchment_file   = sys.argv[1]
-    catchment_subset = sys.argv[2]
-    nexus_file       = sys.argv[3]
-    nexus_subset     = sys.argv[4]
-    realization_file         = sys.argv[5]
+    if len(sys.argv) > 4:
+        catchment_file   = sys.argv[1]
+        catchment_subset = sys.argv[2]
+        nexus_file       = sys.argv[3]
+        nexus_subset     = sys.argv[4]
+        realization_file = sys.argv[5]
+    else:
+        catchment_file = os.environ.get('CATCH_CONF')
+        catchment_subset = os.environ.get('CATCH_SUB')
+        nexus_file = os.environ.get('NEX_CONF')
+        nexus_subset = os.environ.get('NEX_SUB')
+        realization_file = os.environ.get('REALIZATION')
 
     validate(catchment_file,catchment_subset,nexus_file,nexus_subset,realization_file)
