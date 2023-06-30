@@ -1,4 +1,4 @@
-pydantic
+pydantic<2
 pathlib
 pytest
 pytest-mock
