@@ -7,7 +7,11 @@ from ngen.cal.search import dds, dds_set, pso_search
 from ngen.cal.strategy import Algorithm
 from ngen.cal.agent import Agent
 
-def main(general: General, model_conf):
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Mapping, Any
+
+def main(general: General, model_conf: Mapping[str, Any]):
     #seed the random number generators if requested
     if( general.random_seed is not None):
         import random

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from geopandas import GeoSeries
     from datetime import datetime
-    from typing import Tuple
+    from typing import Tuple, Optional
     from .model import EvaluationOptions
 
 from hypy.catchment import FormulatableCatchment # type: ignore
@@ -81,7 +81,7 @@ class EvaluatableCatchment(Evaluatable):
         self._eval_range = self.eval_params._eval_range
         
     @property
-    def evaluation_range(self) -> 'Tuple[datetime, datetime]':
+    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
         return self._eval_range
 
     @property

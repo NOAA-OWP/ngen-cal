@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
     from datetime import datetime
-    from typing import Tuple, Callable
+    from typing import Tuple, Callable, Optional
     from .model import EvaluationOptions
 
 class Adjustable(ABC):
@@ -50,7 +50,7 @@ class Adjustable(ABC):
         return Series(self.df.index.values)
 
     @property
-    def bounds(self) -> 'Tuple[Series]':
+    def bounds(self) -> 'Tuple[Series, Series]':
         """The bounds of each parameter that is adjustable
 
         Returns:
@@ -137,7 +137,7 @@ class Evaluatable(ABC):
 
     @property
     @abstractmethod
-    def evaluation_range(self) -> 'Tuple[datetime, datetime]':
+    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
         """
             The datetime range to evaluate the model results at.
             This should be a tuple in the form of (start_time, end_time).
