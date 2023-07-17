@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
     from datetime import datetime
-    from typing import Tuple
+    from typing import Tuple, Optional
     from .model import EvaluationOptions
 import os
 from pathlib import Path
@@ -39,7 +39,7 @@ class CalibrationSet(Evaluatable):
         self._eval_range = self.eval_params._eval_range
     
     @property
-    def evaluation_range(self) -> 'Tuple[datetime, datetime]':
+    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
         return self._eval_range
 
     @property

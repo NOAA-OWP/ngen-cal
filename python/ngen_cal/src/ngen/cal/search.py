@@ -9,6 +9,8 @@ from ngen.cal.utils import pushd
 if TYPE_CHECKING:
     from ngen.cal import Adjustable, Evaluatable
     from ngen.cal.agent import Agent
+    from typing import Tuple, Optional
+    from datetime import datetime
 
 
 """Global private iteration counter
@@ -19,7 +21,7 @@ managed by a calibration agent.
 """
 __iteration_counter = 0
 
-def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range=None):
+def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range: 'Optional[Tuple[datetime, datetime]]' = None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
     if df.empty:
         print("WARNING: Cannot compute objective function, do time indicies align?")

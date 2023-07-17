@@ -92,11 +92,11 @@ class Agent(BaseAgent):
         return self._workdir
 
     @property
-    def job(self) -> 'JobMeta':
+    def job(self) -> JobMeta:
         return self._job
     
     @property
-    def model(self) -> 'Model':
+    def model(self) -> Model:
         return self._model.model
 
     @property
