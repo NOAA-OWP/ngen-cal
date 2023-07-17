@@ -52,7 +52,7 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
     @classmethod
     def with_object(
         cls,
-        o: T,
+        obj: T,
         *,
         path: StrPath = "",
         reader: Reader = path_reader,
@@ -62,7 +62,7 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
     ) -> Union["PosixPathPair[T]", "WindowsPathPair[T]"]:
         return cls(
             Path(path),
-            inner=o,
+            inner=obj,
             reader=reader,
             writer=writer,
             serializer=serializer,
@@ -176,7 +176,7 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
     @classmethod
     def with_objects(
         cls,
-        o: List[T],
+        objs: List[T],
         *,
         path: Path,
         pattern: str,
@@ -186,12 +186,12 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         serializer: Optional[Serializer[T]] = None,
         deserializer: Optional[Deserializer[T]] = None,
     ) -> Union["PosixPathPairCollection[T]", "WindowsPathPairCollection[T]"]:
-        assert len(o) == len(ids)
+        assert len(objs) == len(ids)
         prefix, _, suffix = path.name.partition(pattern)
         assert prefix != "" and suffix != ""
 
         pairs = []
-        for idx, item in enumerate(o):
+        for idx, item in enumerate(objs):
             fp = path.parent / f"{prefix}{ids[idx]}{suffix}"
             pair = PathPair.with_object(
                 item,
