@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PyObject, validator
+from pydantic import BaseModel
 from typing import Optional, Mapping, Any
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal

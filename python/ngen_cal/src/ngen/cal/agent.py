@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from ngen.cal.strategy import Algorithm
 from ngen.cal.meta import JobMeta
 from ngen.cal.configuration import Model
 from ngen.cal.utils import pushd

@@ -1,13 +1,10 @@
-import json
 import pandas as pd # type: ignore
 from pathlib import Path
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
-from .configuration import General, Model
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from pandas import DataFrame
 
 class JobMeta:
     """
