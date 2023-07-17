@@ -71,12 +71,12 @@ class Agent(BaseAgent):
             # There are probably some similar issues with explicit and independent, since they have
             # similar data semantics
             workdirs = list(Path.glob(workdir, model_conf['type']+"_*_worker"))
-            if( len(workdirs) > 1) :
+            if len(workdirs) > 1:
                 print("More than one existing workdir, cannot restart")
-            elif( len(workdirs) == 1):
+            elif len(workdirs) == 1:
                 self._job = JobMeta(model_conf['type'], workdir, workdirs[0], log=log)
 
-        if(self._job is None):
+        if self._job is None:
             self._job = JobMeta(model_conf['type'], workdir, log=log)
         model_conf['workdir'] = self.job.workdir
         self._model = Model(model=model_conf)

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def main(general: General, model_conf: Mapping[str, Any]):
     #seed the random number generators if requested
-    if( general.random_seed is not None):
+    if general.random_seed is not None:
         import random
         random.seed(general.random_seed)
         import numpy as np
@@ -28,12 +28,12 @@ def main(general: General, model_conf: Mapping[str, Any]):
     start_iteration = 0
     #Initialize the starting agent
     agent = Agent(model_conf, general.workdir, general.log, general.restart, general.strategy.parameters)
-    if(general.strategy.algorithm == Algorithm.dds):
+    if general.strategy.algorithm == Algorithm.dds:
         func = dds_set #FIXME what about explicit/dds
         start_iteration = general.start_iteration
         if general.restart:
             start_iteration = agent.restart()
-    elif( general.strategy.algorithm == Algorithm.pso): #TODO how to restart PSO?
+    elif general.strategy.algorithm == Algorithm.pso: #TODO how to restart PSO?
         if agent.model.strategy != "uniform":
             print("Can only use PSO with the uniform model strategy")
             return
