@@ -1,4 +1,4 @@
-from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field
+from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field, root_validator
 from typing import Optional, Tuple, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
@@ -41,7 +41,7 @@ class EvaluationOptions(BaseModel):
     """
         A data class holding evaluation parameters
     """
-    #TODO make this optional, but co-dependent???
+    #Optional, but co-dependent, see @_validate_start_stop_both_or_neither_exist for validation logic
     evaluation_start: Optional[datetime]
     evaluation_stop: Optional[datetime]
     _eval_range: Tuple[datetime, datetime] = None
@@ -153,6 +153,19 @@ class EvaluationOptions(BaseModel):
         else:
             prefix = f"{self.id}_"
         return Path(self._objective_log_file.parent, prefix + self._objective_log_file.stem + self._objective_log_file.suffix)
+
+    @root_validator()
+    def _validate_start_stop_both_or_neither_exist(cls, values):
+        """
+            Evaluation range is optional, so both have to None, or both have to be set
+        """
+        start = values["evaluation_start"]
+        stop = values["evaluation_stop"]
+        if start is None and stop is None:
+            return values
+        elif start is not None and stop is not None:
+            return values
+        raise ValueError("Both 'evaluation_start' and 'evaluation_stop' must be set or neither be set.")
 
     @validator("objective")
     def validate_objective(cls, value):
