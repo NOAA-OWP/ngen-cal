@@ -34,7 +34,8 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     
     #reasonable defaultable fields
     allow_exceed_end_time: bool = False
-    fixed_time_step: bool = False
+    # see #NOAA-OWP/ngen-cal #47 for explanation
+    fixed_time_step: bool = True
     uses_forcing_file: bool = False
     name_map: Mapping[str, str] = Field(None, alias='variables_names_map')
 
