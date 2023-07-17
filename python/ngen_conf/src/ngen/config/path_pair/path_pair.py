@@ -17,14 +17,14 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
     return a OS specific subclass (`PosixPathPair` or `WindowsPathPair`).
 
     The default reader and writer implementations operate on disk. Alternative reader and writer
-    types can be provided assuming they following the `ngen.config.path_path.protocol` `Reader` and
+    types can be provided assuming they following the `ngen.config.path_pair.protocol` `Reader` and
     `Writer` protocols (interfaces). This could, for example, enable reading and writing from the
     network.
 
     serializer's and deserializer's are type specific, and thus have no default. However,
-    `ngen.config.path_path.common` contains generic serializers and deserializer that may be of
+    `ngen.config.path_pair.common` contains generic serializers and deserializer that may be of
     interest (e.g. `pydantic_serializer` and `pydantic_deserializer`). Alternative serializer and
-    deserializer types can be provided assuming they follow the `ngen.config.path_path.protocol`
+    deserializer types can be provided assuming they follow the `ngen.config.path_pair.protocol`
     `Serializer` and `Deserializer` protocols (interfaces).
     """
 
@@ -95,14 +95,14 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
     (`PosixPathPairCollection` or `WindowsPathPairCollection`).
 
     The default reader and writer implementations operate on disk. Alternative reader and writer
-    types can be provided assuming they following the `ngen.config.path_path.protocol` `Reader` and
+    types can be provided assuming they following the `ngen.config.path_pair.protocol` `Reader` and
     `Writer` protocols (interfaces). This could, for example, enable reading and writing from the
     network.
 
     serializer's and deserializer's are type specific, and thus have no default. However,
-    `ngen.config.path_path.common` contains generic serializers and deserializer that may be of
+    `ngen.config.path_pair.common` contains generic serializers and deserializer that may be of
     interest (e.g. `pydantic_serializer` and `pydantic_deserializer`). Alternative serializer and
-    deserializer types can be provided assuming they follow the `ngen.config.path_path.protocol`
+    deserializer types can be provided assuming they follow the `ngen.config.path_pair.protocol`
     `Serializer` and `Deserializer` protocols (interfaces).
     """
 
