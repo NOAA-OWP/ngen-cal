@@ -137,7 +137,7 @@ class EvaluationOptions(BaseModel):
         """
             The path to the best parameter log file
         """
-        if id is not None:
+        if self.id is None:
             prefix = ""
         else:
             prefix = f"{self.id}_"
@@ -148,7 +148,7 @@ class EvaluationOptions(BaseModel):
         """
             The path to the best parameter log file
         """
-        if id is not None:
+        if self.id is None:
             prefix = ""
         else:
             prefix = f"{self.id}_"
