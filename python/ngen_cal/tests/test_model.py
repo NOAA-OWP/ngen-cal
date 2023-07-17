@@ -1,6 +1,4 @@
 import pytest
-import pandas as pd # type: ignore
-import json
 from typing import TYPE_CHECKING
 from ngen.cal.ngen import Ngen
 if TYPE_CHECKING:

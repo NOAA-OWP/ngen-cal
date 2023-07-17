@@ -1,7 +1,6 @@
 import pytest
 import pandas as pd # type: ignore
 import json
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
