@@ -212,7 +212,7 @@ class ModelExec(BaseModel, Configurable):
     binary: str
     args: Optional[str]
     workdir: DirectoryPath = Path("./") #FIXME test the various workdirs
-    eval_params: Optional[EvaluationOptions] = Field(default=EvaluationOptions())
+    eval_params: Optional[EvaluationOptions] = Field(default_factory=EvaluationOptions)
 
     #FIXME formalize type: str = "ModelName"
     def get_binary(self)->str:
