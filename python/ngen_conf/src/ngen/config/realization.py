@@ -14,7 +14,7 @@ class Realization(BaseModel):
     def resolve_paths(self):
         for f in self.formulations:
             f.resolve_paths()
-        if(self.forcing):
+        if self.forcing :
             self.forcing.resolve_paths()
 
 class CatchmentRealization(Realization):
@@ -45,5 +45,5 @@ class NgenRealization(BaseModel):
         self.global_config.resolve_paths()
         for k,v in self.catchments.items():
             v.resolve_paths()
-        if(self.routing != None):
+        if self.routing != None:
             self.routing.resolve_paths()

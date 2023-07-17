@@ -52,7 +52,7 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', info=False) -> float:
     calibration_object.save_output(i)
     #update meta info based on latest score and write some log files
     calibration_object.update(i, score, log=True)
-    if(info):
+    if info:
         print("Current score {}\nBest score {}".format(score, calibration_object.best_score))
         print("Best parameters at iteration {}".format(calibration_object.best_params))
     return score

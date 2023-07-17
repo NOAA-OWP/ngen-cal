@@ -177,13 +177,13 @@ class NgenBase(ModelExec):
         realization = values.get('realization')
 
         custom_args = False
-        if( args is None ):
+        if args is None:
             args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
             values['args'] = args
         else:
             custom_args = True
 
-        if( parallel is not None and partitions is not None):
+        if parallel is not None and partitions is not None:
             binary = f'mpirun -n {parallel} {binary}'
             if not custom_args:
                 # only append this if args weren't already custom defined by user
@@ -208,7 +208,7 @@ class NgenBase(ModelExec):
         """
         parallel = values.get('parallel')
         partitions = values.get('partitions')
-        if(parallel is not None and parallel > 1 and partitions is None):
+        if parallel is not None and parallel > 1 and partitions is None:
             raise ValueError("Must provide partitions if using parallel")
         return values
 
@@ -450,7 +450,7 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     def resolve_paths(self):
         """resolve any possible relative paths in the realization
         """
-        if(self.__root__.ngen_realization != None):
+        if self.__root__.ngen_realization != None:
             self.__root__.ngen_realization.resolve_paths()
 
     @property

@@ -54,7 +54,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
         Returns:
             _type_: _description_
         """
-        if(isinstance(self.config, Path)):
+        if isinstance(self.config, Path):
             #Not sure why this is needed, but I found one case
             #where a forumulation has an empty string config...
             self.config = self.config.resolve()

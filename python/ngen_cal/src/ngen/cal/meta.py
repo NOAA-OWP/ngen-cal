@@ -21,13 +21,13 @@ class JobMeta:
                             YYYYMMDDHHmm_name_worker is created.  Once created, it is left to the user to cleanup if needed.
             log (bool, optional): Whether or not to create a log file for the job. Defaults to False.
         """
-        if(workdir is None):
+        if workdir is None:
             self._workdir = Path( mkdtemp(dir=parent_workdir, prefix=f"{datetime.now().strftime('%Y%m%d%H%M')}_{name}_", suffix="_worker") ).resolve()
         else:
             self._workdir = workdir
 
         self._log_file = None
-        if(log):
+        if log:
             self._log_file = self._workdir/Path(name+".log")
 
     @property
@@ -37,7 +37,7 @@ class JobMeta:
     @workdir.setter
     def workdir(self, path: 'Path') -> None:
         self._workdir = path
-        if(self._log_file is not None):
+        if self._log_file is not None:
             self._log_file = self._workdir/Path(self._log_file.name)
 
     @property
