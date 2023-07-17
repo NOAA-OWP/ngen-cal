@@ -72,7 +72,7 @@ class Agent(BaseAgent):
             # similar data semantics
             workdirs = list(Path.glob(workdir, model_conf['type']+"_*_worker"))
             if( len(workdirs) > 1) :
-                print("More than one existing {} workdir, cannot restart")
+                print("More than one existing workdir, cannot restart")
             elif( len(workdirs) == 1):
                 self._job = JobMeta(model_conf['type'], workdir, workdirs[0], log=log)
 
