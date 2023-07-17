@@ -155,33 +155,35 @@ class Evaluatable(ABC):
         return self.eval_params.objective
  
     def update(self, i: int, score: float, log: bool) -> None:
-        """_summary_
+        """
+           Update the meta state for iteration `i` having score `score`
+           logs objective information if log=True
 
+            Simply passes through to @EvaluationOptions.update
         Args:
-            i (int): _description_
-            score (float): _description_
-            log (bool): _description_
-
-        Returns:
-            _type_: _description_
+            i (int): iteration index to set score at
+            score (float): score value to save
+            log (bool): writes objective information to log file if True
         """
         self.eval_params.update(i, score, log)
     
     @property
     def best_params(self) -> str:
-        """_summary_
+        """
+            The integer iteration that contains the best parameter values, as a string
 
         Returns:
-            str: _description_
+            str: iteration number
         """
         return self.eval_params._best_params_iteration
     
     @property
     def best_score(self) -> float:
-        """_summary_
+        """
+            Best score known to the current calibration
 
         Returns:
-            float: _description_
+            float: best score
         """
         return self.eval_params.best_score
     
