@@ -436,10 +436,11 @@ class Ngen(BaseModel, Configurable, smart_union=True):
         starts = []
         for catchment in self.adjustables:
             starts.append(catchment.restart())
-        if all( x == starts[0] for x in starts):
+        if starts and all( x == starts[0] for x in starts):
             #if everyone agress on the iteration...
             return starts[0]
         else:
+            #starts is empty or someone disagress on the starting iteration...
             return 0
 
     @property
