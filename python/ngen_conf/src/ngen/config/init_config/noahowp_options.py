@@ -42,9 +42,9 @@ class RunoffOption(int, Enum):
     topmodel_with_equilibrium_water_table = 2
     original_surface_and_subsurface_runoff = 3
     bats_surface_and_subsurface_runoff = 4
-    Miguez_Macho_Fan_groundwater_scheme = 5
+    miguez_macho_fan_groundwater_scheme = 5
     vic_runoff = 6
-    Xinanjiang_runoff = 7
+    xinanjiang_runoff = 7
     dynamic_vic_runoff = 8
 
 
@@ -67,9 +67,9 @@ class DrainageOption(int, Enum):
     subsurface_runoff_scheme_with_an_equilibrium_water_table = 2
     original_subsurface_runoff = 3
     original_subsurface_runoff_with_bats = 4
-    drainage_with_MMF_shallow_water_table_scheme = 5
+    drainage_with_mmf_shallow_water_table_scheme = 5
     vic_with_free_drainage_with_vic_runoff = 6
-    Xinanjiang_runoff_with_Xinanjiang_runoff = 7
+    xinanjiang_runoff_with_xinanjiang_runoff = 7
     dynamic_vic_runoff_with_dynamic_vic_runoff = 8
 
 
@@ -96,9 +96,9 @@ class DynamicVicOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L42-L46
     """
 
-    Philip = 1
-    Green_Ampt = 2
-    Smith_Parlange = 3
+    philip = 1
+    green_ampt = 2
+    smith_parlange = 3
 
 
 class DynamicVegOption(int, Enum):
@@ -117,15 +117,15 @@ class DynamicVegOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L47-L57
     """
 
-    off_use_LAI_table_FVEG_eq_SHDFAC_from_input = 1
-    on_with_canopy_stom_resist_option_Ball_Berry = 2
-    off_use_LAI_table_calculate_FVEG = 3
-    off_use_LAI_table_use_max_vegetation_fraction = 4
+    off_use_lai_table_fveg_eq_shdfac_from_input = 1
+    on_with_canopy_stom_resist_option_ball_berry = 2
+    off_use_lai_table_calculate_fveg = 3
+    off_use_lai_table_use_max_vegetation_fraction = 4
     on_use_max_vegetation_fraction = 5
-    on_use_FVEG_eq_SHDFAC_from_input = 6
-    off_use_input_LAI_use_FVEG_eq_SHDFAC_from_input = 7
-    off_use_input_LAI_calculate_FVEG = 8
-    off_use_input_LAI_use_max_vegetation_fraction = 9
+    on_use_fveg_eq_shdfac_from_input = 6
+    off_use_input_lai_use_fveg_eq_shdfac_from_input = 7
+    off_use_input_lai_calculate_fveg = 8
+    off_use_input_lai_use_max_vegetation_fraction = 9
 
 
 class SnowAlbedoOption(int, Enum):
@@ -165,8 +165,8 @@ class SfcDragCoeffOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L67-L70
     """
 
-    M_O = 1
-    Noah = 2
+    m_o = 1
+    noah = 2
 
 
 class CanopyStomResistOption(int, Enum):
@@ -178,8 +178,8 @@ class CanopyStomResistOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L71-L74
     """
 
-    Ball_Berry = 1
-    Jarvis = 2
+    ball_berry = 1
+    jarvis = 2
 
 
 class CropModelOption(int, Enum):
@@ -206,7 +206,7 @@ class SnowsoilTempTimeOption(int, Enum):
 
     semi_implicit = 1
     full_implicit = 2
-    semo_implicit_with_FSNO_for_TS = 3
+    semo_implicit_with_fsno_for_ts = 3
 
 
 class SoilTempBoundaryOption(int, Enum):
@@ -219,7 +219,7 @@ class SoilTempBoundaryOption(int, Enum):
     """
 
     zero_heat_flux_from_bottom = 1
-    TBOT_at_ZBOT = 2
+    tbot_at_zbot = 2
 
 
 class SupercooledWaterOption(int, Enum):
@@ -245,9 +245,9 @@ class StomatalResistanceOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L92-L96
     """
 
-    Noah = 1
-    CLM = 2
-    SSiB = 3
+    noah = 1
+    clm = 2
+    ssib = 3
 
 
 class EvapSrfcResistanceOption(int, Enum):
@@ -261,10 +261,10 @@ class EvapSrfcResistanceOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L97-L102
     """
 
-    Sakaguchi_and_Zeng = 1
-    Sellers = 2
-    adjusted_Sellers = 3
-    Sakaguchi_and_Zeng_for_nonsnow_rsurf_eq_rsurf_snow_for_snow = 4
+    sakaguchi_and_zeng = 1
+    sellers = 2
+    adjusted_sellers = 3
+    sakaguchi_and_zeng_for_nonsnow_rsurf_eq_rsurf_snow_for_snow = 4
 
 
 class SubsurfaceOption(int, Enum):
@@ -277,6 +277,6 @@ class SubsurfaceOption(int, Enum):
     source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/OptionsType.f90#L103-L107
     """
 
-    Noah_MP = 1
+    noah_mp = 1
     one_way_coupled_hydrostatic = 2
-    two_way_coupled_hydrostatic_NOT_IMPLEMENTED = 2
+    two_way_coupled_hydrostatic_not_implemented = 2
