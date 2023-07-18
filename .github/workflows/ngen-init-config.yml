@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python package
+name: Init Config
 
 on:
   push:
@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -30,11 +30,11 @@ jobs:
         pip install -U pip
         pip install flake8
         # stop the build if there are Python syntax errors or undefined names
-        flake8 ./python --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 ./python/ngen_init_config --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 ./python --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 ./python/ngen_init_config --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Installing ngen.init_config in python virtual environment
+    - name: Installing ngen_init_config in python virtual environment
       run: |
         # setup virtual environment
         python -m venv venv
@@ -42,7 +42,7 @@ jobs:
         pip install -U pip
         pip install "python/ngen_init_config[develop]"
 
-    - name: Testing ngen.init_config with pytest
+    - name: Testing ngen_init_config with pytest
       run: |
         source ./venv/bin/activate
         pytest python/ngen_init_config
