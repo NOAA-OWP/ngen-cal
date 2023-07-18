@@ -42,7 +42,12 @@ jobs:
         pip install -U pip
         pip install "python/ngen_init_config[develop]"
 
-    - name: Testing ngen_init_config with pytest
+    - name: List dependency versions
+      run: |
+        source ./venv/bin/activate
+        pip freeze
+
+    - name: Testing ngen.init_config with pytest
       run: |
         source ./venv/bin/activate
         pytest python/ngen_init_config

@@ -54,6 +54,11 @@ jobs:
       #for now, just turning off 3.11 for this test...
       #continue-on-error: ${{matrix.python-version == 3.11 }}
 
+    - name: List dependency versions
+      run: |
+        source ./venv/bin/activate
+        pip freeze
+
     - name: Testing ngen_cal with pytest
       run: |
         source ./venv/bin/activate
