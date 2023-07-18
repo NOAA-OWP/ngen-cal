@@ -1,3 +1,13 @@
+import sys
+
+# see: https://docs.python.org/3.8/library/typing.html#typing.get_args
+# get_args and get_origin were added in 3.8
+# TODO: remove once we drop 3.7 support
+if sys.version_info >= (3, 8):
+    from typing import get_args, get_origin
+else:
+    from typing_extensions import get_args, get_origin
+
 from typing import (
     Any,
     Callable,
@@ -7,8 +17,6 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    get_args,
-    get_origin,
 )
 
 from pydantic import BaseModel
