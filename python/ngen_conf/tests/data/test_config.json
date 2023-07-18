@@ -19,7 +19,7 @@
                                 "name": "bmi_fortran", 
                                 "model_type_name": "NoahOWP", 
                                 "main_output_variable": "QINSUR", 
-                                "init_config": "data/NOAH/cat-1.input", 
+                                "init_config": "NOAH/cat-1.input", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
                                 "uses_forcing_file": false, 
@@ -33,7 +33,7 @@
                                     "SOLDN": "land_surface_radiation~incoming~shortwave__energy_flux", 
                                     "SFCPRS": "land_surface_air__pressure"
                                 }, 
-                                "library_file": "data/NOAH/libfackenoah.dylib"
+                                "library_file": "NOAH/libfackenoah.dylib"
                             }
                         }, 
                         {
@@ -42,7 +42,7 @@
                                 "name": "bmi_c", 
                                 "model_type_name": "CFE", 
                                 "main_output_variable": "Q_OUT", 
-                                "init_config": "data/cfe/config.txt", 
+                                "init_config": "cfe/config.txt", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
                                 "uses_forcing_file": false, 
@@ -53,7 +53,7 @@
                                     "ice_fraction_xinan": "sloth_ice_fraction_xinan", 
                                     "soil_moisture_profile": "sloth_smp"
                                 }, 
-                                "library_file": "data/CFE/libfakecfe.so", 
+                                "library_file": "CFE/libfakecfe.so", 
                                 "registration_function": "register_bmi_cfe"
                             }
                         }, 
@@ -63,7 +63,7 @@
                                 "name": "bmi_c++", 
                                 "model_type_name": "SLOTH", 
                                 "main_output_variable": "z", 
-                                "library_file": "data/sloth/libfakesloth.dylib", 
+                                "library_file": "sloth/libfakesloth.dylib", 
                                 "init_config": "/dev/null", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
@@ -81,7 +81,7 @@
         ], 
         "forcing": {
             "file_pattern": "cat-*.csv", 
-            "path": "data/forcing", 
+            "path": "forcing",
             "provider": "CsvPerFeature"
         }
     }, 
@@ -92,6 +92,6 @@
     }, 
     "routing": {
         "t_route_connection_path": "/local/ngen/workdir/extern/t-route/src/ngen_routing", 
-        "t_route_config_file_with_path": "data/routing/fake_config.yaml"
+        "t_route_config_file_with_path": "routing/fake_config.yaml"
     }
 }
