@@ -1,4 +1,12 @@
-from typing import Protocol, Callable
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+from typing import Callable
+
 
 
 class IntoStr(Protocol):
