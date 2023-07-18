@@ -447,11 +447,11 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     def type(self):
         return self.__root__.type
 
-    def resolve_paths(self):
+    def resolve_paths(self, relative_to: Optional[Path]=None):
         """resolve any possible relative paths in the realization
         """
         if self.__root__.ngen_realization != None:
-            self.__root__.ngen_realization.resolve_paths()
+            self.__root__.ngen_realization.resolve_paths(relative_to)
 
     @property
     def best_params(self):
