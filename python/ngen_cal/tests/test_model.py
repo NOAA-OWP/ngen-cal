@@ -45,6 +45,14 @@ def test_restart_1(ngen_config: 'Ngen', eval: 'EvaluationOptions', workdir: 'Dir
     """
         Test retarting from serialized logs
     """
+    # Set the eval options ID so that log file names match with ngen_config
+    # the Ngen object here implements the `explicit` stragtegy, and as such it
+    # copies the eval options per feature and sets an appropriate ID.
+    # the ngen_config fixture just uses a default EvaluationOptions
+    # eval_params: Optional[EvaluationOptions] = Field(default_factory=EvaluationOptions)
+    # which has no associated id set, meaning the log files won't match what is expected by the restart functionality
+    # so we need to ensure they are aligned for this test...
+    eval.id = ngen_config.adjustables[0].id
     eval._best_score = 1
     ngen_config.adjustables[0]._best_score = 1
     eval._best_params_iteration = "1"
