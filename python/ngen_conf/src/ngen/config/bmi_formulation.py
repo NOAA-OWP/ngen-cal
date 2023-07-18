@@ -48,16 +48,22 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     _config_prefix: Optional[DirectoryPath] = Field(default=None, alias="config_prefix")
     _output_map: Optional[Mapping[str, str]] = Field(None, alias="output_map")
 
-    def resolve_paths(self):
-        """_summary_
+    def resolve_paths(self, relative_to: Optional[Path]=None):
+        """Resolve relative paths into absolute paths
 
+        Args: 
+            relative_to (Optional[Path]): If set, the relative_to path is prepended to the path to resolve
+                                          before attempting resolution.
         Returns:
             _type_: _description_
         """
         if isinstance(self.config, Path):
             #Not sure why this is needed, but I found one case
             #where a forumulation has an empty string config...
-            self.config = self.config.resolve()
+            if relative_to is None:
+                self.config = self.config.resolve()
+            else:
+                self.config = (relative_to/self.config).resolve()
 
     @root_validator(pre=True)
     def validate_output_fields(cls, values):
@@ -163,9 +169,12 @@ class BMILib(BMIParams):
     #optional
     _library_prefix: Optional[DirectoryPath] = Field(None, alias="library_prefix")
     
-    def resolve_paths(self):
-        super().resolve_paths()
-        self.library = self.library.resolve()
+    def resolve_paths(self, relative_to: Optional[Path]=None):
+        super().resolve_paths(relative_to)
+        if relative_to is None:
+            self.library = self.library.resolve()
+        else:
+            self.library = (relative_to/self.library).resolve()
 
     @root_validator(pre=True)
     def build_library_path(cls, values: Mapping[str, Any]) -> Mapping[str, Any]:

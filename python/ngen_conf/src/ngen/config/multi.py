@@ -1,4 +1,7 @@
-from typing import Sequence, Mapping, Any, Optional
+from typing import Sequence, Mapping, Any, Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from pathlib import Path
+
 from pydantic import root_validator, Field
 
 from .bmi_formulation import BMIParams
@@ -28,9 +31,9 @@ class MultiBMI(BMIParams, smart_union=True):
     name_map: Mapping[str, str] = Field(None, const=True) #not relevant for multi-bmi
     model_params: Optional[Mapping[str, str]] = Field(None, const=True) #not relevant for multi-bmi
     
-    def resolve_paths(self):
+    def resolve_paths(self, relative_to: Optional['Path']=None):
         for m in self.modules:
-            m.resolve_paths()
+            m.resolve_paths(relative_to)
 
     @root_validator(pre=True)
     def build_model_name(cls, values: Mapping[str, Any]):
