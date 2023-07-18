@@ -22,10 +22,16 @@ class Forcing(BaseModel, smart_union=True):
     #reasonable? default
     provider: Provider = Field(Provider.CSV)
     
-    def resolve_paths(self):
+    def resolve_paths(self, relative_to: Optional[Path]=None):
         if isinstance(self.file_pattern, Path):
-            self.file_pattern = self.file_pattern.resolve()
-        self.path = self.path.resolve()
+            if relative_to is None:
+                self.file_pattern = self.file_pattern.resolve()
+            else:
+                self.file_pattern = (relative_to/self.file_pattern).resolve()
+        if relative_to is None:
+            self.path = self.path.resolve()
+        else:
+            self.path = (relative_to/self.path).resolve()
 
 class Time(BaseModel):
     """Model for ngen time configuraiton components
@@ -54,8 +60,11 @@ class Routing(BaseModel):
     #optional/not used TODO make default None?
     path: Optional[str] = Field('', alias='t_route_connection_path') #TODO deprecate this field?
 
-    def resolve_paths(self):
-        self.config = self.config.resolve()
+    def resolve_paths(self, relative_to: Optional[Path]=None):
+        if relative_to is None:
+            self.config = self.config.resolve()
+        else:
+            self.config = (relative_to/self.config).resolve()
 
     def dict(self, **kwargs):
         #Can override the `dict` call so we ALWAYS `use_aliases` when this model

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Mapping, Sequence, Any
+from typing import Optional, Mapping, Sequence, Any, TYPE_CHECKING
+if TYPE_CHECKING:
+    from pathlib import Path
+
 from datetime import datetime
 from .configurations import Forcing, Time, Routing
 from .formulation import Formulation
@@ -11,11 +14,11 @@ class Realization(BaseModel):
     forcing: Forcing
     calibration: Optional[ Mapping[ str, Sequence[ Any ]] ]
 
-    def resolve_paths(self):
+    def resolve_paths(self, relative_to: Optional['Path']=None):
         for f in self.formulations:
-            f.resolve_paths()
+            f.resolve_paths(relative_to)
         if self.forcing :
-            self.forcing.resolve_paths()
+            self.forcing.resolve_paths(relative_to)
 
 class CatchmentRealization(Realization):
     forcing: Optional[Forcing]
@@ -39,11 +42,11 @@ class NgenRealization(BaseModel):
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
         }
 
-    def resolve_paths(self):
+    def resolve_paths(self, relative_to: Optional['Path']=None):
         """resolve possible relative paths in configuration
         """
-        self.global_config.resolve_paths()
+        self.global_config.resolve_paths(relative_to)
         for k,v in self.catchments.items():
-            v.resolve_paths()
+            v.resolve_paths(relative_to)
         if self.routing != None:
-            self.routing.resolve_paths()
+            self.routing.resolve_paths(relative_to)
