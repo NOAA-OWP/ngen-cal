@@ -42,6 +42,11 @@ jobs:
         pip install -U pip
         pip install "python/ngen_conf[develop]"
 
+    - name: List dependency versions
+      run: |
+        source ./venv/bin/activate
+        pip freeze
+
     - name: Testing ngen_conf with pytest
       run: |
         source ./venv/bin/activate
