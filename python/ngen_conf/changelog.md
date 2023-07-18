@@ -1,3 +1,6 @@
+# Version 0.1.6
+- `BMIParams`'s `fixed_time_step` now defaults to `True` (fixes #47).
+
 # Version 0.1.5
 - Added optional arguement, `relative_to` to `resolve_paths` allowing a path prefix to be passes before attempting to resolve the absoulte path.
 
