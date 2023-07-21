@@ -67,17 +67,6 @@ class CFEBase(serde.IniSerializerDeserializer):
     # direct runoff
     surface_partitioning_scheme: Literal["Schaake", "Xinanjiang"]
 
-    # TODO: add support for below fields
-
-    # # when `CFE coupled to SoilMoistureProfile`
-    # aet_rootzone: bool  # True, true, 1
-    # # layer of the soil that is the maximum root zone depth. That is, the depth of the layer where the AET is drawn from
-    # max_root_zone_layer: FloatUnitPair[m]
-    # # an array of depths from the surface. Example, soil_layer_depths=0.1,0.4,1.0,2.0
-    # soil_layer_depths: List[float]
-    # # `ice-fraction based runoff` | when `CFE coupled to SoilFreezeThaw`
-    # sft_coupled: bool  # True, true, 1
-
     _coerce_lists = validator(
         "nash_storage",
         "giuh_ordinates",
@@ -132,10 +121,33 @@ class CFEXinanjiang(CFEBase):
         }
 
 
+class CFESchaakeCoupledSoilMoisture(CFESchaake):
+    aet_rootzone: bool  # True, true, 1
+    # layer of the soil that is the maximum root zone depth. That is, the depth of the layer where the AET is drawn from
+    max_root_zone_layer: FloatUnitPair[m]
+    # an array of depths from the surface. Example, soil_layer_depths=0.1,0.4,1.0,2.0
+    soil_layer_depths: List[float]
+    # `ice-fraction based runoff` | when `CFE coupled to SoilFreezeThaw`
+    sft_coupled: bool  # True, true, 1
+
+
+class CFEXinanjiangCoupledSoilMoisture(CFEXinanjiang):
+    aet_rootzone: bool  # True, true, 1
+    # layer of the soil that is the maximum root zone depth. That is, the depth of the layer where the AET is drawn from
+    max_root_zone_layer: FloatUnitPair[m]
+    # an array of depths from the surface. Example, soil_layer_depths=0.1,0.4,1.0,2.0
+    soil_layer_depths: List[float]
+    # `ice-fraction based runoff` | when `CFE coupled to SoilFreezeThaw`
+    sft_coupled: bool  # True, true, 1
+
+
 class CFE(serde.IniSerializerDeserializer):
-    __root__: Union[CFESchaake, CFEXinanjiang] = Field(
-        discriminator="surface_partitioning_scheme"
-    )
+    __root__: Union[
+        CFESchaakeCoupledSoilMoisture,
+        CFEXinanjiangCoupledSoilMoisture,
+        CFESchaake,
+        CFEXinanjiang,
+    ]
 
     class Config(serde.IniSerializerDeserializer.Config):
         space_around_delimiters = False
