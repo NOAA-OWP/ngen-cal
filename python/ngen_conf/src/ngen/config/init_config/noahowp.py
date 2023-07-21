@@ -1,7 +1,7 @@
 from enum import Enum
 from datetime import datetime
 from pathlib import Path, PosixPath, WindowsPath
-from pydantic import validator
+from pydantic import BaseModel, validator, root_validator
 
 from ngen.init_config import core
 from ngen.init_config import serializer_deserializer as serde
@@ -28,7 +28,24 @@ from .noahowp_options import (
 from .validators import validate_str_len_lt
 from .utils import serialize_enum_value
 
-from typing import ClassVar, List, Literal, Union
+from typing import Dict, ClassVar, List, Literal, Union
+
+MODIFIED_IGBP_MODIS_NOAH_NVEG = 20
+USGS_NVEG = 27
+
+
+def _set_nveg_based_on_veg_class_name(parameters: "Parameters", structure: "Structure"):
+    # don't set if `nveg` is provided
+    if structure.nveg is not None:
+        return
+
+    veg_class_name = parameters.veg_class_name
+    if veg_class_name == "MODIFIED_IGBP_MODIS_NOAH":
+        structure.nveg = MODIFIED_IGBP_MODIS_NOAH_NVEG
+    elif veg_class_name == "USGS":
+        structure.nveg = USGS_NVEG
+    else:
+        raise ValueError("Unreachable")
 
 
 class NoahOWP(serde.NamelistSerializerDeserializer):
@@ -49,6 +66,13 @@ class NoahOWP(serde.NamelistSerializerDeserializer):
             PosixPath: lambda p: str(p),
             WindowsPath: lambda p: str(p),
         }
+
+    @root_validator
+    def _validate(cls, values: Dict[str, BaseModel]) -> Dict[str, BaseModel]:
+        parameters: Parameters = values["parameters"] # type: ignore
+        structure: Structure = values["structure"] # type: ignore
+        _set_nveg_based_on_veg_class_name(parameters, structure)
+        return values
 
 
 class Timing(core.Base):
@@ -206,7 +230,8 @@ class Structure(core.Base):
     isltyp: int  #    = 1
     nsoil: int  #     = 4
     nsnow: int  #     = 3
-    nveg: int  #      = 20
+    # if not provided, `nveg` derived from Parameters `veg_class_name` field
+    nveg: int = None
     vegtyp: int  #    = 1
     # crop type (SET TO 0, no crops currently supported)
     # source: https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/NamelistRead.f90#L36
