@@ -107,9 +107,9 @@ class CFESchaake(CFEBase):
 class CFEXinanjiang(CFEBase):
     # direct runoff
     surface_partitioning_scheme: Literal["Xinanjiang"] = "Xinanjiang"
-    a_xinanjiang_inflection_point_parameter: int
-    b_xinanjiang_shape_parameter: int
-    x_xinanjiang_shape_parameter: int
+    a_xinanjiang_inflection_point_parameter: float
+    b_xinanjiang_shape_parameter: float
+    x_xinanjiang_shape_parameter: float
 
     class Config(CFEBase.Config):
         fields = {
