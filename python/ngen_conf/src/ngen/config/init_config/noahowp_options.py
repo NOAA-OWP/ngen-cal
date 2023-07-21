@@ -279,4 +279,4 @@ class SubsurfaceOption(int, Enum):
 
     noah_mp = 1
     one_way_coupled_hydrostatic = 2
-    two_way_coupled_hydrostatic_not_implemented = 2
+    # two_way_coupled_hydrostatic = 3
