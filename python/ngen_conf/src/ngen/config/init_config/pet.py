@@ -48,7 +48,7 @@ class PET(
     run_unit_tests: bool = False  # bool; serialize as int
     yes_aorc: bool  # bool; serialize as int
     yes_wrf: bool  # bool; serialize as int
-    wind_speed_measurement_height_m: float  # 0.0
+    wind_speed_measurement_height_m: float  # 10.0 m
     humidity_measurement_height_m: float  # 2.0
     vegetation_height_m: float  # 0.12
     zero_plane_displacement_height_m: float  # 0.0003
