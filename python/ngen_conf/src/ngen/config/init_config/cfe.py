@@ -31,6 +31,7 @@ class CFEBase(serde.IniSerializerDeserializer):
     soil_params_smcmax: FloatUnitPair[m_per_m]
     # wilting point soil moisture content
     soil_params_wltsmc: FloatUnitPair[m_per_m]
+    refkdt: Optional[float] = 3.0
     soil_params_expon: FloatUnitPair[empty] = FloatUnitPair(value=1.0, unit="")
     soil_params_expon_secondary: FloatUnitPair[empty] = FloatUnitPair(
         value=1.0, unit=""
