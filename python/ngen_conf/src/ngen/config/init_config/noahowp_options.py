@@ -83,7 +83,7 @@ class FrozenSoilOption(int, Enum):
     """
 
     linear_effects = 1
-    non_linear_effects = 1
+    non_linear_effects = 2
 
 
 class DynamicVicOption(int, Enum):
