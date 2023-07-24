@@ -1,3 +1,10 @@
+# V 0.2.1
+- `ngen.cal` `Objective` enum now properly subclasses `str`. This fixes
+  pydantic models' json schemas that use `Objective` as a field type. See #31
+  for impacts.
+- `ngen.cal` calibration strategy types: `NgenExplicit`, `NgenIndependent`, and
+  `NgenUniform`, now have default `strategy` field values.
+
 # V 0.2.0
 - Allow ngen configuration to specify routing output file name to look for.
 - `Evaluatable` objects are now responsible for maintaining the `evaluation_parms` property, including `evaluation_range`
