@@ -51,10 +51,15 @@ class MultiBMI(BMIParams, smart_union=True):
         name = values.get('model_name')
         modules = values.get('modules')
         if not name and modules:
-            try:
-                names = [ m['params']['model_name'] for m in modules ]
-            except KeyError:
-                names = [ m['params']['model_type_name'] for m in modules ]
+            names = []
+            for m in modules:
+                if isinstance(m, Formulation):
+                    names.append(m.params.model_name)
+                else:
+                    try:
+                        names.append(m['params']['model_name'])
+                    except KeyError:
+                        names.append(m['params']['model_type_name'])
             values['model_name'] = '_'.join( names )
         return values
 
