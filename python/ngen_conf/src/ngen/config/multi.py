@@ -22,7 +22,7 @@ class MultiBMI(BMIParams, smart_union=True):
     # NOTE this is derived from the list of modules
     main_output_variable: Optional[str]
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: Optional[str] = Field(alias="model_type_name")
+    model_name: Literal["BMIMulti"] = Field("BMIMulti", alias="model_type_name")
     
     #override const since these shouldn't be used for multi bmi, but are currently
     #required to exist as keys for ngen
@@ -79,7 +79,14 @@ class MultiBMI(BMIParams, smart_union=True):
         var = values.get('main_output_variable')
         modules = values.get('modules')
         if not var and modules:
-           values['main_output_variable'] = modules[-1]['params']['main_output_variable']
+            last = modules[-1]
+
+            # cannot treat Formulation type like dictionary
+            from ngen.config.formulation import Formulation
+            if isinstance(last, Formulation):
+                values['main_output_variable'] = last.params.main_output_variable
+            else:
+                values['main_output_variable'] = last['params']['main_output_variable']
         return values
 
 #NOTE To avoid circular import and support recrusive modules
