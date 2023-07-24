@@ -1,3 +1,7 @@
+# Version 0.1.8
+- Fix bug when building MultiBmi's `model_name` field from passed `Formulation`
+  objects (fixes #62).
+
 # Version 0.1.6
 - `BMIParams`'s `fixed_time_step` now defaults to `True` (fixes #47).
 
