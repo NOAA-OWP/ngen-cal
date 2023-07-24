@@ -23,7 +23,7 @@ class MultiBMI(BMIParams, smart_union=True):
     # NOTE this is derived from the list of modules
     main_output_variable: Optional[str]
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: Literal["BMIMulti"] = Field("BMIMulti", alias="model_type_name")
+    model_name: str
     
     #override const since these shouldn't be used for multi bmi, but are currently
     #required to exist as keys for ngen
