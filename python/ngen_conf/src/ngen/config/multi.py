@@ -23,7 +23,7 @@ class MultiBMI(BMIParams, smart_union=True):
     # NOTE this is derived from the list of modules
     main_output_variable: Optional[str]
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
-    model_name: str = Field(alias="model_type_name")
+    model_name: str = Field(None, alias="model_type_name")
     
     #override const since these shouldn't be used for multi bmi, but are currently
     #required to exist as keys for ngen
@@ -40,8 +40,9 @@ class MultiBMI(BMIParams, smart_union=True):
     def build_model_name(cls, values: Mapping[str, Any]):
         """Construct the model name, if none provided.
 
-            If no model name is provided, the multiBMI model_type_name
-            is constructed by joining each module's name using `_`
+            If no model name is provided, the multiBMI model_type_name is constructed by joining
+            each module's name using `_`. If no module's are provided, model name is the empty
+            string ''.
 
         Args:
             values (Mapping[str, Any]): Attributes to assgign to the class, including all defaults
@@ -49,7 +50,7 @@ class MultiBMI(BMIParams, smart_union=True):
         Returns:
             Mapping[str, Any]: Attributes to assign to the class, with a (possibly) modifed `model_name`
         """ 
-        name = values.get('model_name')
+        name = values.get('model_name') or values.get('model_type_name')
         modules = values.get('modules')
         if not name and modules:
             names = []
@@ -62,6 +63,8 @@ class MultiBMI(BMIParams, smart_union=True):
                     except KeyError:
                         names.append(m['params']['model_type_name'])
             values['model_name'] = '_'.join( names )
+        elif not name:
+            values['model_name'] = ''
         return values
 
     @root_validator(pre=True)
