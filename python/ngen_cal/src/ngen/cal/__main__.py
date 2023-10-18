@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Mapping, Any
 
-def main(general: General, model_conf: Mapping[str, Any]):
+def main(general: General, model_conf: "Mapping[str, Any]"):
     #seed the random number generators if requested
     if general.random_seed is not None:
         import random
