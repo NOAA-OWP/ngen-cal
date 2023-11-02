@@ -79,10 +79,10 @@ class Agent(BaseAgent):
         if self._job is None:
             self._job = JobMeta(model_conf['type'], workdir, log=log)
         resolved_binary = Path(model_conf['binary']).resolve()
-        relative_to = model_conf['workdir']
         model_conf['workdir'] = self.job.workdir
         self._model = Model(model=model_conf, binary=resolved_binary)
-        self._model.model.resolve_paths(relative_to)
+        self._model.model.resolve_paths(self.job.workdir)
+
         self._params = parameters
     
     @property
