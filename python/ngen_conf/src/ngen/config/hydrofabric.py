@@ -5,7 +5,7 @@ from geojson_pydantic import FeatureCollection, Point,  MultiPolygon
 import re
 
 # match str that ends with a '-' followed by digits
-_TOID_REGEX_STR = ".\w+-\d+$"
+_TOID_REGEX_STR = "(.\w+-\d+|NA)$"
 _TOID_REGEX = re.compile(_TOID_REGEX_STR)
 
 def validate_toid(value: str) -> str:
