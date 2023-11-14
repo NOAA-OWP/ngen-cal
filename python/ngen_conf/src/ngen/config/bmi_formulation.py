@@ -1,4 +1,4 @@
-from pydantic import BaseModel, FilePath, DirectoryPath, PyObject, Field, root_validator, validator
+from pydantic import BaseModel, DirectoryPath, PyObject, Field, root_validator, validator
 from typing import Mapping, Optional, Union, Sequence, Any
 from typing_extensions import TypeAlias
 from pathlib import Path
