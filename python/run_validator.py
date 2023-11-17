@@ -1,6 +1,7 @@
 import json, os, argparse
 from ngen.config.realization import NgenRealization
 from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON 
+from ngen.config.validate import validate_paths
 import re
 
 def validate(catchment_file,nexus_file,realization_file=None):
@@ -14,21 +15,18 @@ def validate(catchment_file,nexus_file,realization_file=None):
         if id is None: id = jfeat.properties.id # discrepancy between geopandas and pydantic
         catchments.append(id)
 
-    print(f'Validating {nexus_file}')
+    print(f'Done\nValidating {nexus_file}')
     serialized_nexus = NexusGeoJSON.parse_file(nexus_file) 
+    relative_dir     = os.path.dirname(os.path.dirname(realization_file))
 
-    # This validation is commonly done outside of the ngen container, so we insert the relative path here
-    with open(realization_file,'r') as fp:
-        data = json.loads(fp.read())
-        relative_dir = os.path.dirname(os.path.dirname(realization_file))
-        data['relative_to'] = relative_dir
-    
-    with open('realizations_tmp.json','w') as fp:
-        fp.write(json.dumps(data))
-
-    print(f'Validating {realization_file}')
-    serialized_realization = NgenRealization.parse_file('realizations_tmp.json')
-
+    print(f'Done\nValidating {realization_file}')
+    serialized_realization = NgenRealization.parse_file(realization_file)
+    serialized_realization.resolve_paths(relative_to=relative_dir)
+    val = validate_paths(serialized_realization)
+    if len(val) > 0:
+        raise Exception(f'{val[0].value} does not exist!')
+            
+    print(f'Done\nValidating individual catchment forcing paths')
     foring_dir    = os.path.join(relative_dir,serialized_realization.global_config.forcing.path)
     forcing_files = [x for _,_,x in os.walk(foring_dir)][0]
     for jcatch in catchments:
@@ -51,8 +49,9 @@ def validate(catchment_file,nexus_file,realization_file=None):
         
     if len(forcing_files) > 0:
         print(f'These forcing files exist, but no corresponding catchment has been defined.\n{forcing_files}')
+    else:
+        print('Done')
 
-    os.remove('realizations_tmp.json')
     print(f'\nNGen run folder is valid\n')
 
 def validate_data_dir(data_dir):
@@ -128,5 +127,3 @@ if __name__ == "__main__":
     validate_data_dir(data_dir)
 
     if ii_delete_folder: os.system('rm -rf /tmp/ngen_data_dir')
-
-
