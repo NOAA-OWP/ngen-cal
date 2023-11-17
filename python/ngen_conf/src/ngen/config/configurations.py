@@ -1,6 +1,6 @@
 from enum import Enum
 from datetime import datetime
-from pydantic import BaseModel, DirectoryPath, FilePath, conint, Field
+from pydantic import BaseModel, conint, Field
 from typing import Union, Optional
 from pathlib import Path
 
@@ -17,8 +17,8 @@ class Forcing(BaseModel, smart_union=True):
         NetCDF = "NetCDF"
     
     #required
-    file_pattern: Optional[Union[FilePath, str]]
-    path: Union[DirectoryPath, FilePath]
+    file_pattern: Optional[Union[Path, str]]
+    path: Path
     #reasonable? default
     provider: Provider = Field(Provider.CSV)
     
@@ -56,7 +56,7 @@ class Routing(BaseModel):
     """Model for ngen routing configuration information
     """
     #required
-    config: FilePath = Field(alias='t_route_config_file_with_path')
+    config: Path = Field(alias='t_route_config_file_with_path')
     #optional/not used TODO make default None?
     path: Optional[str] = Field('', alias='t_route_connection_path') #TODO deprecate this field?
 
