@@ -108,6 +108,7 @@ class CFEXinanjiang(CFEBase):
     a_xinanjiang_inflection_point_parameter: float
     b_xinanjiang_shape_parameter: float
     x_xinanjiang_shape_parameter: float
+    urban_decimal_fraction: float
 
     class Config(CFEBase.Config):
         fields = {
