@@ -89,12 +89,7 @@ if __name__ == "__main__":
     hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
     file_writer = DefaultFileWriter(parent_dir / "./config/")
 
-    hook_objects = []
-    for mod in modules:
-        hook_object = mod_map.get(mod)
-        if hook_object is None:
-            continue
-        hook_objects.append(hook_object)
+    hook_objects = [mod_map.get(mod) for mod in modules if mod_map.get(mod) is not None]
 
     generate_configs(
         hook_providers=hook_provider,
