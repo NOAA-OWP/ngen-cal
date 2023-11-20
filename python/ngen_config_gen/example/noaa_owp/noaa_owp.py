@@ -101,14 +101,17 @@ class NoahOWP:
 
     def _v2_defaults(self) -> None:
         # ---------------------------------- Timing ---------------------------------- #
+        # NOTE: in the future this _should_ be pulled from a forcing metadata hook (if one ever exists)
         self.data["timing"]["dt"] = 3600
 
         # -------------------------------- Parameters -------------------------------- #
-        # NOTE: Wrf-Hydro configured as NWM uses USGS vegitation classes. Thus, so does HF v1.2
+        # NOTE: Wrf-Hydro configured as NWM uses USGS vegitation classes. Thus, so does HF v1.2 and v2.0
         self.data["parameters"]["veg_class_name"] = "USGS"
+
         # TODO: determine how to handle `parameter_dir`
         # NOTE: theses _could_ be bundled as package data
         # NOTE: could a parameter to the initializer
+        # NOTE: moved to __init__ for now
         # self.data["parameters"]["parameter_dir"] =
 
         # looking through the from wrf-hydro source, it appears that wrf-hydro hard codes `STAS` as the `soil_class_name`
@@ -117,6 +120,7 @@ class NoahOWP:
 
         # ---------------------------------- Forcing --------------------------------- #
         # measurement height for wind speed [m]
+        # NOTE: in the future this _should_ be pulled from a forcing metadata hook (if one ever exists)
         zref = 10.0
         # TODO: not sure if this is a sane default
         # rain-snow temperature threshold
@@ -175,11 +179,30 @@ class NoahOWP:
         self.data["model_options"] = model_options
 
         # ------------------------------- InitialValues ------------------------------ #
-        # TODO: not sure where to get these from
-        # NOTE: These values likely make no sense
+
+        # snow/soil level thickness [m]
+        # all nwm version (including 3.0) have always used soil horizons of 10cm 30cm 60cm and 1m; see last 4 values of dzsnso
+        # NOTE: len nsnow + nsoil; thus [nsnow..., nsoil...] in this order
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/DomainType.f90#L66
+        # if you are looking at the fortran source, this is indexed like:
+        # where [-2:0] are snow and [1:4] are soil
+        #                     [ -2,  -1,   0,   1    2,   3,   4]
         dzsnso: List[float] = [0.0, 0.0, 0.0, 0.1, 0.3, 0.6, 1.0]
+
+        # initial soil ice profile [m^3/m^3]
+        # NOTE: len nsoil
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/WaterType.f90#L110
+        # NOTE: These values likely make no sense
         sice: List[float] = [0.0, 0.0, 0.0, 0.0]
+
+        # initial soil liquid profile [m^3/m^3]
+        # NOTE: len nsoil
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/WaterType.f90#L111
         sh2o: List[float] = [0.3, 0.3, 0.3, 0.3]
+
+        # initial water table depth below surface [m]
+        # NOTE: not sure if this _should_ ever be derived. my intuition is this is -2 b.c. the total
+        # soil horizon height is 2m (see `dzsnoso`)
         zwt: float = -2.0
 
         initial_values = InitialValues(
@@ -214,6 +237,7 @@ class NoahOWP:
         # --------------------------------- Structure -------------------------------- #
         # NOTE: Wrf-Hydro configured as NWM uses STAS soil classes. Thus, so does HF v1.2 and v2.0
         isltyp = data["ISLTYP"]
+        # all nwm versions (including 3.0) have used 4 soil horizons
         nsoil = 4
         nsnow = 3
         # NOTE: Wrf-Hydro configured as NWM uses USGS vegetation classes. Thus, so does HF v1.2 and v2.0
@@ -232,6 +256,14 @@ class NoahOWP:
             sfctyp = LandSurfaceType.soil
 
         # TODO: not sure where this comes from
+        # soil color index for soil albedo
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/docs/changelog.md?plain=1#L35C7-L35C168
+        # > SOILCOLOR is hard-coded as 4 in module_sf_noahmpdrv.F in the current release of HRLDAS. SOILCOLOR is used to select the albedo values for dry and saturated soil.
+        # NOTE: it appears that the soil color indexes into the ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR tables
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/parameters/MPTABLE.TBL#L328-L331
+        # here is the indexing
+        # https://github.com/NOAA-OWP/noah-owp-modular/blob/30d0f53e8c14acc4ce74018e06ff7c9410ecc13c/src/ParametersType.f90#L303-L306
+        # NOTE: looks like for HRLDAS this is 4
         soilcolor: int = 4
         structure = Structure(
             isltyp=isltyp,
