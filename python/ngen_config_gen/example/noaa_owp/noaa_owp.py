@@ -1,18 +1,17 @@
 from typing import Any, Dict, List, TYPE_CHECKING
 from collections import defaultdict
+from pathlib import Path
 
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
-    from ..hook_providers import HookProvider
+    from ngen.config_gen.hook_providers import HookProvider
 
 import math
 
 from ngen.config.init_config.noahowp import (
     NoahOWP as NoahOWPConfig,
     ModelOptions,
-    Timing,
-    Parameters,
     Location,
     Forcing,
     Structure,
@@ -40,7 +39,7 @@ from ngen.config.init_config.noahowp_options import (
 )
 
 
-class NoahOWPHooks:
+class NoahOWP:
     """
     NWM 2.2.3 analysis assim physics options
     source: https://www.nco.ncep.noaa.gov/pmb/codes/nwprod/nwm.v2.2.3/parm/analysis_assim/namelist.hrldas
@@ -86,15 +85,30 @@ class NoahOWPHooks:
 
     """
 
-    def __init__(self):
+    def __init__(self, start_time: str, end_time: str, parameter_dir: Path):
         self.data = defaultdict(dict)
+        # NOTE: this might be handled differently in the future
+        self.data["parameters"]["parameter_dir"] = parameter_dir
+
+        # NOTE: expects "%Y%m%d%H%M" (e.g. 200012311730)
+        self.data["timing"]["startdate"] = start_time
+        self.data["timing"]["enddate"] = end_time
+
+        # NOTE: these parameters will likely be removed in the future. They are not used if noah owp
+        # is compiled for use with NextGen.
+        self.data["timing"]["forcing_filename"] = Path("")
+        self.data["timing"]["output_filename"] = Path("")
 
     def _v2_defaults(self) -> None:
+        # ---------------------------------- Timing ---------------------------------- #
+        self.data["timing"]["dt"] = 3600
+
         # -------------------------------- Parameters -------------------------------- #
         # NOTE: Wrf-Hydro configured as NWM uses USGS vegitation classes. Thus, so does HF v1.2
         self.data["parameters"]["veg_class_name"] = "USGS"
         # TODO: determine how to handle `parameter_dir`
         # NOTE: theses _could_ be bundled as package data
+        # NOTE: could a parameter to the initializer
         # self.data["parameters"]["parameter_dir"] =
 
         # looking through the from wrf-hydro source, it appears that wrf-hydro hard codes `STAS` as the `soil_class_name`
@@ -179,7 +193,7 @@ class NoahOWPHooks:
     def hydrofabric_linked_data_hook(
         self, version: str, divide_id: str, data: Dict[str, Any]
     ) -> None:
-        # Location
+        # --------------------------------- Location --------------------------------- #
         lon = data["X"]
         lat = data["Y"]
 
@@ -190,6 +204,7 @@ class NoahOWPHooks:
         slope_m_m = slope_m_km / METERS_IN_KM
         slope_deg = math.degrees(math.tan(slope_m_m))
         terrain_slope = slope_deg
+
         # TODO: not sure if this is right and where to get this from
         azimuth = data["aspect_c_mean"]
         self.data["location"] = Location(
@@ -197,11 +212,11 @@ class NoahOWPHooks:
         )
 
         # --------------------------------- Structure -------------------------------- #
-        # NOTE: Wrf-Hydro configured as NWM uses STAS soil classes. Thus, so does HF v1.2
+        # NOTE: Wrf-Hydro configured as NWM uses STAS soil classes. Thus, so does HF v1.2 and v2.0
         isltyp = data["ISLTYP"]
         nsoil = 4
         nsnow = 3
-        # NOTE: Wrf-Hydro configured as NWM uses USGS vegitation classes. Thus, so does HF v1.2
+        # NOTE: Wrf-Hydro configured as NWM uses USGS vegetation classes. Thus, so does HF v1.2 and v2.0
         # NOTE: this can be derived from Parameters `veg_class_name` field (USGS=27; MODIS=20)
         nveg = 27
         vegtyp = data["IVGTYP"]
@@ -232,15 +247,61 @@ class NoahOWPHooks:
         )
         self.data["structure"] = structure
 
+    def visit(self, hook_provider: "HookProvider") -> None:
+        hook_provider.provide_hydrofabric_linked_data(self)
+
+        self._v2_defaults()
+
     def build(self) -> BaseModel:
-        # NoahOWPConfig(**self.data)
-        # NoahOWPConfig(
-        #     timing=
-        #     parameters=,
-        #     location
-        #     forcing
-        #     model_options=
-        #     structure=
-        #     initial_values=
-        # )
-        pass
+        return NoahOWPConfig(**self.data)
+
+
+if __name__ == "__main__":
+    import geopandas as gpd
+    import pandas as pd
+
+    from functools import partial
+    from pathlib import Path
+
+    from ngen.config_gen.hook_providers import DefaultHookProvider
+    from ngen.config_gen.file_writer import DefaultFileWriter
+    from ngen.config_gen.generate import generate_configs
+
+    hf_file = "/Users/austinraney/Downloads/nextgen_09.gpkg"
+    hf_lnk_file = "/Users/austinraney/Downloads/nextgen_09.parquet"
+
+    hf: gpd.GeoDataFrame = gpd.read_file(hf_file, layer="divides")
+    hf_lnk_data: pd.DataFrame = pd.read_parquet(hf_lnk_file)
+
+    subset = [
+        "cat-1529608",
+        "cat-1537245",
+        "cat-1529607",
+        "cat-1536906",
+        "cat-1527290",
+    ]
+
+    hf = hf[hf["divide_id"].isin(subset)]
+    hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(subset)]
+
+    hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
+    file_writer = DefaultFileWriter("./config/")
+
+    param_table_dir = Path(
+        "/Users/austinraney/github/ngen/master/extern/noah-owp-modular/noah-owp-modular/parameters/"
+    )
+
+    start_time = "200001010000"
+    end_time = "200002010000"
+    noah_owp = partial(
+        NoahOWP,
+        parameter_dir=param_table_dir,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+    generate_configs(
+        hook_providers=hook_provider,
+        hook_objects=[noah_owp],
+        file_writer=file_writer,
+    )
