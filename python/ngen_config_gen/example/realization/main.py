@@ -53,9 +53,7 @@ if __name__ == "__main__":
     from ngen.config_gen.models.cfe import Cfe
     from ngen.config_gen.models.pet import Pet
 
-    param_table_dir = Path(
-        "/Users/austinraney/github/ngen/master/extern/noah-owp-modular/noah-owp-modular/parameters/"
-    )
+    param_table_dir = Path(parent_dir / "parameters/")
 
     noah_owp = partial(
         NoahOWP,
@@ -71,8 +69,8 @@ if __name__ == "__main__":
         "PET": Pet,
     }
 
-    hf_file = "/Users/austinraney/Downloads/nextgen_09.gpkg"
-    hf_lnk_file = "/Users/austinraney/Downloads/nextgen_09.parquet"
+    hf_file = "/Users/austinraney/Downloads/nextgen_09.gpkg"  # or "https://lynker-spatial.s3.amazonaws.com/v20/gpkg/nextgen_09.gpkg"
+    hf_lnk_file = "/Users/austinraney/Downloads/nextgen_09.parquet"  # or "https://lynker-spatial.s3.amazonaws.com/v20/model_attributes/nextgen_09.parquet"
 
     hf: gpd.GeoDataFrame = gpd.read_file(hf_file, layer="divides")
     hf_lnk_data: pd.DataFrame = pd.read_parquet(hf_lnk_file)
