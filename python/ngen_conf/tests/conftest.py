@@ -147,12 +147,15 @@ def multi_params(cfe, noahowp):
 
 @pytest.fixture
 def cfe_init_config() -> str:
-    return _cfe_config_data_path.read_text()
+    # drop eol char
+    return _cfe_config_data_path.read_text().rstrip()
 
 @pytest.fixture
 def pet_init_config() -> str:
-    return _pet_config_data_path.read_text()
+    # drop eol char
+    return _pet_config_data_path.read_text().rstrip()
 
 @pytest.fixture
 def noah_owp_init_config() -> str:
-    return _noah_owp_config_data_path.read_text()
+    # drop eol char
+    return _noah_owp_config_data_path.read_text().rstrip()
