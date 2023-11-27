@@ -1,5 +1,6 @@
-from pydantic import BaseModel, FilePath, DirectoryPath, PyObject, Field, root_validator, validator
+from pydantic import BaseModel, DirectoryPath, PyObject, Field, root_validator, validator
 from typing import Mapping, Optional, Union, Sequence, Any
+from typing_extensions import TypeAlias
 from pathlib import Path
 from sys import platform
 
@@ -7,6 +8,15 @@ import logging
 logger = logging.getLogger('bmi_formulation')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
+
+Numeric: TypeAlias = Union[int, float]
+
+class LinkItem(BaseModel, allow_population_by_field_name = True):
+    """BMIParams model_params associative type that represents a variable or
+    feature and its source (e.g. source: hydrofarbic, from_var: areasqkm).
+    """
+    source: str
+    from_var: Optional[str] = Field(None, alias="from")
 
 class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = True):
     """The base of all BMI paramterized ngen model configurations.
@@ -42,7 +52,11 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     #strictly optional fields (null/none) by default
     output_vars: Optional[Sequence[str]] = Field(None, alias="output_variables")
     output_headers: Optional[Sequence[str]] = Field(None)
-    model_params: Optional[Mapping[str, str]]
+    # <= 0.1.10 supported Optional[Mapping[str, str]]. This is incorrect, see
+    # #72 for explanation
+    model_params: Optional[
+        Mapping[str, Union[Numeric, Sequence[Numeric], LinkItem]]
+    ]
 
     #non exposed fields, derived from fields and used to build up and validate certain components
     #such as configuration path/file

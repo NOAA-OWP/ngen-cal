@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from ngen.init_config import serializer_deserializer as serde
-from ngen.init_config import validators
 from pydantic import Field, validator
 
 from .utils import FloatUnitPair
@@ -67,12 +66,11 @@ class CFEBase(serde.IniSerializerDeserializer):
     # direct runoff
     surface_partitioning_scheme: Literal["Schaake", "Xinanjiang"]
 
-    _coerce_lists = validator(
-        "nash_storage",
-        "giuh_ordinates",
-        allow_reuse=True,
-        pre=True,
-    )(validators.str_split(",", strip=True))
+    @validator("nash_storage", "giuh_ordinates", pre=True)
+    def _coerce_lists(cls, value):
+        if isinstance(value, list):
+            return value
+        return [x.strip() for x in value.split(",")]
 
     class Config(serde.IniSerializerDeserializer.Config):
         def _serialize_list(l: List[float]) -> str:
@@ -110,6 +108,7 @@ class CFEXinanjiang(CFEBase):
     a_xinanjiang_inflection_point_parameter: float
     b_xinanjiang_shape_parameter: float
     x_xinanjiang_shape_parameter: float
+    urban_decimal_fraction: float
 
     class Config(CFEBase.Config):
         fields = {

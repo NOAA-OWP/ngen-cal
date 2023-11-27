@@ -57,17 +57,43 @@ def test_serialize(toml_test: str, yaml_test: str, namelist_test: str, json_test
     # NOTE: `to_ini_str` is not included. python's `configparser` library does not natively support lists
     o = Model.from_toml_str(toml_test)
     assert o.to_yaml_str() == yaml_test
-
-    namelist_str = o.to_namelist_str()
-    # f90nml does not add a newline character
-    # TODO: investigate if it should.
-    assert len(namelist_str) + 1 == len(namelist_test)
-    assert namelist_str == namelist_test[:-1]
-
+    assert o.to_namelist_str() == namelist_test
     assert o.to_toml_str() == toml_test
 
-    # read in file has newline character.
-    assert o.to_json_str(indent=2) == json_test[:-1]
+
+def test_serialize_str_does_not_end_in_eol_char(
+    toml_test: str, yaml_test: str, namelist_test: str, json_test: str
+):
+    # NOTE: `to_ini_str` is not included. python's `configparser` library does not natively support lists
+    o = Model.from_toml_str(toml_test)
+    import os
+
+    assert o.to_yaml_str()[-1] != os.linesep
+    assert o.to_namelist_str()[-1] != os.linesep
+    assert o.to_toml_str()[-1] != os.linesep
+    assert o.to_json_str(indent=2)[-1] != os.linesep
+
+
+def test_serialize_to_file_includes_trailing_eol(toml_test: str):
+    # NOTE: `to_ini_str` is not included. python's `configparser` library does not natively support lists
+    o = Model.from_toml_str(toml_test)
+    from tempfile import NamedTemporaryFile
+    from pathlib import Path
+    import os
+
+    with NamedTemporaryFile() as tmp:
+        p = Path(tmp.name)
+        o.to_yaml(p)
+        assert p.read_text()[-1] == os.linesep
+
+        o.to_namelist(p)
+        assert p.read_text()[-1] == os.linesep
+
+        o.to_toml(p)
+        assert p.read_text()[-1] == os.linesep
+
+        o.to_json(p)
+        assert p.read_text()[-1] == os.linesep
 
 
 # NOTE: python's `configparser` library does not natively support lists, only support bool, int,
@@ -176,5 +202,5 @@ def test_case_sensitivity_key_to_ini():
     o = IniCaseSensitiveKeys(UPPER=True, lower=False)
 
     s = o.to_ini_str()
-    lines = s.split("\n")[:-1]
+    lines = s.split("\n")
     assert lines == ["UPPER = True", "lower = False"]

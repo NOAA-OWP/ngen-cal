@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from .core import Base
@@ -37,22 +38,28 @@ class IniSerializer(Base):
     def to_ini(self, p: Path) -> None:
         with open(p, "w") as f:
             if self._no_section_headers:
-                f.write(
+                b_written = f.write(
                     to_ini_no_section_header_str(
                         self,
                         space_around_delimiters=self._space_around_delimiters,
                         preserve_key_case=self._preserve_key_case,
                     )
                 )
+                # add eol
+                if b_written:
+                    f.write(os.linesep)
                 return
 
-            f.write(
+            b_written = f.write(
                 to_ini_str(
                     self,
                     space_around_delimiters=self._space_around_delimiters,
                     preserve_key_case=self._preserve_key_case,
                 )
             )
+            # add eol
+            if b_written:
+                f.write(os.linesep)
 
     def to_ini_str(self) -> str:
         if self._no_section_headers:
@@ -92,7 +99,11 @@ class NamelistSerializer(Base):
 
     def to_namelist(self, p: Path) -> None:
         with open(p, "w") as f:
-            f.write(to_namelist_str(self))
+            b_written = f.write(to_namelist_str(self))
+            if b_written:
+                # add eol
+                f.write(os.linesep)
+
 
     def to_namelist_str(self) -> str:
         return to_namelist_str(self)
@@ -108,7 +119,10 @@ class YamlSerializer(Base):
 
     def to_yaml(self, p: Path) -> None:
         with open(p, "w") as f:
-            f.write(to_yaml_str(self))
+            b_written = f.write(to_yaml_str(self))
+            if b_written:
+                # add eol
+                f.write(os.linesep)
 
     def to_yaml_str(self) -> str:
         return to_yaml_str(self)
@@ -124,7 +138,10 @@ class TomlSerializer(Base):
 
     def to_toml(self, p: Path) -> None:
         with open(p, "w") as f:
-            f.write(to_toml_str(self))
+            b_written = f.write(to_toml_str(self))
+            # add eol
+            if b_written:
+                f.write(os.linesep)
 
     def to_toml_str(self) -> str:
         return to_toml_str(self)
@@ -138,10 +155,13 @@ class JsonSerializer(Base):
     """
 
     def to_json(self, p: Path, *, indent: int = 0) -> None:
-        options = {} if not indent else {"indent": indent}
         with open(p, "w") as f:
-            f.write(self.json(by_alias=True, **options))
+            b_written = f.write(self.to_json_str(indent=indent))
+            # add eol
+            if b_written:
+                f.write(os.linesep)
 
     def to_json_str(self, *, indent: int = 0) -> str:
         options = {} if not indent else {"indent": indent}
-        return self.json(by_alias=True, **options)
+        # remove trailing eol
+        return self.json(by_alias=True, **options).rstrip()
