@@ -29,34 +29,41 @@ def test_data_as_dict() -> Dict[str, Any]:
 
 @fixture
 def ini_test() -> str:
-    return (DATA_DIR / __INI_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __INI_CONFIG).read_text().rstrip()
 
 
 @fixture
 def ini_no_header_test() -> str:
-    return (DATA_DIR / __INI_NO_HEADER_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __INI_NO_HEADER_CONFIG).read_text().rstrip()
 
 
 @fixture
 def ini_no_spaces_around_delimiter_test() -> str:
-    return (DATA_DIR / __INI_NO_SPACES_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __INI_NO_SPACES_CONFIG).read_text().rstrip()
 
 
 @fixture
 def yaml_test() -> str:
-    return (DATA_DIR / __YAML_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __YAML_CONFIG).read_text().rstrip()
 
 
 @fixture
 def json_test() -> str:
-    return (DATA_DIR / __JSON_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __JSON_CONFIG).read_text().rstrip()
 
 
 @fixture
 def namelist_test() -> str:
-    return (DATA_DIR / __NAMELIST_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __NAMELIST_CONFIG).read_text().rstrip()
 
 
 @fixture
 def toml_test() -> str:
-    return (DATA_DIR / __TOML_CONFIG).read_text()
+    # drop eol char
+    return (DATA_DIR / __TOML_CONFIG).read_text().rstrip()
