@@ -1,22 +1,12 @@
-import json, os, argparse
+import os, argparse
 from ngen.config.realization import NgenRealization
 from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON 
 from ngen.config.validate import validate_paths
 import re
+import geopandas
 
-def validate(catchment_file,nexus_file,realization_file=None):
+def validate(catchments,realization_file=None):
 
-    print(f'Validating {catchment_file}')
-    serialized_catchments = CatchmentGeoJSON.parse_file(catchment_file)
-
-    catchments = []
-    for jfeat in serialized_catchments.features:
-        id   = jfeat.id
-        if id is None: id = jfeat.properties.id # discrepancy between geopandas and pydantic
-        catchments.append(id)
-
-    print(f'Done\nValidating {nexus_file}')
-    serialized_nexus = NexusGeoJSON.parse_file(nexus_file) 
     relative_dir     = os.path.dirname(os.path.dirname(realization_file))
 
     print(f'Done\nValidating {realization_file}')
@@ -60,6 +50,7 @@ def validate_data_dir(data_dir):
     catchment_file   = None
     nexus_file       = None
     realization_file = None
+    geopackage_file  = None
     for path, _, files in os.walk(data_dir):
         for jfile in files:
             jfile_path = os.path.join(path,jfile)
@@ -79,14 +70,39 @@ def validate_data_dir(data_dir):
                         realization_file = jfile_path
                     else: 
                         raise Exception('This run directory contains more than a single realization file, remove all but one.')
+                if jfile_path.find('.gpkg') >= 0: 
+                    if geopackage_file is None: 
+                        geopackage_file = jfile_path
+                    else: 
+                        raise Exception('This run directory contains more than a single geopackage file, remove all but one.')                    
             if jfile_path.find('forcing') >= 0 and jfile_path.find('forcing_metadata') < 0: 
                 forcing_files.append(jfile_path) 
 
-    file_list = [catchment_file,nexus_file,realization_file]
+    if not geopackage_file:
+        file_list = [catchment_file,nexus_file,realization_file]
+    else:
+        file_list = [geopackage_file,realization_file]
+        if catchment_file or nexus_file: raise Exception('The spatial domain must only be defined with either a geopackage, or catchment/nexus files. Not both.')
     if any([x is None for x in file_list]):
-        raise Exception(f'Missing configuration file!')
+        raise Exception(f'Missing configuration file!')      
+
+    if geopackage_file:
+        catchments     = geopandas.read_file(geopackage_file, layer='divides')
+        catchment_list = list(catchments['id'])
+        # Nexus validation?
+    else:
+        print(f'Validating {catchment_file}')
+        serialized_catchments = CatchmentGeoJSON.parse_file(catchment_file)
+        catchment_list = []
+        for jfeat in serialized_catchments.features:
+            id   = jfeat.id
+            if id is None: id = jfeat.properties.id # discrepancy between geopandas and pydantic
+            catchment_list.append(id)
+
+        print(f'Done\nValidating {nexus_file}')
+        NexusGeoJSON.parse_file(nexus_file)         
     
-    validate(catchment_file,nexus_file,realization_file)
+    validate(catchment_list,realization_file)
 
 if __name__ == "__main__":
 
