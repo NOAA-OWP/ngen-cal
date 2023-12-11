@@ -30,33 +30,6 @@ class Pet:
     def __init__(self, method: PetMethod = PetMethod.energy_balance):
         self.data: Dict[str, Union[bool, float, int, str]] = {}
         self.__pet_method = method
-        self.__version = None
-
-    def _set_version(self, version: str):
-        if self.__version is None:
-            self.__version = version
-        elif self.__version != version:
-            raise RuntimeError(
-                f'mismatched versions. current="{self.__version}" new="{version}"'
-            )
-
-    def _version(self) -> str:
-        """Return the hydrofabric version used to populate `self.data`.
-
-        Raises
-        ------
-        RuntimeError
-            Raises if version has not been set.
-        """
-        if self.__version is None:
-            raise RuntimeError("no version set")
-        return self.__version
-
-    def _v2_linked_data_hook(self, data: Dict[str, Any]):
-        # NOTE typo in forcing metadata name
-        self.data["longitude_degrees"] = data["X"]
-        self.data["latitude_degrees"] = data["Y"]
-        self.data["site_elevation_m"] = data["elevation_mean"]
 
     def hydrofabric_linked_data_hook(
         self, version: str, divide_id: str, data: Dict[str, Any]
@@ -69,11 +42,12 @@ class Pet:
         RuntimeError
             Only hydrofabric 2.0 is supported. Raises if version != 2.0. This will change in future.
         """
-        self._set_version(version)
-        if self._version() == "2.0":
-            self._v2_linked_data_hook(data)
-        else:
+        if version != "2.0":
             raise RuntimeError("only support v2 hydrofabric")
+
+        self.data["longitude_degrees"] = data["X"]
+        self.data["latitude_degrees"] = data["Y"]
+        self.data["site_elevation_m"] = data["elevation_mean"]
 
     def _v2_defaults(self) -> None:
         self.data["yes_wrf"] = False
@@ -114,8 +88,4 @@ class Pet:
             Only hydrofabric 2.0 is supported. Raises if version != 2.0. This will change in future.
         """
         hook_provider.provide_hydrofabric_linked_data(self)
-
-        if self._version() == "2.0":
-            self._v2_defaults()
-        else:
-            raise RuntimeError("only support v2 hydrofabric")
+        self._v2_defaults()
