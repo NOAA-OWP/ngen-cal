@@ -35,6 +35,8 @@ if __name__ == "__main__":
     from ngen.config_gen.generate import generate_configs
 
     parent_dir = Path(__file__).parent
+
+    # read NextGen Realization config file
     config = NgenRealization.parse_file(
         parent_dir / "example_bmi_multi_realization_config.json"
     )
@@ -42,11 +44,31 @@ if __name__ == "__main__":
     start_time = config.time.start_time
     end_time = config.time.end_time
 
-    assert len(config.global_config.formulations) == 1, "ensembles are not supported"
     formulation = config.global_config.formulations[0]
     modules = get_module_names(formulation)
 
-    noaa_owp_dir = Path(__file__).parent.parent / "noaa_owp"
+    # or pass local file paths instead. in our experience an local file is MUCH faster.
+    hf_file = "https://lynker-spatial.s3.amazonaws.com/v20.1/gpkg/nextgen_09.gpkg"
+    hf_lnk_file = "https://lynker-spatial.s3.amazonaws.com/v20.1/model_attributes/nextgen_09.parquet"
+
+    hf: gpd.GeoDataFrame = gpd.read_file(hf_file, layer="divides")
+    hf_lnk_data: pd.DataFrame = pd.read_parquet(hf_lnk_file)
+
+    # uncomment to produce configs for a subset of catchments
+    subset = [
+        "cat-1487334",
+        "cat-1487335",
+        "cat-1487336",
+        "cat-1487337",
+        "cat-1487338",
+    ]
+    hf = hf[hf["divide_id"].isin(subset)]
+    hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(subset)]
+
+    hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
+    file_writer = DefaultFileWriter(parent_dir / "./config/")
+
+    noaa_owp_dir = parent_dir.parent / "noaa_owp"
     sys.path.append(str(noaa_owp_dir))
 
     from noaa_owp import NoahOWP
@@ -62,34 +84,18 @@ if __name__ == "__main__":
         end_time=end_time,
     )
 
-    mod_map = {
+    module_to_hook = {
         # "SLOTH": None,
         "NoahOWP": noah_owp,
         "CFE": Cfe,
         "PET": Pet,
     }
 
-    hf_file = "/Users/austinraney/Downloads/nextgen_09.gpkg"  # or "https://lynker-spatial.s3.amazonaws.com/v20/gpkg/nextgen_09.gpkg"
-    hf_lnk_file = "/Users/austinraney/Downloads/nextgen_09.parquet"  # or "https://lynker-spatial.s3.amazonaws.com/v20/model_attributes/nextgen_09.parquet"
-
-    hf: gpd.GeoDataFrame = gpd.read_file(hf_file, layer="divides")
-    hf_lnk_data: pd.DataFrame = pd.read_parquet(hf_lnk_file)
-
-    subset = [
-        "cat-1529608",
-        "cat-1537245",
-        "cat-1529607",
-        "cat-1536906",
-        "cat-1527290",
+    hook_objects = [
+        module_to_hook.get(mod)
+        for mod in modules
+        if module_to_hook.get(mod) is not None
     ]
-
-    hf = hf[hf["divide_id"].isin(subset)]
-    hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(subset)]
-
-    hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
-    file_writer = DefaultFileWriter(parent_dir / "./config/")
-
-    hook_objects = [mod_map.get(mod) for mod in modules if mod_map.get(mod) is not None]
 
     generate_configs(
         hook_providers=hook_provider,
