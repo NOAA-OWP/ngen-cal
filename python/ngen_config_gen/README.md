@@ -106,10 +106,12 @@ _hooks_ are interfaces (python protocol) that a *provide* data to a class instan
 The *provided* data can then be used by the class instance to build up a configuration file
 (e.g.  `pydantic.BaseModel` or `ngen.init_config` subclass).
 Provided hooks are:
-- `hydrofabric_hook`
-- `hydrofabric_linked_data_hook`
+- [`hydrofabric_hook`](https://github.com/noaa-owp/ngen-cal/blob/master/python/ngen_config_gen/src/ngen/config_gen/hooks.py#L119)
+- [`hydrofabric_linked_data_hook`](https://github.com/noaa-owp/ngen-cal/blob/master/python/ngen_config_gen/src/ngen/config_gen/hooks.py#L177)
 
-A _visitable_ is a thin interface (python protocol) with a single `visit` method.
+A
+[_visitable_](https://github.com/noaa-owp/ngen-cal/blob/master/python/ngen_config_gen/src/ngen/config_gen/hooks.py#L72)
+is a thin interface (python protocol) with a single `visit` method.
 The `visit` method that takes in a `HookProvider` parameters which has methods that *provide* data for a given hook.
 For example, if a class implements the `hydrofabric_hook` method, in the class's `visit` method it would
 pass an instance of it`self` to the `hook_provider`'s `provide_hydrofabric_data` method
@@ -118,7 +120,9 @@ The `HookProvider` would then call the `hydrofabric_hook` method on the instance
 *providing* all the necessary data to satisfy that hook.
 This pattern is commonly called the visitor pattern.
 
-A _builder_ is a thin interface (python protocol) with a single `build` method.
+A
+[_builder_](https://github.com/noaa-owp/ngen-cal/blob/master/python/ngen_config_gen/src/ngen/config_gen/hooks.py#L63)
+is a thin interface (python protocol) with a single `build` method.
 The `build` method takes no parameters other than `self` and when called produces a built configuration file.
 
 Mapping the concepts this modules introduces onto the previously stated questions:
