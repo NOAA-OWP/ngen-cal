@@ -305,17 +305,6 @@ if __name__ == "__main__":
     hf: gpd.GeoDataFrame = gpd.read_file(hf_file, layer="divides")
     hf_lnk_data: pd.DataFrame = pd.read_parquet(hf_lnk_file)
 
-    subset = [
-        "cat-1529608",
-        "cat-1537245",
-        "cat-1529607",
-        "cat-1536906",
-        "cat-1527290",
-    ]
-
-    hf = hf[hf["divide_id"].isin(subset)]
-    hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(subset)]
-
     hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
     file_writer = DefaultFileWriter("./config/")
 
@@ -325,15 +314,18 @@ if __name__ == "__main__":
 
     start_time = "200001010000"
     end_time = "200002010000"
-    noah_owp = partial(
-        NoahOWP,
-        parameter_dir=param_table_dir,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    # noah_owp = partial(
+    #     NoahOWP,
+    #     parameter_dir=param_table_dir,
+    #     start_time=start_time,
+    #     end_time=end_time,
+    # )
+
+    from ngen.config_gen.models.cfe import Cfe
+    from ngen.config_gen.models.pet import Pet
 
     generate_configs(
         hook_providers=hook_provider,
-        hook_objects=[noah_owp],
+        hook_objects=[NoahOWP, Cfe, Pet],
         file_writer=file_writer,
     )

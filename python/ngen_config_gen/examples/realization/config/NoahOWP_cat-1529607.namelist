@@ -1,0 +1,66 @@
+&timing
+    dt = 3600.0
+    enddate = '201512302300'
+    forcing_filename = '.'
+    output_filename = '.'
+    startdate = '201512010000'
+/
+
+&parameters
+    general_table = 'GENPARM.TBL'
+    noahowp_table = 'MPTABLE.TBL'
+    parameter_dir = '/Users/austinraney/github/ngen-cal/config-generator/python/ngen_config_gen/example/realization/parameters/'
+    soil_class_name = 'STAS'
+    soil_table = 'SOILPARM.TBL'
+    veg_class_name = 'USGS'
+/
+
+&location
+    azimuth = 288.9926909349885
+    lat = 47.29828055021372
+    lon = -95.98426299556937
+    terrain_slope = 0.0005849987655210444
+/
+
+&forcing
+    zref = 10.0
+    rain_snow_thresh = 1.0
+/
+
+&model_options
+    canopy_stom_resist_option = 1
+    crop_model_option = 0
+    drainage_option = 8
+    dynamic_veg_option = 4
+    dynamic_vic_option = 1
+    evap_srfc_resistance_option = 4
+    frozen_soil_option = 1
+    precip_phase_option = 1
+    radiative_transfer_option = 3
+    runoff_option = 3
+    sfc_drag_coeff_option = 1
+    snow_albedo_option = 1
+    snowsoil_temp_time_option = 3
+    soil_temp_boundary_option = 2
+    stomatal_resistance_option = 1
+    subsurface_option = 1
+    supercooled_water_option = 1
+/
+
+&structure
+    croptype = 0
+    isltyp = 6
+    nsnow = 3
+    nsoil = 4
+    nveg = 27
+    sfctyp = 1
+    soilcolor = 4
+    vegtyp = 3
+/
+
+&initial_values
+    dzsnso = 0.0, 0.0, 0.0, 0.1, 0.3, 0.6, 1.0
+    sh2o = 0.3, 0.3, 0.3, 0.3
+    sice = 0.0, 0.0, 0.0, 0.0
+    zwt = -2.0
+/

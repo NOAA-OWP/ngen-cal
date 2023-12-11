@@ -127,16 +127,16 @@ if __name__ == "__main__":
     # given simulation, but may be _sourced_ from other kinds of _sources_ think a command line
     # argument or a separate configuration file like a NextGen realization config.
     #
-    # in all of these examples, there are data sources that a given model _can_ use to create a
-    # configuration file. the questions then are, what data sources are available? how does a
-    # model tell you what data sources it needs? and how does a model give you a built configuration
-    # file? to remedy this, ngen.config_gen has the concept of _hooks_. hooks are a way of providing
-    # data from a source to some other code that uses that data to build a configuration file. hooks
-    # are also a way for some code to tell us what data it _needs_ to build a configuration file.
-    # some models may only need a limited amount of information from a single hook to generate a
-    # configuration file, while another might need all the available hooks. ngen.config_gen offers
-    # hooks that provide data from data sources like the hydrofabric, hydrofabric linked data,
-    # and forcing metadata. so, to answer the prior stated questions:
+    # in all of these examples, there are data sources _can_ use to create a model's configuration
+    # file. the questions then are, what data sources are available? how does a model tell you what
+    # data sources it needs? and how does a model give you a built configuration file? to address
+    # this, ngen.config_gen has the concept of _hooks_. hooks are a way of providing data from a
+    # source to some other code that uses that data to build a configuration file. hooks are also a
+    # way for some code to tell us what data it _needs_ to build a configuration file.  some models
+    # may only need a limited amount of information from a single hook to generate a configuration
+    # file, while another might need all the available hooks. ngen.config_gen offers hooks that
+    # provide data from data sources like the hydrofabric, hydrofabric linked data, and forcing
+    # metadata. so, to answer the prior stated questions:
     #
     # - what data sources are available?
     #       whatever hooks are available
