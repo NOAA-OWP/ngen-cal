@@ -1,4 +1,3 @@
-# TODO: check when runtime_checkable was introduced
 from typing import Any, Dict, Protocol, Union, runtime_checkable
 from typing_extensions import Self
 
@@ -10,6 +9,16 @@ from .hooks import HydrofabricHook, HydrofabricLinkedDataHook
 
 @runtime_checkable
 class HookProvider(Protocol):
+    """
+    A `HookProvider` is a visitor that provides hook data.
+    When a hook is passed to a `HookProvider` method, it _should_ call the associated hook function
+    providing it with the requisite data.
+    For example, an implementation of the `provide_hydrofabric_data` method _should_ call the
+    `hydrofabric_hook` method on the passed in `hook` object.
+
+    See `DefaultHookProvider` for a default implementation.
+    """
+
     def provide_hydrofabric_data(self, hook: HydrofabricHook):
         ...
 
@@ -18,6 +27,19 @@ class HookProvider(Protocol):
 
 
 class DefaultHookProvider(HookProvider):
+    """
+    `DefaultHookProvider` is an iterable object that provides hook objects with data.
+    Each iteration of the instance provides hook data for a given `divide_id`.
+
+    Both `hf` and `hf_lnk_data` inputs must contain the same number of features
+    (both are the same length) and contain the same `divide_id` fields.
+
+    Parameters
+    ----------
+    hf: a Hydrofabric `divides` layers GeoDataFrame
+    hf_lnk_data: Hydrofabric linked data DataFrame
+    """
+
     def __init__(self, hf: gpd.GeoDataFrame, hf_lnk_data: pd.DataFrame):
         self.__hf = hf.sort_values("divide_id")
         self.__hf_lnk = hf_lnk_data.sort_values("divide_id")
@@ -36,7 +58,7 @@ class DefaultHookProvider(HookProvider):
     def provide_hydrofabric_data(self, hook: HydrofabricHook):
         if self.hf_row is None:
             raise RuntimeError("hook provider has no data")
-        # TODO: figure out how to get this
+        # TODO: figure out how to get this (@aaraney)
         version = "2.0"
         divide_id = self.hf_row["divide_id"]
 
@@ -45,7 +67,7 @@ class DefaultHookProvider(HookProvider):
     def provide_hydrofabric_linked_data(self, hook: HydrofabricLinkedDataHook):
         if self.hf_lnk_row is None:
             raise RuntimeError("hook provider has no data")
-        # TODO: figure out how to get this
+        # TODO: figure out how to get this (@aaraney)
         version = "2.0"
         divide_id = self.hf_lnk_row["divide_id"]
 
