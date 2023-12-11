@@ -1,3 +1,55 @@
+"""
+This module introduces three concepts _hooks_, a _visitable_, and a _builder_.
+These three concepts are used by `ngen.config_gen` to generate new and existing model configuration files.
+To start, lets remind ourselves what is needed to generate a model's configuration file.
+
+1. A data model or schema of a model's _catchment specific_ configuration file.
+   This is accomplished by defining `pydantic.BaseModel` or `ngen.init_config` subclasses that capture the
+   fields and types of a model's configuration file.
+2. Data that can be used to build an instance of the model's configuration file.
+   Data sufficient to create an instance could come from one or a variety of sources.
+   Likewise, some configuration fields might have default values while other may need to be user specified.
+
+Given these observations and assuming that a configuration data model mentioned in 1. has been created,
+to generate a model's configuration file using `ngen.config_gen` it is necessary to know:
+
+2.1. What data sources does `ngen.config_gen` provide?
+2.2. How does a model tell `ngen.config_gen` what data sources are needed?
+2.3. How does a model produce a built configuration file?
+
+As previously stated, this module introduces three concepts _hooks_, a _visitable_, and a _builder_.
+
+_hooks_ are interfaces (python protocol) that a *provide* data to a class instance.
+The *provided* data can then be used by the class instance to build up a configuration file
+(e.g.  `pydantic.BaseModel` or `ngen.init_config` subclass).
+Provided hooks are:
+- `hydrofabric_hook`
+- `hydrofabric_linked_data_hook`
+
+A _visitable_ is a thin interface (python protocol) with a single `visit` method.
+The `visit` method that takes in a `HookProvider` parameters which has methods that *provide* data for a given hook.
+For example, if a class implements the `hydrofabric_hook` method, in the class's `visit` method it would
+pass an instance of it`self` to the `hook_provider`'s `provide_hydrofabric_data` method
+(e.g. `hook_provider.provide_hydrofabric_data(self)`).
+The `HookProvider` would then call the `hydrofabric_hook` method on the instance of the class
+*providing* all the necessary data to satisfy that hook.
+This pattern is commonly called the visitor pattern.
+
+A _builder_ is a thin interface (python protocol) with a single `build` method.
+The `build` method takes no parameters other than `self` and when called produces a built configuration file.
+
+Mapping the concepts this modules introduces onto the previously stated questions:
+
+2.1. What data sources does `ngen.config_gen` provide?
+    Whatever _hooks_ `ngen.config_gen` defines
+2.2. How does a model tell `ngen.config_gen` what data sources are needed?
+    By implementing _hook_ methods on a class and calling the associated `HookProvider` method in its `visit` method.
+2.3. How does a model produce a built configuration file?
+    By implementing a `build` method that returns a build instance of the model's configuration file.
+
+For a more hands on experience, see example implementations:
+https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_config_gen/examples
+"""
 from typing import Any, Dict, Protocol, runtime_checkable, TYPE_CHECKING
 from pydantic import BaseModel
 
