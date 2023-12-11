@@ -30,12 +30,6 @@ class BuilderVisitableFn(Protocol):
         ...
 
 
-# NOTE: not happy with the name of this... think more about it
-# class Context(str, Enum):
-#     GLOBAL = "global"
-#     LOCAL = "local"
-
-
 def generate_configs(
     hook_providers: Iterable["HookProvider"],
     hook_objects: Collection[BuilderVisitableFn],
