@@ -9,17 +9,17 @@
 &parameters
     general_table = 'GENPARM.TBL'
     noahowp_table = 'MPTABLE.TBL'
-    parameter_dir = '/Users/austinraney/github/ngen-cal/config-generator/python/ngen_config_gen/example/realization/parameters/'
+    parameter_dir = '/Users/austinraney/github/ngen-cal/config-generator/python/ngen_config_gen/examples/ngen_realization/parameters/'
     soil_class_name = 'STAS'
     soil_table = 'SOILPARM.TBL'
     veg_class_name = 'USGS'
 /
 
 &location
-    azimuth = 229.29632260044858
-    lat = 48.01920679082839
-    lon = -90.70397672470152
-    terrain_slope = 0.0023823562419498065
+    azimuth = 87.0444662554088
+    lat = 47.06940003451843
+    lon = -98.36222733090926
+    terrain_slope = 0.0031549200477140656
 /
 
 &forcing
@@ -49,13 +49,13 @@
 
 &structure
     croptype = 0
-    isltyp = 3
+    isltyp = 6
     nsnow = 3
     nsoil = 4
     nveg = 27
     sfctyp = 1
     soilcolor = 4
-    vegtyp = 14
+    vegtyp = 3
 /
 
 &initial_values
