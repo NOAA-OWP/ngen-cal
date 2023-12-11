@@ -1,4 +1,3 @@
-# TODO: check when runtime_checkable was introduced
 from typing import Any, Dict, Protocol, runtime_checkable, TYPE_CHECKING
 from pydantic import BaseModel
 
@@ -10,22 +9,45 @@ if TYPE_CHECKING:
 @runtime_checkable
 class Builder(Protocol):
     def build(self) -> BaseModel:
+        """
+        Return an instance of a model's configuration.
+        """
         ...
 
 
 @runtime_checkable
 class Visitable(Protocol):
     def visit(self, hook_provider: "HookProvider") -> None:
+        """
+        Classes that implement `visit` are assumed to also implement some or all hook methods (e.g. `hydrofabric_hook`).
+        Classes that implement `visit` should call associated hook provider methods for each hook
+        they implement passing `self` as the argument. For example, if class C implements `visit`
+        and `hydrofabric_hook` C's visit method could be defined as:
+
+        ```
+        class C:
+            def visit(self, hook_provider: "HookProvider") -> None:
+                hook_provider.provide_hydrofabric_data(self)
+
+            def hydrofabric_hook(
+                self, version: str, divide_id: str, data: Dict[str, Any]
+            ) -> None:
+                # do things
+        ```
+        """
         ...
 
 
 @runtime_checkable
 class BuilderVisitable(Builder, Visitable, Protocol):
-    pass
+    """
+    Convenance protocol / interface that enables `isinstance` checking some object instance to
+    determine if it implements `build` and `visit` methods.
+    """
+
+    ...
 
 
-# TODO: determine if this is an appropriate name. See what id's are referenced
-# in the linked data (divides id?)
 @runtime_checkable
 class HydrofabricHook(Protocol):
     """
@@ -45,11 +67,12 @@ class HydrofabricHook(Protocol):
     def hydrofabric_hook(
         self, version: str, divide_id: str, data: Dict[str, Any]
     ) -> None:
+        """
+        Expect to receive a hydrofabric version, data (see class docs), and the associated divide_id.
+        """
         ...
 
 
-# TODO: determine if this is an appropriate name. See what id's are referenced
-# in the linked data (divides id?)
 @runtime_checkable
 class HydrofabricLinkedDataHook(Protocol):
     """
@@ -102,4 +125,7 @@ class HydrofabricLinkedDataHook(Protocol):
     def hydrofabric_linked_data_hook(
         self, version: str, divide_id: str, data: Dict[str, Any]
     ) -> None:
+        """
+        Expect to receive a hydrofabric linked data version, data (see class docs), and the associated divide_id.
+        """
         ...
