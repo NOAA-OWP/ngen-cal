@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 from typing_extensions import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -21,7 +21,21 @@ class Cfe:
     """
     Some fields are not available from currently provided data providers (e.g. hydrofabric linked data).
     As such, some fields have been given default values that _really_ shouldn't be.
-    See fields set in `_v2_defaults()`
+    Default values were selected based on the linked script.
+    https://github.com/NOAA-OWP/cfe/blob/bedc81b6fc047fc9a33e42e08e8ece3d342e96c3/README.md?plain=1#L56-L57
+    Listed below are the fields and their default values.
+        alpha_fc = 0.33
+        # NOTE: giuh should be available in the Hydrofabric linked data in 2024.
+        giuh_ordinates = [0.06, 0.51, 0.28, 0.12, 0.03]
+        gw_storage = 0.5
+        k_lf = 0.01
+        k_nash = 0.03
+        nash_storage = [0.0, 0.0]
+        soil_params_depth = 2.0
+        soil_params_expon = 1.0
+        soil_params_expon_secondary = 1.0
+        soil_storage = 0.667
+
 
     Parameter mappings from the hydrofabric linked data to CFE init config variables were informed
     by luciana's deprecated script for generating CFE init configs
@@ -29,11 +43,14 @@ class Cfe:
     """
 
     def __init__(self):
-        self.data = {}
+        self.data: Dict[str, Union[FloatUnitPair[str], List[float]]] = {}
 
     def hydrofabric_linked_data_hook(
         self, version: str, divide_id: str, data: Dict[str, Any]
     ) -> None:
+        """
+        Implements `ngen.config_gen.hooks.hydrofabric_linked_data_hook`.
+        """
         # beta exponent on Clapp-Hornberger (1978) soil water relations
         # NOTE: it seems all values each layer of `bexp_soil_layers_stag` are the same.
         self.data["soil_params_b"] = FloatUnitPair(
@@ -82,7 +99,9 @@ class Cfe:
         self.data["expon"] = FloatUnitPair(value=data["gw_Expon"], unit=EMPTY)
 
     def _v2_defaults(self) -> None:
-        # TODO: these default to 1.0 in docs
+        """
+        See class level documentation for the rational and source of default values.
+        """
         # https://github.com/NOAA-OWP/cfe/blob/bedc81b6fc047fc9a33e42e08e8ece3d342e96c3/README.md?plain=1#L56-L57
         self.data["soil_params_expon"] = FloatUnitPair(value=1.0, unit=EMPTY)
         self.data["soil_params_expon_secondary"] = FloatUnitPair(value=1.0, unit=EMPTY)
@@ -91,7 +110,6 @@ class Cfe:
         # 2m soil horizon
         self.data["soil_params_depth"] = FloatUnitPair(value=2.0, unit=METERS)
 
-        # TODO: fixme
         # initial condition for groundwater reservoir - it is the ground water as a decimal fraction of
         # the maximum groundwater storage (max_gw_storage) for the initial timestep
         self.data["gw_storage"] = FloatUnitPair(value=0.5, unit=M_PER_M)  # 50%
@@ -117,10 +135,15 @@ class Cfe:
         # NOTE: these should be available in the Hydrofabric linked data in 2024.
         self.data["giuh_ordinates"] = [0.06, 0.51, 0.28, 0.12, 0.03]
 
-    def visit(self, hook_provider: "HookProvider") -> None:
-        hook_provider.provide_hydrofabric_linked_data(self)
-
-        self._v2_defaults()
-
     def build(self) -> BaseModel:
+        """
+        Build and return an instance of `ngen.config.init_config.pet.PetConfig`.
+        """
         return CFEConfig(__root__=self.data)
+
+    def visit(self, hook_provider: "HookProvider") -> None:
+        """
+        Call associated `hook_provider` methods for all hooks implemented by Self.
+        """
+        hook_provider.provide_hydrofabric_linked_data(self)
+        self._v2_defaults()
