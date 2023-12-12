@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Mapping, Sequence, Any, TYPE_CHECKING
-if TYPE_CHECKING:
-    from pathlib import Path
+from typing import Optional, Mapping, Sequence, Any
+from pathlib import Path
 
 from datetime import datetime
 from .configurations import Forcing, Time, Routing
@@ -31,6 +30,8 @@ class NgenRealization(BaseModel):
     routing: Optional[Routing]
     #FIXME have not tested catchments...
     catchments: Optional[ Mapping[str, CatchmentRealization] ] = {}
+    # added in https://github.com/NOAA-OWP/ngen/pull/531
+    output_root: Optional[Path]
 
     #FIXME https://github.com/samuelcolvin/pydantic/issues/2277
     #Until 1.10, it looks like nested encoder config doesn't apply
