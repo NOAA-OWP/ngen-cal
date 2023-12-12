@@ -1,16 +1,17 @@
 # `ngen.config_gen`
 
 `ngen.config_gen` provides a library and framework for generating
-[NextGen](https://github.com/noaa-owp/ngen)
-model configuration files.
+NextGen
+_[BMI](https://github.com/NOAA-OWP/ngen/wiki/Formulations-and-BMI#bmi-models) model_
+configuration files.
 
 ## Getting Started
 
 ### Installation
 
 In accordance with the python community, we support and advise the usage of virtual environments in any workflow using python.
-In the following installation guide, we use python's built-in `venv` module to create a virtual environment in which the tools will be installed.
-Note this is just personal preference, any python virtual environment manager should work just fine (`conda`, `pipenv`, etc. ).
+The following guide uses python's built-in `venv` module to create a  virtual environment.
+Note, this personal preference, any python virtual environment manager should work just fine (`conda`, `pipenv`, etc. ).
 
 ```bash
 # Create and activate python environment, requires python >= 3.8
@@ -46,8 +47,8 @@ from ngen.config_gen.file_writer import DefaultFileWriter
 from ngen.config_gen.hook_providers import DefaultHookProvider
 from ngen.config_gen.generate import generate_configs
 
-from ngen.config_gen.models.pet import Pet
 from ngen.config_gen.models.cfe import Cfe
+from ngen.config_gen.models.pet import Pet
 
 # or pass local file paths instead
 hf_file = "https://lynker-spatial.s3.amazonaws.com/v20.1/gpkg/nextgen_09.gpkg"
@@ -62,20 +63,45 @@ file_writer = DefaultFileWriter("./config/")
 
 generate_configs(
     hook_providers=hook_provider,
-    hook_objects=[Pet, Cfe],
+    hook_objects=[Cfe, Pet],
     file_writer=file_writer,
 )
 
 ```
+
+## Related Projects
+
+[`ngen.config`](https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_conf):
+Validate and programmatically interacting with
+[NextGen](https://github.com/noaa-owp/ngen)
+_realization_ configuration files.
+
+[`ngen.init_config`](https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_init_config):
+Library used to define BMI model configuration file formats.
+Serialize, Deserialize, and validate common configuration formats (i.e. `json`, `yaml`, `toml`, `namelist`).
+
+[`ngen.cal`](https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_cal):
+Library and cli tool for calibrating
+[NextGen](https://github.com/noaa-owp/ngen)
+Model formulations.
+
+[`troute.config`](https://github.com/NOAA-OWP/t-route/tree/master/src/troute-config):
+Validate and programmatically interacting with
+[t-route](https://github.com/noaa-owp/t-route)
+_realization_ configuration files.
 
 ## Core Concepts
 
 The goal of `ngen.config_gen` is to provide a framework for creating model configuration files.
 All model configuration files are made up of data.
 Often this data comes from a variety of "sources".
-For example, there may be fields like catchment centroid or wind speed measurement height that could be sourced from geographic data (think the hydrofabric) or the metadata of whatever forcing product will be used for the simulation.
+For example, there may be fields like catchment centroid or wind speed measurement height that could be sourced from geographic data (think the
+[hydrofabric](https://github.com/noaa-owp/hydrofabric)
+) or the metadata of whatever forcing product will be used for the simulation.
 In both instances, the hydrofabric data and the forcing metadata are _sources_ of information that can be used to fill model configuration fields.
-There may also be fields like start and end time that are specific to a given simulation, but may be _sourced_ from other kinds of _sources_ think a command line argument or a separate configuration file like a NextGen realization config.
+There may also be fields like start and end time that are specific to a given simulation, but may be _sourced_ from other kinds of _sources_ think a command line argument or a separate configuration file like a
+[NextGen](https://github.com/noaa-owp/ngen)
+realization config.
 
 `ngen.config_gen` introduces three concepts _hooks_, a _visitable_, and a _builder_.
 These three concepts are used by `ngen.config_gen` to generate new and existing model configuration files.
@@ -136,4 +162,13 @@ Mapping the concepts this modules introduces onto the previously stated question
 
 ## Roadmap
 
-TODO
+- [ ] Add support for
+[Soil Freeze Thaw](https://github.com/NOAA-OWP/SoilFreezeThaw),
+[Soil Moisture Profile](https://github.com/noaa-owp/soilMoistureProfiles/),
+[TOPMODEL](https://github.com/NOAA-OWP/topmodel),
+[LGAR](https://github.com/NOAA-OWP/LGAR-C),
+[SAC-SMA](https://github.com/NOAA-OWP/sac-sma),
+and
+[LSTM](https://github.com/NOAA-OWP/LSTM)
+models
+- [ ] Develop command line utility for generating BMI model configuration files.
