@@ -5,6 +5,7 @@ from ngen.config_gen.file_writer import DefaultFileWriter
 from ngen.config_gen.hook_providers import DefaultHookProvider
 from ngen.config_gen.generate import generate_configs
 
+from ngen.config_gen.models.cfe import Cfe
 from ngen.config_gen.models.pet import Pet
 
 if __name__ == "__main__":
@@ -21,6 +22,6 @@ if __name__ == "__main__":
 
     generate_configs(
         hook_providers=hook_provider,
-        hook_objects=[Pet],
+        hook_objects=[Cfe, Pet],
         file_writer=file_writer,
     )
