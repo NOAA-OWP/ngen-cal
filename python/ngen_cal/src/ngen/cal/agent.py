@@ -77,7 +77,7 @@ class Agent(BaseAgent):
                 self._job = JobMeta(model_conf['type'], workdir, workdirs[0], log=log)
 
         if self._job is None:
-            self._job = JobMeta(model_conf['type'], workdir, log=log)
+            self._job = JobMeta(model_conf['type'], workdir, workdir, log=log)
         resolved_binary = Path(model_conf['binary']).resolve()
         model_conf['workdir'] = self.job.workdir
         self._model = Model(model=model_conf, binary=resolved_binary)
