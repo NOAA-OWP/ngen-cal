@@ -88,7 +88,7 @@ def validate_data_dir(data_dir):
 
     if geopackage_file:
         catchments     = geopandas.read_file(geopackage_file, layer='divides')
-        catchment_list = list(catchments['id'])
+        catchment_list = list(catchments['divide_id'])
         # Nexus validation?
     else:
         print(f'Validating {catchment_file}')
