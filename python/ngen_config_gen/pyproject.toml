@@ -1,6 +1,63 @@
 [build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=42",
-  "wheel",
+
+[tool.setuptools_scm]
+version_file = "src/ngen/config_gen/_version.py"
+tag_regex = '^(?:ngen\.config_gen\/)(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
+git_describe_command = [
+    'git',
+    'describe',
+    '--dirty',
+    '--tags',
+    '--long',
+    '--match',
+    'ngen.config_gen/*',
 ]
+root = '../../'
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "ngen.config_gen"
+authors = [{ name = "Austin Raney", email = "austin.raney@noaa.gov" }]
+description = "Library and framework for genrating NextGen BMI model configuration files"
+dynamic = ["version"]
+license = { file = "LICENSE" }
+readme = { file = "README.md", content-type = "text/markdown" }
+
+requires-python = ">=3.8"
+dependencies = [
+    "geopandas",
+    "pandas",
+    "pyarrow",
+    "pydantic<2",
+    "typing_extensions",
+    "ngen_config[all] @ git+https://github.com/noaa-owp/ngen-cal@master#egg=ngen_config&subdirectory=python/ngen_conf",
+    "ngen_init_config[all] @ git+https://github.com/noaa-owp/ngen-cal@master#egg=ngen_init_config&subdirectory=python/ngen_init_config",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: Free To Use But Restricted",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_config_gen"
+Issues = "https://github.com/NOAA-OWP/ngen-cal/issues"
+Repository = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_config_gen"
+
+[project.optional-dependencies]
+develop = ["pytest"]

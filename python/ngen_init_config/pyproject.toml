@@ -1,6 +1,59 @@
 [build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=42",
-  "wheel",
+
+[tool.setuptools_scm]
+version_file = "src/ngen/init_config/_version.py"
+tag_regex = '^(?:ngen\.init_config\/)(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
+git_describe_command = [
+    'git',
+    'describe',
+    '--dirty',
+    '--tags',
+    '--long',
+    '--match',
+    'ngen.init_config/*',
 ]
+root = '../../'
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "ngen.init_config"
+authors = [{ name = "Austin Raney", email = "austin.raney@noaa.gov" }]
+description = "APIs for describing, parsing, generating, validating, and programmatically accessing NGEN model specific init_config files"
+dynamic = ["version"]
+license = { file = "LICENSE" }
+readme = { file = "README.md", content-type = "text/markdown" }
+
+requires-python = ">=3.7"
+dependencies = ["pydantic<2", "typing_extensions"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: Free To Use But Restricted",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_init_config"
+Issues = "https://github.com/NOAA-OWP/ngen-cal/issues"
+Repository = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_init_config"
+
+[project.optional-dependencies]
+develop = ["pytest", "f90nml", "pyyaml", "tomli", "tomli_w"]
+namelist = ["f90nml"]
+yaml = ["pyyaml"]
+toml = ["tomli", "tomli_w"]
+all = ["f90nml", "pyyaml", "tomli", "tomli_w"]

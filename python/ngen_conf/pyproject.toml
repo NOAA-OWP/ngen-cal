@@ -1,6 +1,62 @@
 [build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=42",
-  "wheel",
+
+[tool.setuptools_scm]
+version_file = "src/ngen/config/_version.py"
+tag_regex = '^(?:ngen\.config\/)(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
+git_describe_command = [
+    'git',
+    'describe',
+    '--dirty',
+    '--tags',
+    '--long',
+    '--match',
+    'ngen.config/*',
 ]
+root = '../../'
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "ngen.config"
+authors = [
+    { name = "Nels J. Frazier", email = "nels.frazier@noaa.gov" },
+    { name = "Austin Raney", email = "austin.raney@noaa.gov" },
+]
+description = "ngen configuration file generation and validation library"
+dynamic = ["version"]
+license = { file = "LICENSE" }
+readme = { file = "README.md", content-type = "text/markdown" }
+
+requires-python = ">=3.7"
+dependencies = [
+    "pydantic<2",
+    "geojson_pydantic",
+    "typing_extensions",
+    "ngen_init_config[all] @ git+https://github.com/noaa-owp/ngen-cal@master#egg=ngen_init_config&subdirectory=python/ngen_init_config",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: Free To Use But Restricted",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_conf"
+Issues = "https://github.com/NOAA-OWP/ngen-cal/issues"
+Repository = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_conf"
+
+[project.optional-dependencies]
+develop = ["pytest"]
