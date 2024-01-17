@@ -51,6 +51,8 @@ __pycache__/
 .python-version
 venv
 *.pytest_cache
+# NOTE: ignore _version.py files versioning handled by setuptools_scm
+_version.py
 
 # pyenv #
 #########
