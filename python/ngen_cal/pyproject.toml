@@ -1,6 +1,68 @@
 [build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=42",
-  "wheel",
+
+[tool.setuptools_scm]
+version_file = "src/ngen/cal/_version.py"
+tag_regex = '^(?:ngen\.cal\/)(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
+git_describe_command = [
+    'git',
+    'describe',
+    '--dirty',
+    '--tags',
+    '--long',
+    '--match',
+    'ngen.cal/*',
 ]
+root = '../../'
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "ngen.cal"
+authors = [{ name = "Nels J. Frazier", email = "nels.frazier@noaa.gov" }]
+maintainers = [{ name = "Austin Raney", email = "austin.raney@noaa.gov" }]
+description = "Suite of tools for calibration NGEN models."
+dynamic = ["version"]
+license = { file = "LICENSE" }
+readme = { file = "README.md", content-type = "text/markdown" }
+
+requires-python = ">=3.7"
+dependencies = [
+    "pydantic<2",
+    "pandas>=1.1.2",
+    "geopandas",
+    "matplotlib",
+    "hydrotools.metrics",
+    "hydrotools.nwis_client",
+    "pyarrow",
+    "tables",
+    "hypy @ git+https://github.com/noaa-owp/hypy@master#egg=hypy&subdirectory=python",
+    "ngen_config @ git+https://github.com/noaa-owp/ngen-cal@master#egg=ngen_config&subdirectory=python/ngen_conf",
+    "pyyaml",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: Free To Use But Restricted",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Operating System :: OS Independent",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_cal"
+Issues = "https://github.com/NOAA-OWP/ngen-cal/issues"
+Repository = "https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_cal"
+
+[project.optional-dependencies]
+develop = ["pytest", "pytest-mock"]
