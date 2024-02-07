@@ -6,6 +6,7 @@ from ngen.init_config import utils
 from ngen.config.init_config.cfe import CFE
 from ngen.config.init_config.noahowp import NoahOWP
 from ngen.config.init_config.pet import PET
+from ngen.config.init_config.soil_freeze_thaw import SoilFreezeThaw
 
 
 def test_cfe(cfe_init_config: str):
@@ -99,3 +100,8 @@ def test_noah_owp_does_not_warns_if_soil_and_veg_type_are_water_or_neither_water
     # o.structure.vegtyp = VEG_MODIS_WATER
 
     # assert o.to_namelist_str() == noah_owp_init_config
+
+
+def test_soil_freeze_thaw(soil_freeze_thaw_init_config: str):
+    o = SoilFreezeThaw.from_ini_str(soil_freeze_thaw_init_config)
+    assert o.to_ini_str() == soil_freeze_thaw_init_config
