@@ -20,6 +20,8 @@ _cfe_config_data_path = _datadir / "init_config_data" / "cat_87_bmi_config_cfe.i
 _pet_config_data_path = _datadir / "init_config_data" / "pet.ini"
 _noah_owp_config_data_path = _datadir / "init_config_data" / "noah_owp.namelist"
 _soil_freeze_thaw_config_data_path = _datadir / "init_config_data" / "soil_freeze_thaw.txt"
+_soil_moisture_profile_config_data_path = _datadir / "init_config_data" / "soil_moisture_profile.txt"
+
 
 """
 Fixtures for setting up various ngen-conf components for testing
@@ -219,3 +221,8 @@ def noah_owp_init_config() -> str:
 def soil_freeze_thaw_init_config() -> str:
     # drop eol char
     return _soil_freeze_thaw_config_data_path.read_text().rstrip()
+
+@pytest.fixture
+def soil_moisture_profile_init_config() -> str:
+    # drop eol char
+    return _soil_moisture_profile_config_data_path.read_text().rstrip()
