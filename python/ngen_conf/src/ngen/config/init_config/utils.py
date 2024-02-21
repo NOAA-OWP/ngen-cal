@@ -6,10 +6,12 @@ from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
+    List,
     Generic,
     TypeVar,
 )
 
+from pydantic import validator
 from pydantic.generics import GenericModel
 from typing_extensions import Self
 
@@ -95,3 +97,51 @@ class FloatUnitPair(GenericModel, Generic[L]):
 
 def serialize_enum_value(e: Enum) -> Any:
     return e.value
+
+
+V = TypeVar("V")
+
+
+class CSList(GenericModel, Generic[V]):
+    """
+    Wrapper around a List[V] that coerces a comma separated string of Vs
+    (e.g. "1,2,3") into a List[V] (e.g. [1, 2, 3]). The `dict` method is
+    overridden to return the inner list of Vs instead of {"__root__": [Vs...]}.
+    As a result, using a CSList[V] as a field type in anther pydantic model
+    behaves as if it were a List[V] with the added functionality of coercing a
+    comma separated string into a list of Vs.
+
+    The features this model provides could easily be achieved using a field
+    level validator, so in some ways this is provided as a convenience. This
+    model is most useful when a field can be multiple types (union type). It
+    alleviates the need to implement a complex field level validator that
+    handles all possible union type members.
+    """
+
+    __root__: List[V]
+
+    @validator("__root__", pre=True)
+    @classmethod
+    def _validate_value(cls, value):
+        if isinstance(value, str):
+            return value.split(",")
+        return value
+
+    def __repr__(self) -> str:
+        return str(self.__root__)
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def dict(
+        self,
+        *,
+        include: AbstractSetIntStr | MappingIntStrAny | None = None,
+        exclude: AbstractSetIntStr | MappingIntStrAny | None = None,
+        by_alias: bool = False,
+        skip_defaults: bool | None = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> "DictStrAny":
+        return ",".join(map(str, self.__root__))
