@@ -36,6 +36,9 @@ class IniSerializer(core.Base):
 
     def to_ini_str(self) -> str:
         data = self.dict(by_alias=True)
+        return self._to_ini_str(data)
+
+    def _to_ini_str(self, data: dict) -> str:
         if self._no_section_headers:
             return format_serializers.to_ini_no_section_header_str(
                 data,
