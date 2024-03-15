@@ -5,12 +5,15 @@ from ngen.config.formulation import Formulation
 from ngen.config.cfe import CFE
 from ngen.config.sloth import SLOTH
 from ngen.config.noahowp import NoahOWP
+from ngen.config.lgar import LGAR
+from ngen.config.soil_freeze_thaw import SoilFreezeThaw
+from ngen.config.soil_moisture_profile import SoilMoistureProfile
 from ngen.config.topmod import Topmod
 from ngen.config.lstm import LSTM
 from ngen.config.multi import MultiBMI
 
-#set the workdir relative to this test config
-#and use that to look for test data
+# set the workdir relative to this test config
+# and use that to look for test data
 _workdir=Path(__file__).parent
 _datadir = _workdir / "data"
 _cfe_config_data_path = _datadir / "init_config_data" / "cat_87_bmi_config_cfe.ini"
@@ -108,6 +111,45 @@ def lstm_params():
     return data
 
 @pytest.fixture
+def lgar_params():
+    path = _workdir.joinpath("data/dne/")
+    data = {
+            'model_type_name': 'LGAR',
+            'name': 'bmi_c++',
+            'registration_function': 'none',
+            'library': 'libfakecfe.so',
+            'config_prefix': path,
+            'config': "{{id}}_config.txt",
+            }
+    return data
+
+@pytest.fixture
+def soil_freeze_thaw_params():
+    path = _workdir.joinpath("data/dne/")
+    data = {
+            'model_type_name': 'SoilFreezeThaw',
+            'name': 'bmi_c++',
+            'registration_function': 'none',
+            'library': 'libfakecfe.so',
+            'config_prefix': path,
+            'config': "{{id}}_config.txt",
+            }
+    return data
+
+@pytest.fixture
+def soil_moisture_profile_params():
+    path = _workdir.joinpath("data/dne/")
+    data = {
+            'model_type_name': 'SoilMoistureProfile',
+            'name': 'bmi_c++',
+            'registration_function': 'none',
+            'library': 'libfakecfe.so',
+            'config_prefix': path,
+            'config': "{{id}}_config.txt",
+            }
+    return data
+
+@pytest.fixture
 def cfe(cfe_params):
     return CFE(**cfe_params)
 
@@ -126,6 +168,18 @@ def noahowp(noahowp_params):
 @pytest.fixture
 def lstm(lstm_params):
     return LSTM(**lstm_params)
+
+@pytest.fixture
+def lgar(lgar_params):
+    return LGAR(**lgar_params)
+
+@pytest.fixture
+def soil_freeze_thaw(soil_freeze_thaw_params):
+    return SoilFreezeThaw(**soil_freeze_thaw_params)
+
+@pytest.fixture
+def soil_moisture_profile(soil_moisture_profile_params):
+    return SoilMoistureProfile(**soil_moisture_profile_params)
 
 @pytest.fixture
 def multi(cfe, noahowp):
