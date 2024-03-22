@@ -42,6 +42,43 @@ def _sha256_hexdigest(r: _Reader) -> str:
 
     return hash.hexdigest()
 
+def _get_serializer(data: BaseModel) -> Callable[[Path], None]:
+    def json_serializer(m: BaseModel):
+        def serialize(p: Path):
+            p.write_text(m.json())
+
+        return serialize
+
+    if isinstance(data, IniSerializer):
+        return data.to_ini
+    elif isinstance(data, JsonSerializer):
+        return data.to_json
+    elif isinstance(data, NamelistSerializer):
+        return data.to_namelist
+    elif isinstance(data, TomlSerializer):
+        return data.to_toml
+    elif isinstance(data, YamlSerializer):
+        return data.to_yaml
+    elif isinstance(data, BaseModel):  # type: ignore
+        json_serializer(data)
+
+    raise RuntimeError(f'unaccepted type: "{type(data)}"')
+
+def _get_file_extension(data: BaseModel) -> str:
+    if isinstance(data, IniSerializer):
+        return "ini"
+    elif isinstance(data, JsonSerializer):
+        return "json"
+    elif isinstance(data, NamelistSerializer):
+        return "namelist"
+    elif isinstance(data, TomlSerializer):
+        return "toml"
+    elif isinstance(data, YamlSerializer):
+        return "yaml"
+    elif isinstance(data, BaseModel):  # type: ignore
+        return "json"
+
+    raise RuntimeError(f'unaccepted type: "{type(data)}"')
 
 class DefaultFileWriter:
     def __init__(self, root: Union[str, Path]):
@@ -51,46 +88,6 @@ class DefaultFileWriter:
         elif root.is_file():
             raise FileExistsError(f'expected dir got file: "{root!s}"')
         self.__root = root
-
-    @staticmethod
-    def _get_serializer(data: BaseModel) -> Callable[[Path], None]:
-        def json_serializer(m: BaseModel):
-            def serialize(p: Path):
-                p.write_text(m.json())
-
-            return serialize
-
-        if isinstance(data, IniSerializer):
-            return data.to_ini
-        elif isinstance(data, JsonSerializer):
-            return data.to_json
-        elif isinstance(data, NamelistSerializer):
-            return data.to_namelist
-        elif isinstance(data, TomlSerializer):
-            return data.to_toml
-        elif isinstance(data, YamlSerializer):
-            return data.to_yaml
-        elif isinstance(data, BaseModel):  # type: ignore
-            json_serializer(data)
-
-        raise RuntimeError(f'unaccepted type: "{type(data)}"')
-
-    @staticmethod
-    def _get_file_extension(data: BaseModel) -> str:
-        if isinstance(data, IniSerializer):
-            return "ini"
-        elif isinstance(data, JsonSerializer):
-            return "json"
-        elif isinstance(data, NamelistSerializer):
-            return "namelist"
-        elif isinstance(data, TomlSerializer):
-            return "toml"
-        elif isinstance(data, YamlSerializer):
-            return "yaml"
-        elif isinstance(data, BaseModel):  # type: ignore
-            return "json"
-
-        raise RuntimeError(f'unaccepted type: "{type(data)}"')
 
     @staticmethod
     def _gen_alt_filename(p: Path) -> Path:
@@ -105,10 +102,10 @@ class DefaultFileWriter:
 
     def __call__(self, id: Union[str, Literal["global"]], data: BaseModel):
         class_name = data.__class__.__name__
-        ext = DefaultFileWriter._get_file_extension(data)
+        ext = _get_file_extension(data)
         output_file = self.__root / f"{class_name}_{id}.{ext}"
 
-        serializer = DefaultFileWriter._get_serializer(data)
+        serializer = _get_serializer(data)
 
         # only write when files differ.
         # new file -> write to new file and add a suffix; warn about change
