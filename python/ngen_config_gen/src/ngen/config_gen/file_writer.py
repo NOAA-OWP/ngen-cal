@@ -16,8 +16,7 @@ from ngen.init_config.serializer import (
 
 
 class FileWriter(Protocol):
-    def __call__(self, id: Union[str, Literal["global"]], data: BaseModel):
-        ...
+    def __call__(self, id: Union[str, Literal["global"]], data: BaseModel): ...
 
 
 class _Reader(Protocol):
@@ -26,8 +25,7 @@ class _Reader(Protocol):
     EOF is empty bytes buffer of empty str.
     """
 
-    def read(self, size: Union[int, None] = ...) -> Union[bytes, str]:
-        ...
+    def read(self, size: Union[int, None] = ...) -> Union[bytes, str]: ...
 
 
 def _sha256_hexdigest(r: _Reader) -> str:
@@ -64,6 +62,7 @@ def _get_serializer(data: BaseModel) -> Callable[[Path], None]:
 
     raise RuntimeError(f'unaccepted type: "{type(data)}"')
 
+
 def _get_file_extension(data: BaseModel) -> str:
     if isinstance(data, IniSerializer):
         return "ini"
@@ -79,6 +78,7 @@ def _get_file_extension(data: BaseModel) -> str:
         return "json"
 
     raise RuntimeError(f'unaccepted type: "{type(data)}"')
+
 
 class DefaultFileWriter:
     def __init__(self, root: Union[str, Path]):
