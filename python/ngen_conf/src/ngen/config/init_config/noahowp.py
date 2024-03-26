@@ -69,9 +69,10 @@ class NoahOWP(serde.NamelistSerializerDeserializer):
 
     @root_validator
     def _validate(cls, values: Dict[str, BaseModel]) -> Dict[str, BaseModel]:
-        parameters: Parameters = values["parameters"] # type: ignore
-        structure: Structure = values["structure"] # type: ignore
+        parameters: Parameters = values["parameters"]  # type: ignore
+        structure: Structure = values["structure"]  # type: ignore
         _set_nveg_based_on_veg_class_name(parameters, structure)
+        _warn_if_soil_or_veg_type_is_water_but_not_both(parameters, structure)
         return values
 
 
@@ -268,6 +269,30 @@ class InitialValues(core.Base):
             "sh2o": {"description": "initial soil liquid profile [m^3/m^3]"},
             "zwt": {"description": "initial water table depth below surface [m]"},
         }
+
+
+def _warn_if_soil_or_veg_type_is_water_but_not_both(
+    parameters: "Parameters", structure: "Structure"
+):
+    if parameters.soil_class_name not in ("STAS", "STAS-RUC"):
+        return
+    SOIL_TYPE_WATER = 14
+    soil_type_is_water = structure.isltyp == SOIL_TYPE_WATER
+
+    if parameters.veg_class_name == "USGS":
+        VEG_USGS_WATER = 16
+        veg_type_is_water = structure.vegtyp == VEG_USGS_WATER
+    elif parameters.veg_class_name == "MODIFIED_IGBP_MODIS_NOAH":
+        VEG_MODIS_WATER = 17
+        veg_type_is_water = structure.vegtyp == VEG_MODIS_WATER
+    else:
+        return
+
+    # NOTE: ensure arguments to XOR (^) are bools
+    if (veg_type_is_water) ^ (soil_type_is_water):
+        warnings.warn(
+            f"'isltyp' is {'' if soil_type_is_water else 'not'} water but 'vegtyp' is {'' if veg_type_is_water else 'not'} water"
+        )
 
 
 NoahOWP.update_forward_refs()
