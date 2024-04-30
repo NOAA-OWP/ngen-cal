@@ -23,6 +23,7 @@ from attr import attrib, attrs
 from attr.validators import instance_of
 from pyswarms.utils.reporter import Reporter
 from pyswarms.backend import generate_swarm
+from typing import Tuple
 
 class SwarmOptimizer(abc.ABC):
     def __init__(
@@ -173,24 +174,24 @@ class SwarmOptimizer(abc.ABC):
         iteration = self.start_iter 
         df_cost = pd.read_csv(self.cost_iter_file)
         shutil.copy(str(self.cost_iter_file), str(self.cost_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        df_cost[df_cost['iteration'] < iteration].to_csv(self.cost_iter_file, index=False)
+        df_cost[df_cost['iteration'] == iteration].to_csv(self.cost_iter_file, index=False)
 
         best_cost = df_cost[['iteration', 'global_best']]
-        best_cost = best_cost[best_cost['iteration'] < iteration]
+        best_cost = best_cost[best_cost['iteration'] == iteration]
         best = best_cost.iloc[-1]['global_best']
         best_cost = best_cost['global_best'].tolist() 
 
         mean_pbest_cost = df_cost[['iteration', 'mean_local_best']]
-        mean_pbest_cost = mean_pbest_cost[mean_pbest_cost['iteration'] < iteration]
+        mean_pbest_cost = mean_pbest_cost[mean_pbest_cost['iteration'] == iteration]
         mpbest_cost = mean_pbest_cost['mean_local_best'].tolist() 
 
         mean_leader_cost = df_cost[['iteration', 'mean_leader_best']]
-        mean_leader_cost = mean_leader_cost[mean_leader_cost['iteration'] < iteration]
+        mean_leader_cost = mean_leader_cost[mean_leader_cost['iteration'] == iteration]
         mleader_cost = mean_leader_cost['mean_leader_best'].tolist() 
 
         pbest_cost = pd.read_csv(self.pbest_cost_iter_file)
         shutil.copy(str(self.pbest_cost_iter_file), str(self.pbest_cost_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        pbest_cost = pbest_cost[pbest_cost['iteration'] < iteration]
+        pbest_cost = pbest_cost[pbest_cost['iteration'] == iteration]
         pbest_cost.to_csv(self.pbest_cost_iter_file, index=False)
         iter_range = pbest_cost['iteration'][~pbest_cost['iteration'].duplicated()].values.tolist()
         pbest_cost = [pbest_cost[pbest_cost['iteration']==i]['local_best'].tolist() for i in iter_range]
@@ -198,27 +199,27 @@ class SwarmOptimizer(abc.ABC):
 
         leader_cost = pd.read_csv(self.leader_cost_iter_file)
         shutil.copy(str(self.leader_cost_iter_file), str(self.leader_cost_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        leader_cost = leader_cost[leader_cost['iteration'] < iteration]
+        leader_cost = leader_cost[leader_cost['iteration'] == iteration]
         leader_cost.to_csv(self.leader_cost_iter_file, index=False)
         leader_cost = [leader_cost[leader_cost['iteration']==i]['leader_best'].tolist() for i in iter_range]
 
         pos = pd.read_csv(self.pos_iter_file)
         shutil.copy(str(self.pos_iter_file), str(self.pos_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        pos = pos[pos['iteration'] < iteration]
+        pos = pos[pos['iteration'] == iteration]
         pos.to_csv(self.pos_iter_file, index=False)
         pos = [np.array(pos[pos['iteration']==i].iloc[:,0:self.dimensions]) for i in iter_range]
         current_pos = pos[len(pos)-1] 
 
         pbest_pos = pd.read_csv(self.pbest_pos_iter_file)
         shutil.copy(str(self.pbest_pos_iter_file), str(self.pbest_pos_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        pbest_pos = pbest_pos[pbest_pos['iteration'] < iteration]
+        pbest_pos = pbest_pos[pbest_pos['iteration'] == iteration]
         pbest_pos.to_csv(self.pbest_pos_iter_file, index=False)
         pbest_pos = [np.array(pbest_pos[pbest_pos['iteration']==i].iloc[:,0:self.dimensions]) for i in iter_range]
         current_pbest_pos = pbest_pos[len(pbest_pos)-1] 
 
         leader_pos = pd.read_csv(self.leader_pos_iter_file)
         shutil.copy(str(self.leader_pos_iter_file), str(self.leader_pos_iter_file) + '_before_restart_' + time.strftime('%Y%m%d_%H%M%S'))
-        leader_pos = leader_pos[leader_pos['iteration'] < iteration]
+        leader_pos = leader_pos[leader_pos['iteration'] == iteration]
         leader_pos.to_csv(self.leader_pos_iter_file, index=False)
         leader_pos = [np.array(leader_pos[leader_pos['iteration']==i].iloc[:,0:self.dimensions]) for i in iter_range]
         current_leader_pos = leader_pos[len(leader_pos)-1]
