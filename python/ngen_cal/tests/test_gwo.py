@@ -40,3 +40,15 @@ def gwo_restart_optimizer(gwo_optimizer):
 def test_swarm_init(gwo_optimizer):
     assert gwo_optimizer
 
+def test_optimize(gwo_optimizer):
+
+    def cost_func(a):
+        return np.array([0.5, 0.5, 0.5, 0.1])
+
+    # Perform optimization
+    cost, pos = gwo_optimizer.optimize(cost_func, iters=2, n_processes=None) 
+    assert cost == 0.1
+    assert len(pos) == 2 #dims value in fixture
+    # when np.random.seed(42)
+    expected_pos = np.array([0.18182497, 0.18340451])
+    assert pytest.approx(pos) == expected_pos
