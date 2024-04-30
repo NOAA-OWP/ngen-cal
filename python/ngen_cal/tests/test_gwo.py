@@ -1,7 +1,7 @@
 """ 
 Test module for the grew wolf optimizer
 """
-from ngen.cal.optimizers.grey_wolf import GlobalBestGWO as GreyWolfOptimizer
+from ngen.cal.optimizers import GreyWolfOptimizer
 import numpy as np
 np.random.seed(42)
 from pathlib import Path
@@ -16,8 +16,7 @@ def gwo_optimizer():
     path = Path('./test_1')
     if( path.exists() ):
         shutil.rmtree(path)
-    
-    optimizer = GreyWolfOptimizer(n_particles, dims, bounds=bounds,start_iter=0,
+    optimizer = GreyWolfOptimizer(n_particles, dims, {}, bounds=bounds,start_iter=0,
                                  calib_path=path, basinid=9999)
     return optimizer
 
@@ -33,7 +32,7 @@ def gwo_restart_optimizer(gwo_optimizer):
 
     # Perform optimization
     cost, pos = gwo_optimizer.optimize(cost_func, iters=1, n_processes=None)
-    optimizer = GreyWolfOptimizer(n_particles, dims, bounds=bounds,start_iter=1,
+    optimizer = GreyWolfOptimizer(n_particles, dims, {}, bounds=bounds,start_iter=1,
                                   calib_path=path, basinid=9999)
     return optimizer
 
