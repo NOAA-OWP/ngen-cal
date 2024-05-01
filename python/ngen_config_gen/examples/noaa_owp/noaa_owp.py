@@ -314,18 +314,18 @@ if __name__ == "__main__":
 
     start_time = "200001010000"
     end_time = "200002010000"
-    # noah_owp = partial(
-    #     NoahOWP,
-    #     parameter_dir=param_table_dir,
-    #     start_time=start_time,
-    #     end_time=end_time,
-    # )
+    noah_owp = partial(
+        NoahOWP,
+        parameter_dir=param_table_dir,
+        start_time=start_time,
+        end_time=end_time,
+    )
 
     from ngen.config_gen.models.cfe import Cfe
     from ngen.config_gen.models.pet import Pet
 
     generate_configs(
         hook_providers=hook_provider,
-        hook_objects=[NoahOWP, Cfe, Pet],
+        hook_objects=[noah_owp, Cfe, Pet],
         file_writer=file_writer,
     )
