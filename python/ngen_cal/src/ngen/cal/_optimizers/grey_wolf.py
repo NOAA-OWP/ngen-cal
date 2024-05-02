@@ -145,7 +145,7 @@ class GreyWolfOptimizer(SwarmOptimizer):
 
         Returns
         -------
-        tuple
+        Tuple[float, np.ndarray]
             the global best cost and the global best position.
         """
         if n_processes is None:
