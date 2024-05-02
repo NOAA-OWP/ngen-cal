@@ -1,18 +1,21 @@
-from collections import namedtuple, deque
-import logging
-import numpy as np
-from pathlib import Path
-import pandas as pd
-import multiprocessing as mp
-from pyswarms.base import SwarmOptimizer
-from pyswarms.backend import Swarm, generate_swarm
-from pyswarms.backend.topology import Star
-from pyswarms.utils.reporter import Reporter
-from pyswarms.backend.operators import compute_pbest, compute_objective_function
+from __future__ import annotations
 
+import logging
+import multiprocessing as mp
 import shutil
 import time
-from typing import Tuple, List, Optional
+from collections import deque, namedtuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
+from pyswarms.backend import Swarm, generate_swarm
+from pyswarms.backend.operators import compute_objective_function, compute_pbest
+from pyswarms.backend.topology import Star
+from pyswarms.base import SwarmOptimizer
+from pyswarms.utils.reporter import Reporter
+
 
 def create_swarm(
     n_particles,
