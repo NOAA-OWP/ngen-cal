@@ -18,12 +18,12 @@ from pyswarms.utils.reporter import Reporter
 
 
 def create_swarm(
-    n_particles,
-    dimensions,
-    bounds=None,
-    center=1.0,
-    init_pos=None,
-    options={}
+    n_particles: int,
+    dimensions: int,
+    bounds: Optional[Tuple[Union[np.ndarray, List], Union[np.ndarray, List]]] = None,
+    center: Union[np.ndarray, float] = 1.0,
+    init_pos: Optional[np.ndarray] = None,
+    options: Optional[Dict[str, Any]] = None,
 ):
     """Generate a Swarm class with no velocity
 
@@ -42,20 +42,37 @@ def create_swarm(
         init_pos=init_pos,
     )
 
-    return Swarm(position, np.array([]), options=options)
-
+    options = options or {}
+    return Swarm(position=position, velocity=np.array([]), options=options)
 
 class GreyWolfOptimizer(SwarmOptimizer):
-    """_summary_
+    """
+    See `pyswarms.base.SwarmOptimizer`'s documentation for more information.
 
     Args:
         SwarmOptimizer (_type_): _description_
     """
-    def __init__(self, *args, **kwargs):
-        # Pop custom kwargs for this subclass
-        self.start_iter: int = kwargs.pop("start_iter", 0)
-        self.calib_path: Path = Path( kwargs.pop("calib_path", "./") )
-        self.id = kwargs.pop("basinid", None)
+    def __init__(
+        self,
+        n_particles: int,
+        dimensions: int,
+        options: Dict[str, Any],
+        bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+        velocity_clamp: Optional[Tuple[float, float]] = None,
+        center: Union[np.ndarray, float] = 1.0,
+        ftol: float = -np.inf,
+        ftol_iter: int = 1,
+        init_pos: Optional[np.ndarray] = None,
+        *,
+        start_iter: int = 0,
+        calib_path: Path = Path("./"),
+        basinid: Optional[str] = None,
+        **kwargs,
+    ):
+        # custom subclass arguments
+        self.start_iter: int = start_iter
+        self.calib_path: Path = calib_path
+        self.id: Optional[str] = basinid
         self.hist_path: Path = self.calib_path / 'History_Iteration'
         self.hist_path.mkdir(parents=True, exist_ok=True)
         # TODO consolidate these into single file?
@@ -66,7 +83,18 @@ class GreyWolfOptimizer(SwarmOptimizer):
         self.position_iter_file: Path = self.hist_path / '{}_pos_iteration.csv'
         self.leader_pos_iter_file: Path = self.hist_path / '{}_leader_pos_iteration.csv'
         #Initialize base class
-        super(GreyWolfOptimizer, self).__init__(*args, **kwargs)
+        super().__init__(
+            n_particles=n_particles,
+            dimensions=dimensions,
+            options=options,
+            bounds=bounds,
+            velocity_clamp=velocity_clamp,
+            center=center,
+            ftol=ftol,
+            ftol_iter=ftol_iter,
+            init_pos=init_pos,
+            **kwargs,
+        )
         self._cost_attrs = ["best_cost", "pbest_cost",
                             "mean_pbest_cost", "leader_cost",
                             "mean_leader_cost"]
