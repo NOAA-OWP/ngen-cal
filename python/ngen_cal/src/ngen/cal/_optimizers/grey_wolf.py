@@ -130,23 +130,16 @@ class GreyWolfOptimizer(SwarmOptimizer):
         Performs the optimization to evaluate the objective
         function :code:`f` for a number of iterations :code:`iter.`
 
-        Parameters
-        ----------
-        objective_func : callable
-            objective function to be evaluated
-        iters : int
-            number of iterations
-        n_processes : int, optional
-            number of processes to use for parallel particle evaluation (default: None = no parallelization)
-        verbose : bool
-            enable or disable the logs and progress bar (default: True = enable logs)
-        kwargs : dict
-            arguments for the objective function
+        Args:
+            objective_func (callable): objective function to be evaluated
+            iters (int): number of iterations
+            n_processes (int | None): number of processes to use for parallel
+                particle evaluation (default: None = no parallelization)
+            verbose (bool): enable or disable the logs and progress bar (default: True = enable logs)
+            kwargs (dict): arguments for the objective function
 
-        Returns
-        -------
-        Tuple[float, np.ndarray]
-            the global best cost and the global best position.
+        Returns:
+            Tuple[float, np.ndarray]: the global best cost and the global best position.
         """
         if n_processes is None:
             return self._optimize(objective_func, iters, verbose, pool=None)
@@ -257,7 +250,7 @@ class GreyWolfOptimizer(SwarmOptimizer):
             label (Optional[str], optional): Column label of attribute. Defaults to None.
         """
         data = getattr(self.swarm, name)
-        if(label):
+        if label:
             df = pd.DataFrame(data, columns=[label])
         else:
             df = pd.DataFrame(data)
@@ -269,10 +262,8 @@ class GreyWolfOptimizer(SwarmOptimizer):
     def write_hist_iter_file(self, i: int) -> None: 
         """Write variables generated at each iteration.
 
-        Parameters
-        ----------
-        i :  current iteration
-
+        Args:
+            i (int):  current iteration
         """
         df_cost = pd.DataFrame({'iteration': i, 'global_best': self.swarm.best_cost, 'mean_local_best': np.mean(self.swarm.pbest_cost),
                                 'mean_leader_best': np.mean(self.swarm.leader_cost)}, index=[0])
@@ -390,10 +381,8 @@ class GreyWolfOptimizer(SwarmOptimizer):
         and :code:`velocity_history` are expected to have a shape of
         :code:`(iters, n_particles, dimensions)`
 
-        Parameters
-        ----------
-        hist : collections.namedtuple
-            Must be of the same type as self.ToHistory
+        Args:
+            hist (collections.namedtuple): Must be of the same type as self.ToHistory
         """
         self.cost_history.append(hist.best_cost)
         self.pbest_history.append(hist.pbest_cost)
