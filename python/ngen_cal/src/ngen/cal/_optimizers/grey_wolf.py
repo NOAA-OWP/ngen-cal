@@ -124,7 +124,7 @@ class GreyWolfOptimizer(SwarmOptimizer):
         n_processes: Optional[int] = None,
         verbose: bool = True,
         **kwargs,
-    ):
+    ) -> Tuple[float, np.ndarray]:
         """Optimize the swarm for a number of iterations
 
         Performs the optimization to evaluate the objective
