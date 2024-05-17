@@ -70,7 +70,7 @@ class EvaluatableCatchment(Evaluatable):
         #If no `main_output_variable`, default to Q_OUT
         self._output_var = output_var
         #use the nwis location to get observation data
-        obs = self.outflow._hydro_location.get_data(start_time, end_time)
+        obs = self._outflow._hydro_location.get_data(start_time, end_time)
         #make sure data is hourly
         self._observed = obs.set_index('value_time')['value'].resample('1H').nearest()
         self._observed.rename('obs_flow', inplace=True)
