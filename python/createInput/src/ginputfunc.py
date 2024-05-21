@@ -22,11 +22,6 @@ import geopandas as gpd
 import pandas as pd
 import yaml
 
-from createInput import NoahOWP
-from ngen.config_gen.file_writer import DefaultFileWriter
-from ngen.config_gen.generate import generate_configs
-from ngen.config_gen.hook_providers import DefaultHookProvider
-from ngen.config_gen.models.cfe import Cfe
 
 __all__ = [
            'create_walk_file',
@@ -102,118 +97,196 @@ def create_walk_file(
 
 
 def create_cfe_input(
-    catids: str,  
-    gpkg_file: Union[str, Path],
-    attr_file: Union[str, Path], 
+    catids: List[str],  
+    attr_file: Union[str, Path],
     cfe_input_dir: Union[str, Path],
 )->None:
 
-    """ Create BMI initial configuration file for CFE 
+    """ Create BMI initial configuration file for CFE with Schakke infiltration and runoff scheme
 
     Parameters
     ----------
     catids : catchment IDs in the basin
-    gpkg_file : hydrofabric GeoPackage file
-    attr_file : file containing model parameter attributes 
+    attr_file : file containing model parameter attributes
     cfe_input_dir: directory to save configuration files
 
-    Returns 
+    Returns
     ----------
     None
+
+    Note
+    ----------
+    User needs to compute GIUH using other software like R whitebox package following the code
+    https://github.com/ajkhattak/SoilMoistureProfiles/blob/ajk/auto_py_script/basin_workflow/giuh_twi/main.R
+    and replace the fixed GIUH assigned in this code with the calculated value.  
 
     """
 
     os.makedirs(cfe_input_dir, exist_ok=True)
 
-    # Read hydrofabric and attribute file
-    hf: gpd.GeoDataFrame = gpd.read_file(gpkg_file, layer="divides")
-    hf_lnk_data: pd.DataFrame = pd.read_parquet(attr_file)
-    hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(catids)]
+    # Read hydrofabric attribute file
+    dfa = pd.read_parquet(attr_file)
+    dfa.set_index("divide_id", inplace=True)
+ 
+    # Create bmi config files
+    for catID in catids:
+        cfe_bmi_file = os.path.join(cfe_input_dir, catID + "_bmi_config_cfe.txt")
+        f = open(cfe_bmi_file, "w")
+        f.write("%s" %("forcing_file=BMI\n"))
+        f.write("%s" %("surface_partitioning_scheme=Schaake\n"))
+        f.write("%s" %("soil_params.depth=2.0[m]\n"))
+        f.write("%s" %("soil_params.b=" + str(dfa.loc[catID]['bexp_soil_layers_stag=1']) + "[]\n"))
+        f.write("%s" %("soil_params.satdk=" + str(dfa.loc[catID]['dksat_soil_layers_stag=1']) + "[m s-1]\n"))
+        f.write("%s" %("soil_params.satpsi=" + str(dfa.loc[catID]['psisat_soil_layers_stag=1']) + "[m]\n"))
+        f.write("%s" %("soil_params.slop=" + str(dfa.loc[catID]['slope']) + "[m/m]\n"))
+        f.write("%s" %("soil_params.smcmax=" + str(dfa.loc[catID]['smcmax_soil_layers_stag=1']) + "[m/m]\n"))
+        f.write("%s" %("soil_params.wltsmc=" + str(dfa.loc[catID]['smcwlt_soil_layers_stag=1']) + "[m/m]\n"))
+        f.write("%s" %("soil_params.expon=1.0[]\n"))
+        f.write("%s" %("soil_params.expon_secondary=1.0[]\n"))
+        f.write("%s" %("refkdt=" + str(dfa.loc[catID]['refkdt']) + "\n"))
+        f.write("%s" %("max_gw_storage=" + str(dfa.loc[catID]['gw_Zmax']/1000.) + "[m]\n"))
+        f.write("%s" %("Cgw=" + str(dfa.loc[catID]['gw_Coeff']*3600*1e-6) + "[m h-1]\n"))
+        f.write("%s" %("expon=" + str(dfa.loc[catID]['gw_Expon']) + "[]\n"))
+        f.write("%s" %("gw_storage=0.05[m/m]\n"))
+        f.write("%s" %("alpha_fc=0.33\n"))
+        f.write("%s" %("soil_storage=0.05[m/m]\n"))
+        f.write("%s" %("K_nash=0.03[]\n"))
+        f.write("%s" %("K_lf=0.01[]\n"))
+        f.write("%s" %("nash_storage=0.0,0.0\n"))
+        f.write("%s" %("num_timesteps=1\n"))
+        f.write("%s" %("verbosity=1\n"))
+        f.write("%s" %("DEBUG=0\n"))
+        f.write("%s" %("giuh_ordinates=0.55,0.25,0.2\n"))
+        f.close()
 
-    # Generate files 
-    hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
-    file_writer = DefaultFileWriter(cfe_input_dir)
-    generate_configs(
-        hook_providers=hook_provider,
-        hook_objects=[Cfe],
-        file_writer=file_writer,
-    )
-
-    # Change file name
-    for f in glob.glob(os.path.join(cfe_input_dir, "*ini")):
-        os.rename(f, os.path.join(os.path.dirname(f), re.split("_|\.", os.path.basename(f))[1] + "_bmi_config_cfe.txt"))
-   
 
 def create_noah_input(
-    catids: str,  
-    time_period: dict, 
-    gpkg_file: Union[str, Path],
-    attr_file: Union[str, Path], 
-    param_dir_source: Union[str, Path], 
+    catids: List[str],
+    time_period: dict,
+    attr_file: Union[str, Path],
+    param_dir_source: Union[str, Path],
     noah_input_dir: Union[str, Path],
 )->None:
 
-    """ Create BMI initial configuration file for Noah-OWP-Modular 
+    """ Create BMI configuration file for Noah-OWP-Modular
 
     Parameters
     ----------
     catids : catchment IDs in the basin
     time_period : simulation and evaluation time period
-    gpkg_file : hydrofabric GeoPackage file
-    attr_file : file containing model parameter attributes 
     param_dir_source : source directory containing Noah-OWP-Modular parameter files
     noah_input_dir: directory to save configuration files
 
-    Returns 
+    Returns
     ----------
     None
 
     """
 
-    # Create symlink for parameter directory  
+    # Create symlink for parameter directory
     os.makedirs(noah_input_dir, exist_ok=True)
-    param_dir_symlink =  os.path.join(noah_input_dir, os.path.basename(param_dir_source)) 
+    param_dir_symlink = os.path.join(noah_input_dir, os.path.basename(param_dir_source))
     if not os.path.exists(param_dir_symlink):
         os.symlink(param_dir_source, param_dir_symlink)
 
-    # Create files for the calibration and validation run
+    # Read hydrofabric attribute file
+    dfa = pd.read_parquet(attr_file)
+    dfa.set_index("divide_id", inplace=True)
+
+    # Files for the calibration and validation run
     for run_name in ['calib','valid']:
-        # time period 
         if time_period['run_time_period'][run_name][0] and time_period['run_time_period'][run_name][1]:
-            start_time = time_period['run_time_period'][run_name][0]
-            start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1)
-            start_time = start_time.strftime("%Y%m%d%H%M")
-            end_time = datetime.datetime.strptime(time_period['run_time_period'][run_name][1], "%Y-%m-%d %H:%M:%S").strftime("%Y%m%d%H%M")
+            # Date
+            startdate = time_period['run_time_period'][run_name][0]
+            startdate = datetime.datetime.strptime(startdate, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1)
+            startdate = startdate.strftime("%Y%m%d%H%M")
+            enddate = datetime.datetime.strptime(time_period['run_time_period'][run_name][1], "%Y-%m-%d %H:%M:%S").strftime("%Y%m%d%H%M")
 
-            # Read hydrofabric and attribute file
-            hf: gpd.GeoDataFrame = gpd.read_file(gpkg_file, layer="divides")
-            hf_lnk_data: pd.DataFrame = pd.read_parquet(attr_file)
-            hf_lnk_data = hf_lnk_data[hf_lnk_data["divide_id"].isin(catids)]
-
-            # Generate files 
-            hook_provider = DefaultHookProvider(hf=hf, hf_lnk_data=hf_lnk_data)
-            file_writer = DefaultFileWriter(noah_input_dir)
-
-            noah_owp = partial(
-                NoahOWP,
-                parameter_dir=param_dir_symlink,
-                start_time=start_time,
-                end_time=end_time,
-            )
-
-            generate_configs(
-                hook_providers=hook_provider,
-                hook_objects=[noah_owp],
-                file_writer=file_writer,
-            )
-   
-            # Change file name
-            for f in glob.glob(os.path.join(noah_input_dir, "*namelist")):
-                os.rename(f, os.path.join(os.path.dirname(f), re.split("_|\.", os.path.basename(f))[1] + "_" + run_name + ".input"))
+            # Specify options for namelist file
+            for catID in catids:
+                tslp = dfa.loc[catID]['slope_mean']
+                azimuth = dfa.loc[catID]['aspect_c_mean']
+                lat = dfa.loc[catID]['Y']
+                lon = dfa.loc[catID]['X']
+                isltype = dfa.loc[catID]["ISLTYP"]
+                vegtype = dfa.loc[catID]["IVGTYP"]
+                sfctype = 2 if vegtype ==16 else 1 
+                nom_lst = ['&timing',
+                           "  " + "dt".ljust(19) +  "= 3600.0" + "                       ! timestep [seconds]",
+                           "  " + "startdate".ljust(19) + "= " + "'" + startdate + "'" + "               ! UTC time start of simulation (YYYYMMDDhhmm)",
+                           "  " + "enddate".ljust(19) + "= " + "'" + enddate + "'" + "               ! UTC time end of simulation (YYYYMMDDhhmm)",
+                           "  " + "forcing_filename".ljust(19) + "= '.'" + "                          ! file containing forcing data",
+                           "  " + "output_filename".ljust(19) + "= '.'",
+                           '/',
+                           "",
+                           '&parameters',
+                           "  " + "parameter_dir".ljust(19) + "= " + "'" + param_dir_symlink + "'",
+                           "  " + "general_table".ljust(19) + "= 'GENPARM.TBL'" + "                ! general param tables and misc params",
+                           "  " + "soil_table".ljust(19) + "= 'SOILPARM.TBL'" + "               ! soil param table",
+                           "  " + "noahowp_table".ljust(19) + "= 'MPTABLE.TBL'" + "                ! model param tables (includes veg)",
+                           "  " + "soil_class_name".ljust(19) + "= 'STAS'" + "                       ! soil class data source - 'STAS' or 'STAS-RUC'",
+                           "  " + "veg_class_name".ljust(19) + "= 'USGS'" + "                       ! vegetation class data source - 'MODIFIED_IGBP_MODIS_NOAH' or 'USGS'",
+                           '/',
+                           "",
+                           '&location',
+                           "  " + "lat".ljust(19) + "= " + str(lat) + "            ! latitude [degrees]  (-90 to 90)",
+                           "  " + "lon".ljust(19) + "= " + str(lon) + "           ! longitude [degrees] (-180 to 180)",
+                           "  " + "terrain_slope".ljust(19) + "= " + str(tslp) + "           ! terrain slope [degrees]",
+                           "  " + "azimuth".ljust(19) + "= " + str(azimuth) + "           ! terrain azimuth or aspect [degrees clockwise from north]",
+                           '/',
+                           "",
+                           "&forcing",
+                           "  " + "ZREF".ljust(19) + "= 10.0" + "                         ! measurement height for wind speed (m)",
+                           "  " + "rain_snow_thresh".ljust(19) + "= 0.5" + "                          ! rain-snow temperature threshold (degrees Celcius)",
+                           "/",
+                           "",
+                           "&model_options",
+                           "  " + "precip_phase_option".ljust(34) + "= 6",
+                           "  " + "snow_albedo_option".ljust(34) + "= 1",
+                           "  " + "dynamic_veg_option".ljust(34) + "= 4",
+                           "  " + "runoff_option".ljust(34) + "= 3",
+                           "  " + "drainage_option".ljust(34) + "= 8",
+                           "  " + "frozen_soil_option".ljust(34) + "= 1",
+                           "  " + "dynamic_vic_option".ljust(34) + "= 1",
+                           "  " + "radiative_transfer_option".ljust(34) + "= 3",
+                           "  " + "sfc_drag_coeff_option".ljust(34) + "= 1",
+                           "  " + "canopy_stom_resist_option".ljust(34) + "= 1",
+                           "  " + "crop_model_option".ljust(34) + "= 0",
+                           "  " + "snowsoil_temp_time_option".ljust(34) + "= 3",
+                           "  " + "soil_temp_boundary_option".ljust(34) + "= 2",
+                           "  " + "supercooled_water_option".ljust(34) + "= 1",
+                           "  " + "stomatal_resistance_option".ljust(34) + "= 1",
+                           "  " + "evap_srfc_resistance_option".ljust(34) + "= 4",
+                           "  " + "subsurface_option".ljust(34) + "= 2",
+                           "/",
+                           "",
+                           "&structure",
+                           "  " + "isltyp".ljust(17) + "= " + str(isltype) + "              ! soil texture class",
+                           "  " + "nsoil".ljust(17) + "= 4              ! number of soil levels",
+                           "  " + "nsnow".ljust(17) + "= 3              ! number of snow levels",
+                           "  " + "nveg".ljust(17) + "= 27             ! number of vegetation type",
+                           "  " + "vegtyp".ljust(17) + "= " + str(vegtype) + "             ! vegetation type",
+                           "  " + "croptype".ljust(17) + "= 0              ! crop type (0 = no crops; this option is currently inactive)",
+                           "  " + "sfctyp".ljust(17) + "= " + str(sfctype) + "              ! land surface type, 1:soil, 2:lake",
+                           "  " + "soilcolor".ljust(17) + "= 4              ! soil color code",
+                           "/",
+                           "",
+                           "&initial_values",
+                           "  " + "dzsnso".ljust(10) + "= 0.0, 0.0, 0.0, 0.1, 0.3, 0.6, 1.0      ! level thickness [m]",
+                           "  " + "sice".ljust(10) + "= 0.0, 0.0, 0.0, 0.0                     ! initial soil ice profile [m3/m3]",
+                           "  " + "sh2o".ljust(10) + "= 0.3, 0.3, 0.3, 0.3                     ! initial soil liquid profile [m3/m3]",
+                           "  " + "zwt".ljust(10) + "= -2.0                                   ! initial water table depth below surface [m]",
+                           "/",
+                           ]
+               
+                namelst = os.path.join(noah_input_dir, '{}'.format(catID) + '_' + run_name + '.input')
+                with open(namelst, 'w') as outfile:
+                    outfile.writelines('\n'.join(nom_lst))
+                    outfile.write("\n")
 
 
 def create_sft_smp_input(
-    catids: str,  
+    catids: List[str],  
     model: str, 
     attr_file: Union[str, Path],
     cfe_dir: Union[str, Path],
@@ -403,6 +476,7 @@ def change_topmodel_input(
     # Save file
     with open(new_runfile, 'w') as outfile:
         outfile.writelines(lst_lines)
+
 
 def create_troute_config(
     gpkg_file: Union[str, Path],

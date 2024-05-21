@@ -104,14 +104,20 @@ def main():
     general_cfg = {'strategy': strategy, 'name': run_type, 'log': True, 'workdir': None, 'yaml_file': None,
                    'start_iteration': start_iteration, 'iterations': number_iteration, 'restart': restart}
 
-    # Library files
+    # Library files for different formulations
+    # 1. cfe_noah: CFE with Schaake scheme coupled with Noah-OWP-Modular (NOM)
+    # 2. cfe_noah_sft: CFE with Schaake scheme coupled with NOM, SFT and SMP
+    # 3. cfe_xaj_noah: CFE with Xinanjiang scheme coupled with NOM
+    # 4. cfe_xaj_noahsft: CFE with Xinanjiang scheme coupled with NOM, SFT and SMP
+    # 5. lasam_noah_sft: LASAM coupled with NOM, SFT and SMP
+    # 6. topmodel_noah: TOPMODEL coupled with NOM
     library_file = {
                     'cfe_noah': {'cfe': cfe_lib, 'noah': noah_lib, 'sloth': sloth_lib}, 
-                    'topmodel_noah': {'tomodel': topmd_lib, 'noah': noah_lib, 'sloth': sloth_lib}, 
                     'cfe_noah_sft': {'cfe': cfe_lib, 'noah': noah_lib, 'sft': sft_lib, 'smp': smp_lib, 'sloth': sloth_lib},
-                    'lasam_noah_sft': {'lasam': lasam_lib, 'noah': noah_lib, 'sft': sft_lib, 'smp': smp_lib, 'sloth': sloth_lib},
                     'cfe_xaj_noah': {'cfe': cfe_lib, 'noah': noah_lib, 'sloth': sloth_lib}, 
                     'cfe_xaj_noah_sft': {'cfe': cfe_lib, 'noah': noah_lib, 'sft': sft_lib, 'smp': smp_lib, 'sloth': sloth_lib},
+                    'topmodel_noah': {'topmodel': topmd_lib, 'noah': noah_lib, 'sloth': sloth_lib}, 
+                    'lasam_noah_sft': {'lasam': lasam_lib, 'noah': noah_lib, 'sft': sft_lib, 'smp': smp_lib, 'sloth': sloth_lib},
                    }
     lib_file = library_file[model]
 
@@ -150,13 +156,13 @@ def main():
 
     # Create cfe input
     cfe_input_dir = os.path.join(input_dir, 'cfe_input')
-    if model in ['cfe', 'cfe_noah', 'cfe_noah_sft', 'cfe_xaj_noah', 'cfe_xaj_noah_sft']:
-        gfun.create_cfe_input(catids, gpkg_file, attr_file, cfe_input_dir)
+    if model in ['cfe_noah', 'cfe_noah_sft', 'cfe_xaj_noah', 'cfe_xaj_noah_sft']:
+        gfun.create_cfe_input(catids, attr_file, cfe_input_dir)
 
     # Create noah input
     noah_input_dir = os.path.join(input_dir, 'noah_input')
     if model in ['cfe_noah', 'topmodel_noah', 'cfe_noah_sft', 'lasam_noah_sft', 'cfe_xaj_noah', 'cfe_xaj_noah_sft']:
-        gfun.create_noah_input(catids, time_period, gpkg_file, attr_file, noah_params_dir, noah_input_dir)
+        gfun.create_noah_input(catids, time_period, attr_file, noah_params_dir, noah_input_dir)
 
     # Create sft and smp input
     sft_dir = os.path.join(input_dir, 'sft_input')
@@ -171,7 +177,7 @@ def main():
 
     # Extract topmodel input
     topmd_input_dir = os.path.join(input_dir, 'topmodel_input')
-    if model in ['topmodel', 'topmodel_noah']:
+    if model in ['topmodel_noah']:
         os.makedirs(topmd_input_dir, exist_ok=True)
         for catID in catids:
             run_file = os.path.join(topmd_dir, 'topmod_{}'.format(catID) + '.run')
@@ -208,8 +214,8 @@ def main():
                                   'valid_eval_end_time': time_period['evaluation_time_period']['valid'][1],
                                   'full_eval_start_time': time_period['evaluation_time_period']['full'][0],
                                   'full_eval_end_time': time_period['evaluation_time_period']['full'][1],
-                                  'save_output_iter': save_output_iter,
-                                  'save_plot_iter': save_plot_iter,
+                                  'save_output_iteration': save_output_iter,
+                                  'save_plot_iteration': save_plot_iter,
                                   'save_plot_iter_freq': save_plot_iter_freq,
                                   'basinID': basin, 
                                   'threshold': threshold, 
