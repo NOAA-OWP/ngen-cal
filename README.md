@@ -2,7 +2,7 @@
 >>>>>>> d0a6192 (Add readme and changlog info from development work)
 
 ## __Context__
-<font size="4"> This branch currently contains the scripts and files from NextGen_Model_Calibration package and [ngen-cal](https://github.com/NOAA-OWP/ngen-cal/) repo. Detailed information on [ngen-cal]((https://github.com/NOAA-OWP/ngen-cal/) can be found on the master branch. This page focuses on the introduction for NextGen_Model_Calibration. </font> 
+<font size="4"> This branch currently contains the scripts and files from NextGen_Model_Calibration package and [ngen-cal](https://github.com/NOAA-OWP/ngen-cal/) repo. Detailed information on [ngen-cal](https://github.com/NOAA-OWP/ngen-cal/) can be found on the master branch. This page focuses on the introduction for NextGen_Model_Calibration. </font> 
 
 ## __NextGen_Model_Calibration__
 <font size="4"> NextGen_Model_Calibration is a model-agnostic Python software supporting automatic calibration of a variety of Next Generation Water Modeling Framework (NextGen) formulations. </font> 
