@@ -116,8 +116,8 @@ def create_cfe_input(
 
     Note
     ----------
-    User needs to compute GIUH using other software like R whitebox package following the code
-    https://github.com/ajkhattak/SoilMoistureProfiles/blob/ajk/auto_py_script/basin_workflow/giuh_twi/main.R
+    User needs to compute GIUH using other software like R whitebox package following the example 
+    https://github.com/NOAA-OWP/SoilMoistureProfiles/blob/ajk/basin_workflow/basin_workflow/giuh_twi/giuh.R
     and replace the fixed GIUH assigned in this code with the calculated value.  
 
     """
