@@ -18,7 +18,7 @@ def ngen_cal_configure(config: General) -> None:
     Called before calibration begins.
     This allow plugins to perform initial configuration.
 
-    Plugins should configuration data should be provided using the
+    Plugins' configuration data should be provided using the
     `plugins_settings` field in the `ngen.cal` configuration file.
     By convention, the name of the plugin should be used as top level key in
     the `plugin_settings` dictionary.
