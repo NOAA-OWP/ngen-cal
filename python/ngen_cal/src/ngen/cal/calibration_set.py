@@ -59,10 +59,10 @@ class CalibrationSet(Evaluatable):
             #is coded right now =(
             #would be better to hook this from the model object???
             #read the routed flow at the eval_nexus
-            df = pd.read_hdf(self._output_file)
+            df = pd.read_csv(self._output_file, index_col=0)
             df.index = df.index.map(lambda x: 'wb-'+str(x))
-            df.columns = pd.MultiIndex.from_tuples(df.columns)
-
+            tuples = [ eval(x) for x in df.columns ]
+            df.columns = pd.MultiIndex.from_tuples(tuples)
             # TODO should contributing_catchments be singular??? assuming it is for now...
             df = df.loc[self._eval_nexus.contributing_catchments[0].replace('cat', 'wb')]
             self._output = df.xs('q', level=1, drop_level=False)
