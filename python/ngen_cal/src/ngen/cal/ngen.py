@@ -74,9 +74,10 @@ class NgenBase(ModelExec):
     # an existing realization to build various calibration realization configs
     # but we should probably take a closer look at this in the near future
     realization: FilePath
-    catchments: FilePath
-    nexus: FilePath
-    crosswalk: FilePath
+    hydrofabric: Optional[FilePath]
+    catchments: Optional[FilePath]
+    nexus: Optional[FilePath]
+    crosswalk: Optional[FilePath]
     ngen_realization: Optional[NgenRealization]
     routing_output: Optional[Path] = Field(default=Path("flowveldepth_Ngen.h5"))
     #optional fields
@@ -91,6 +92,7 @@ class NgenBase(ModelExec):
     _catchments: Sequence['CalibrationCatchment'] = []
     _catchment_hydro_fabric: gpd.GeoDataFrame
     _nexus_hydro_fabric: gpd.GeoDataFrame
+    _flowpath_hydro_fabric: gpd.GeoDataFrame
     _x_walk: pd.Series
 
     class Config:
@@ -108,23 +110,35 @@ class NgenBase(ModelExec):
         shutil.copy(self.realization, str(self.realization)+'_original')
        
         #Read the catchment hydrofabric data
-        self._catchment_hydro_fabric = gpd.read_file(self.catchments)
-        self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
-        self._catchment_hydro_fabric.set_index('id', inplace=True)
-        self._nexus_hydro_fabric = gpd.read_file(self.nexus)
-        self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
-        self._nexus_hydro_fabric.set_index('id', inplace=True)
+        if(self.hydrofabric is not None):
+            #Reading hydofabric from geopackage
+            self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
+            self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
+            self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
+            self._nexus_hydro_fabric.set_index('id', inplace=True)
+            self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
+            self._flowpath_hydro_fabric.set_index('id', inplace=True)
+            attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes").set_index('id')
+            self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+        else:
+            #Reading hydrofabric from legacy geosjon
+            self._catchment_hydro_fabric = gpd.read_file(self.catchments)
+            self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
+            self._catchment_hydro_fabric.set_index('id', inplace=True)
+            self._nexus_hydro_fabric = gpd.read_file(self.nexus)
+            self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
+            self._nexus_hydro_fabric.set_index('id', inplace=True)
 
-        self._x_walk = pd.Series(dtype=object)
-        with open(self.crosswalk) as fp:
-            data = json.load(fp)
-            for id, values in data.items():
-                gage = values.get('Gage_no')
-                if gage:
-                    if not isinstance(gage, str):
-                        gage = gage[0]
-                    if gage != "":
-                        self._x_walk[id] = gage
+            self._x_walk = pd.Series(dtype=object)
+            with open(self.crosswalk) as fp:
+                data = json.load(fp)
+                for id, values in data.items():
+                    gage = values.get('Gage_no')
+                    if gage:
+                        if not isinstance(gage, str):
+                            gage = gage[0]
+                        if gage != "":
+                            self._x_walk[id] = gage
 
         #Read the calibration specific info
         with open(self.realization) as fp:
@@ -175,10 +189,14 @@ class NgenBase(ModelExec):
         catchments = values.get('catchments')
         nexus = values.get('nexus')
         realization = values.get('realization')
+        hydrofabric = values.get('hydrofabric')
 
         custom_args = False
         if args is None:
-            args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
+            if hydrofabric is not None:
+                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
+            else:
+                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
             values['args'] = args
         else:
             custom_args = True
