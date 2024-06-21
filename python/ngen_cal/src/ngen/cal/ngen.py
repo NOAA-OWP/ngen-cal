@@ -78,7 +78,7 @@ class NgenBase(ModelExec):
     nexus: FilePath
     crosswalk: FilePath
     ngen_realization: Optional[NgenRealization]
-    routing_output: Optional[Path] = Field(default=Path("flowveldepth_Ngen.h5"))
+    routing_output: Optional[Path] = Field(default=Path("flowveldepth_Ngen.csv"))
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
@@ -238,6 +238,11 @@ class NgenBase(ModelExec):
             module.model_params = p[str(i)].to_dict()
         with open(path/self.realization.name, 'w') as fp:
                 fp.write( self.ngen_realization.json(by_alias=True, exclude_none=True, indent=4))
+        # Cleanup any t-route parquet files between runs
+        # TODO this may not be _the_ best place to do this, but for now,
+        # it works, so here it be...
+        for file in Path(path).glob("*NEXOUT.parquet"):
+            file.unlink()
     
 class NgenExplicit(NgenBase):
     
