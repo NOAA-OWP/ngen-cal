@@ -230,6 +230,37 @@ class NgenBase(ModelExec):
             raise ValueError("Must provide partitions if using parallel")
         return values
 
+    @root_validator(pre=True)
+    def validate_hydrofabic(cls, values: dict) -> dict:
+        """
+
+        Args:
+            values (dict): configuation values to check
+
+        Raises:
+            ValueError: If a geopackage hydrofabric or set of geojsons are not found
+
+        Returns:
+            dict: Valid configuration elements for hydrofabric requirements
+        """
+        hf: FilePath = values.get('hydrofabric')
+        cats: FilePath = values.get("catchments")
+        nex: FilePath = values.get("nexus")
+        x: FilePath = values.get("crosswalk")
+
+        if hf is None and cats is None and nex is None and x is None:
+            msg = "Must provide a geopackage input with the hydrofabric key"\
+                  "or proide catchment, nexus, and crosswalk geojson files."  
+            raise ValueError(msg)
+        if(hf is not None):
+            try:
+                p = Path(hf)
+                if not p.exists():
+                    raise
+            except:
+                raise TypeError("hydrofabric must be a valid file path")
+        return values
+
     def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
         """_summary_
 
