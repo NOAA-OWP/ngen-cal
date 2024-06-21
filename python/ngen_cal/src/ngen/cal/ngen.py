@@ -252,6 +252,7 @@ class NgenBase(ModelExec):
             msg = "Must provide a geopackage input with the hydrofabric key"\
                   "or proide catchment, nexus, and crosswalk geojson files."  
             raise ValueError(msg)
+        
         if(hf is not None):
             try:
                 p = Path(hf)
@@ -259,6 +260,9 @@ class NgenBase(ModelExec):
                     raise
             except:
                 raise TypeError("hydrofabric must be a valid file path")
+        if cats is not None or nex is not None or x is not None:
+            print("WARNING: GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.")
+
         return values
 
     def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
