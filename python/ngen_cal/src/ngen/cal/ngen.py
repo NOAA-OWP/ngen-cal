@@ -76,6 +76,7 @@ class NgenBase(ModelExec):
     # but we should probably take a closer look at this in the near future
     realization: FilePath
     hydrofabric: Optional[FilePath]
+    eval_feature: Optional[str]
     catchments: Optional[FilePath]
     nexus: Optional[FilePath]
     crosswalk: Optional[FilePath]
@@ -420,9 +421,17 @@ class NgenIndependent(NgenBase):
             #FIXME pick up params per catchmment somehow???
             params = _map_params_to_realization(self.params, catchment)
             catchments.append(AdjustableCatchment(self.workdir, id, nexus, params))
+        
+        if self.eval_feature:
+            for n in eval_nexus:
+                wb = self._flowpath_hydro_fabric[ self._flowpath_hydro_fabric['toid'] == n.id ]
+                key = wb.iloc[0].name
+                if key == self.eval_feature:
+                    eval_nexus = [n]
+                    break
 
         if len(eval_nexus) != 1:
-            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")     
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged, set the eval_feature key to pick one.")     
         self._catchments.append(CalibrationSet(catchments, eval_nexus[0], self.routing_output, start_t, end_t, self.eval_params))
 
     def _strip_global_params(self) -> None:
@@ -467,8 +476,17 @@ class NgenUniform(NgenBase):
             location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
             nexus = Nexus(nexus_data.name, location, (), id)
             eval_nexus.append( nexus )
+        
+        if self.eval_feature:
+            for n in eval_nexus:
+                wb = self._flowpath_hydro_fabric[ self._flowpath_hydro_fabric['toid'] == n.id ]
+                key = wb.iloc[0].name
+                if key == self.eval_feature:
+                    eval_nexus = [n]
+                    break
+
         if len(eval_nexus) != 1:
-            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged")
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged, set the eval_feature key to pick one.")
         params = _params_as_df(self.params)
         self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], routing_output=self.routing_output, start_time=start_t, end_time=end_t, eval_params=self.eval_params, params=params))
             
