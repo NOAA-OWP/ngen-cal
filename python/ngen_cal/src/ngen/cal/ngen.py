@@ -256,7 +256,7 @@ class NgenBase(ModelExec):
                   "or proide catchment, nexus, and crosswalk geojson files."  
             raise ValueError(msg)
         
-        if(hf is not None):
+        if hf is not None:
             try:
                 p = Path(hf)
                 if not p.exists():
