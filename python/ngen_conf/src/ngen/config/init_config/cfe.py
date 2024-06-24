@@ -63,8 +63,11 @@ class CFEBase(serde.IniSerializerDeserializer):
     # prints various debug and bmi info
     verbosity: int = Field(0, gte=0, lte=3)
 
-    # direct runoff
-    surface_partitioning_scheme: Literal["Schaake", "Xinanjiang"]
+    # infiltration excess
+    surface_water_partitioning_scheme: Literal["Schaake", "Xinanjiang"]
+
+    # surface runoff scheme
+    surface_runoff_scheme: Literal["GIUH", "NASH_CASCADE"] = "GIUH"
 
     @validator("nash_storage", "giuh_ordinates", pre=True)
     def _coerce_lists(cls, value):
