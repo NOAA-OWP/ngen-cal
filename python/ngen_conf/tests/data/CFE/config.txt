@@ -1,5 +1,6 @@
 forcing_file=BMI
-surface_partitioning_scheme=Schaake
+surface_runoff_scheme=GIUH
+surface_water_partitioning_scheme=Schaake
 soil_params.depth=2.0[m]
 soil_params.b=2.0[]
 soil_params.satdk=4.297e-06[m s-1]
