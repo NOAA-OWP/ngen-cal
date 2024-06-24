@@ -121,7 +121,10 @@ class NgenBase(ModelExec):
             attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes").set_index('id')
             self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
         else:
-            #Reading hydrofabric from legacy geosjon
+            # Legacy geojson support
+            assert self.catchments is not None, "missing geojson catchments file"      
+            assert self.nexus is not None, "missing geojson nexus file" 
+            assert self.crosswalk is not None, "missing crosswalk file"
             self._catchment_hydro_fabric = gpd.read_file(self.catchments)
             self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
             self._catchment_hydro_fabric.set_index('id', inplace=True)
