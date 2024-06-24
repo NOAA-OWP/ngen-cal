@@ -110,7 +110,7 @@ class NgenBase(ModelExec):
         shutil.copy(self.realization, str(self.realization)+'_original')
        
         #Read the catchment hydrofabric data
-        if(self.hydrofabric is not None):
+        if self.hydrofabric is not None:
             #Reading hydofabric from geopackage
             self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
             self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
