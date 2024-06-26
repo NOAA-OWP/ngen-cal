@@ -6,6 +6,7 @@ except ImportError:
     from typing_extensions import Literal
 from pathlib import Path
 import logging
+import warnings
 #supress geopandas debug logs
 logging.disable(logging.DEBUG)
 import json
@@ -264,7 +265,7 @@ class NgenBase(ModelExec):
             except:
                 raise TypeError("hydrofabric must be a valid file path")
         if cats is not None or nex is not None or x is not None:
-            print("WARNING: GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.")
+            warnings.warn("GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.")
 
         return values
 
