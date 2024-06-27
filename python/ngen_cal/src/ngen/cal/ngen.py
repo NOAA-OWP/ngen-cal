@@ -234,9 +234,11 @@ class NgenBase(ModelExec):
             raise ValueError("Must provide partitions if using parallel")
         return values
 
-    @root_validator(pre=True)
+    @root_validator()
     def validate_hydrofabic(cls, values: dict) -> dict:
         """
+        Validates hydrofabric information is provided either as (deprecated) GeoJSON
+        or (preferred) GeoPackage files.
 
         Args:
             values (dict): configuation values to check
