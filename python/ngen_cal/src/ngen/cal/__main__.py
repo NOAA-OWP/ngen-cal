@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import annotations
+
 import yaml
 from os import chdir
 from pathlib import Path
@@ -6,10 +8,31 @@ from ngen.cal.configuration import General
 from ngen.cal.search import dds, dds_set, pso_search
 from ngen.cal.strategy import Algorithm
 from ngen.cal.agent import Agent
+from ngen.cal._plugin_system import setup_plugin_manager
 
-from typing import TYPE_CHECKING
+from typing import cast, Callable, List, Union, TYPE_CHECKING
+from types import ModuleType
+
 if TYPE_CHECKING:
     from typing import Mapping, Any
+    from pluggy import PluginManager
+
+def _loaded_plugins(pm: PluginManager) -> str:
+    from .utils import type_as_import_string
+
+    plugins: List[str] = []
+    for (name, plugin) in pm.list_name_plugin():
+        if not name:
+            continue
+        # case for a class based plugin. name in this case is the python ref id.
+        if name[0].isdigit():
+            qualified_name = type_as_import_string(plugin.__class__)
+            name = f"{qualified_name} ({name})"
+
+        plugins.append(name)
+
+    return f"Plugins Loaded: {', '.join(plugins)}"
+
 
 def main(general: General, model_conf: "Mapping[str, Any]"):
     #seed the random number generators if requested
@@ -18,6 +41,14 @@ def main(general: General, model_conf: "Mapping[str, Any]"):
         random.seed(general.random_seed)
         import numpy as np
         np.random.seed(general.random_seed)
+
+    plugins = cast(List[Union[Callable, ModuleType]], general.plugins)
+    plugin_manager = setup_plugin_manager(plugins)
+
+    print(_loaded_plugins(plugin_manager))
+
+    # setup plugins
+    plugin_manager.hook.ngen_cal_configure(config=general)
 
     print("Starting calib")
 
@@ -46,21 +77,31 @@ def main(general: General, model_conf: "Mapping[str, Any]"):
     # print("Starting Best score: {}".format(meta.best_score))
     print("Starting calibration loop")
 
+    # call `ngen_cal_start` plugin hook functions
+    plugin_manager.hook.ngen_cal_start()
 
-    #NOTE this assumes we calibrate each catchment independently, it may be possible to design an "aggregate" calibration
-    #that works in a more sophisticated manner.
-    if agent.model.strategy == 'explicit': #FIXME this needs a refactor...should be able to use a calibration_set with explicit loading
-        for catchment in agent.model.adjustables:
-            dds(start_iteration, general.iterations, catchment, agent)
+    try:
+        #NOTE this assumes we calibrate each catchment independently, it may be possible to design an "aggregate" calibration
+        #that works in a more sophisticated manner.
+        if agent.model.strategy == 'explicit': #FIXME this needs a refactor...should be able to use a calibration_set with explicit loading
+            for catchment in agent.model.adjustables:
+                dds(start_iteration, general.iterations, catchment, agent)
 
-    elif agent.model.strategy == 'independent':
-        #for catchment_set in agent.model.adjustables:
-        func(start_iteration, general.iterations, agent)
+        elif agent.model.strategy == 'independent':
+            #for catchment_set in agent.model.adjustables:
+            func(start_iteration, general.iterations, agent)
 
-    elif agent.model.strategy == 'uniform':
-        #for catchment_set in agent.model.adjustables:
-        #    func(start_iteration, general.iterations, catchment_set, agent)
-        func(start_iteration, general.iterations, agent)
+        elif agent.model.strategy == 'uniform':
+            #for catchment_set in agent.model.adjustables:
+            #    func(start_iteration, general.iterations, catchment_set, agent)
+            func(start_iteration, general.iterations, agent)
+    # call `ngen_cal_finish` plugin hook functions
+    except Exception as e:
+        plugin_manager.hook.ngen_cal_finish(exception=e)
+        raise e
+    else:
+        plugin_manager.hook.ngen_cal_finish(exception=None)
+
 
 if __name__ == "__main__":
 
