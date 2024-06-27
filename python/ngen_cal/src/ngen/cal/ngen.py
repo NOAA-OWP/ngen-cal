@@ -265,7 +265,7 @@ class NgenBase(ModelExec):
             except:
                 raise TypeError("hydrofabric must be a valid file path")
         if cats is not None or nex is not None or x is not None:
-            warnings.warn("GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.")
+            warnings.warn("GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.", DeprecationWarning)
 
         return values
 
