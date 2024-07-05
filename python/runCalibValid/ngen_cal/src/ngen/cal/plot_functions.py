@@ -681,17 +681,21 @@ def plot_fdc_valid(
 
 
 def plot_cost_hist(
-    cost_hist_file: Union[str, os.PathLike], 
+    cost_file: Union[str, os.PathLike], 
     plotfile: Union[str, os.PathLike], 
     title: Optional[str] = None,
+    algorithm: Optional[str] = None,
+    calib_iter: Optional[bool] = False,
 ) -> None:
     """Plot convergence curve.
 
     Parameters:
     ----------
-    cost_hist_file : File containing global best and mean local best cost function values at each iteration
+    cost_file : File containing global best and mean local best cost at each iteration
     plotfile : Image file 
     title : Figure title 
+    algorithm : Optimzation algorithm
+    calib_iter : Whether plot for each iteration or after all iterations are finished, default False
 
     Returns:
     ----------
@@ -700,15 +704,26 @@ def plot_cost_hist(
     """
     print('---Plotting Convergence Curve for Global and Local Best Values---')
 
+    
     # Read file
-    df = pd.read_csv(cost_hist_file)
+    df = pd.read_csv(cost_file)
     df.pop('iteration')
+
+    # Plot args
     colname = df.columns
-    cost_name = {'global_best': 'Global Best', 'local_best': 'Mean Local Best', 'leader_best': 'Mean Leader Best'}
+    cost_name = {'global_best': 'Global Best'}
+    cols = {'global_best': 'r'}
+    markers = {'global_best': 'o'}
+    if not calib_iter :
+        cost_name.update({'mean_local_best': 'Mean Local Best'})
+        cols.update({'mean_local_best': 'b'})
+        markers.update({'mean_local_best': '^'})
+        if algorithm == "gwo":
+            cost_name.update({'mean_leader_best': 'Mean Leader Best'})
+            cols.update({'mean_leader_best': 'y'})
+            markers.update({'mean_leader_best': 'd'})
 
     # Plot
-    cols = {'global_best': 'r', 'local_best': 'b', 'leader_best': 'y'}
-    markers = {'global_best': 'o', 'local_best': '^', 'leader_best': 'd'}
     fig, ax = plt.subplots(dpi=150, tight_layout=True)
     for x in colname:
         ax.plot(np.arange(0,len(df)), df[x], c=cols[x], label=cost_name[x], linewidth=1)

@@ -107,7 +107,7 @@ class EvaluationOptions(BaseModel):
         self._last_output_file = kwargs.pop('last_output_file', Path('{}_output_last_iteration.csv'.format(self.basinID)))
         self._best_output_file = kwargs.pop('best_output_file', Path('{}_output_best_iteration.csv'.format(self.basinID)))
         self._last_iter_file = kwargs.pop('last_iter_file', Path('{}_last_iteration.csv'.format(self.basinID)))
-        self._cost_iter_file = kwargs.pop('cost_iter_file', Path('{}_cost_iteration.csv'.format(self.basinID)))
+        self._cost_iter_file = kwargs.pop('cost_iter_file', Path('{}_cost_iter.csv'.format(self.basinID)))
 
         if self.evaluation_start and self.evaluation_stop:
             self._eval_range = (self.evaluation_start, self.evaluation_stop)
@@ -260,34 +260,41 @@ class EvaluationOptions(BaseModel):
             log_file.writelines(['{}, '.format(self.basinID), '{} \n'.format(i)])
 
 
-    def write_cost_iter_file(self, i: int, calib_run_path: Path) -> None:
-        """Write global and local best cost function at each iteration into csv file.
+    def write_cost_iter_file(self, i: int, calib_run_path: Path) -> Path:
+        """Write global best cost function at each iteration into csv file.
 
         Parameters
         ----------
         i : iteration
         calib_run_path : directory for calibration run
 
+        Returns:
+        ----------
+        cost_iter_file : Path
+
         """
-        workdirs = [os.path.join(calib_run_path, pnm) for pnm in os.listdir(calib_run_path) if os.path.isdir(os.path.join(calib_run_path, pnm))]
+        cost_iter_file = os.path.join(calib_run_path, self._cost_iter_file)
+     
+        obj_file = glob.glob(os.path.join(calib_run_path, 'ngen*', '*objective_log.txt'))
         df_log = pd.DataFrame()
-        for wdir in workdirs:
-            logfile = os.path.join(wdir, '{}_objective_log.txt'.format(self.basinID))
-            if os.path.exists(logfile):
-                wlog = pd.read_csv(logfile)
-                wlog['agent'] = os.path.basename(wdir)
-                df_log = pd.concat([df_log, wlog], ignore_index=True)
-        df_cost=pd.DataFrame()
-        for iter in range(0, i+1):
-                df_log_iter = df_log[df_log['iteration']==iter][['iteration', 'best_objective_function', 'agent']]
-                best_cost = pd.DataFrame({'iteration': iter, 'global_best': df_log_iter['best_objective_function'].min(),
-                             'local_best': df_log_iter['best_objective_function'].mean()}, index=[0])
+        for f in obj_file:
+            alog = pd.read_csv(f)
+            df_log = pd.concat([df_log, alog], ignore_index=True)
+
+        df_cost = pd.DataFrame()
+        for n in range(0, i+1):
+            df_log_iter = df_log.query('iteration==@n')[['iteration', 'best_objective_function']]
+            if df_log_iter.shape[0] > 0:
+                best_cost = pd.DataFrame({'iteration': n, 'global_best': df_log_iter['best_objective_function'].min()}, index=[0])
                 df_cost = pd.concat([df_cost, best_cost], ignore_index=True)
-        calib_cost_iter_file = os.path.join(calib_run_path, self._cost_iter_file)
-        df_cost.to_csv(calib_cost_iter_file, index=False)
+
+        if df_cost.shape[0] == i+1 and df_log.shape[0] == len(obj_file)*i+1:
+            df_cost.to_csv(cost_iter_file, index=False)
+
+        return cost_iter_file
 
 
-    def write_hist_file(self, optimizer_result: 'SwarmOptimizer', agent: 'Agent', params_lst: list) -> None:
+    def write_hist_file(self, optimizer_result: 'SwarmOptimizer', agent: 'Agent', params: 'pd.DataFrame') -> Path:
         """Write cost and position history plus global best position into csv files.
 
         Parameters
@@ -296,13 +303,17 @@ class EvaluationOptions(BaseModel):
         agent : Agent object
         params_lst : Calibration parameter list
 
+        Returns:
+        ----------
+        cost_hist_file : Path
+
         """
         # Save best cost
         cost_hist = {"iteration": range(1, len(optimizer_result.cost_history) + 1),
                          "global_best": optimizer_result.cost_history,
-                         "local_best": optimizer_result.mean_pbest_history}
+                         "mean_local_best": optimizer_result.mean_pbest_history}
         if agent.algorithm=="gwo":
-            cost_hist.update({"leader_best": optimizer_result.mean_leader_history})
+            cost_hist.update({"mean_leader_best": optimizer_result.mean_leader_history})
         cost_hist = pd.DataFrame(cost_hist)
         cost_hist_file = os.path.join(agent.workdir, '{}_cost_hist.csv'.format(self.basinID))
         cost_hist.to_csv(cost_hist_file, index=False)
@@ -310,7 +321,7 @@ class EvaluationOptions(BaseModel):
         # Save parameters of swarms
         pos_hist = pd.DataFrame()
         for i in range(len(optimizer_result.pos_history)):
-            pos_df = pd.DataFrame(optimizer_result.pos_history[i], columns=params_lst)
+            pos_df = pd.DataFrame(optimizer_result.pos_history[i], columns=params['param'].tolist())
             pos_df['agent'] = range(1, optimizer_result.swarm.n_particles + 1)
             pos_df['iteration'] = i + 1
             pos_hist = pd.concat([pos_hist, pos_df], ignore_index=True)
@@ -320,8 +331,8 @@ class EvaluationOptions(BaseModel):
         # Save best parameters
         best_pos = pd.DataFrame(optimizer_result.swarm.best_pos, columns=["global_best_params"])
         best_pos.reset_index(inplace=True, drop=True)
-        best_pos['param'] = params_lst
-        best_pos['model'] = list(agent.model_params.keys())*len(best_pos)
+        best_pos['param'] = params['param'].tolist()
+        best_pos['model'] = params['model'].tolist()
         best_pos_file = os.path.join(agent.workdir, '{}_global_best_params.csv'.format(self.basinID))
         best_pos.to_csv(best_pos_file, index=False)
 

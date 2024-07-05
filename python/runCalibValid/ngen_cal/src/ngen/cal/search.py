@@ -128,9 +128,11 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', agent: 'Agent', info: b
                                          agent.job.workdir, agent.calib_path_output, calibration_object.save_output_iter_flag)
     calibration_object.save_best_output(str(calibration_object.best_output_file), calibration_object.best_save_flag)
 
-    # Save global and local best cost, and plot
-    if len(glob.glob('*.log'))==1 and agent.algorithm !='dds':
-        calibration_object.write_cost_iter_file(i, agent.workdir) 
+    # Save global best cost and plot
+    if agent.algorithm !='dds':
+        cost_iter_file = calibration_object.write_cost_iter_file(i, agent.workdir)
+        if len(glob.glob('*.log'))==1:
+            plot_cost_func(calibration_object, agent, cost_iter_file, agent.algorithm, calib_iter=True)
 
     # Plot metrics, parameters and output
     if len(glob.glob('*.log'))==1 and i%calibration_object.save_plot_iter_freq==0:
@@ -139,6 +141,7 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', agent: 'Agent', info: b
     # Save last iteration
     calibration_object.write_last_iteration(i)
 
+    return score
 
 def dds_update(iteration: int, inclusion_probability: float, calibration_object: 'Adjustable', agent: 'Agent') -> None:
     """ Dynamically dimensioned search optimization algorithm. 
@@ -352,7 +355,8 @@ def pso_search(start_iteration: int, iterations: int,  agent: 'Agent') -> None:
         if start_iteration == 0:
             if calibration_object.output is None:
                 print("Running {} to produce initial simulation".format(agent.cmd))
-                agent.update_config(start_iteration, calibration_object.df[[str(start_iteration), 'param', 'model']], calibration_object.id)
+                calibration_object.df_fill(start_iteration)
+                agent.update_config(start_iteration, calibration_object.adf[[str(start_iteration), 'param', 'model']], calibration_object.id)
                 _execute(agent, start_iteration)
             with pushd(agent.job.workdir):
                 _evaluate(0, calibration_object, agent, info=True)
@@ -385,11 +389,14 @@ def pso_search(start_iteration: int, iterations: int,  agent: 'Agent') -> None:
         print(calibration_object.df[['param','global_best']].set_index('param'))
 
         # Save and plot history  
-        cost_hist_file = calibration_object.write_hist_file(optimizer, agent, list(calibration_object.df['param']))
+        cost_hist_file = calibration_object.write_hist_file(optimizer, agent, calibration_object.df)
         plot_cost_func(calibration_object, agent, cost_hist_file, agent.algorithm)
 
         # Create configuration files for validation run
-        calibration_object.create_valid_realization_file(agent, calibration_object.df) 
+        calibration_object.df[str(iterations)] = calibration_object.df['global_best']
+        calibration_object.df_fill(iterations)
+        calibration_object.adf['global_best'] = calibration_object.adf[str(iterations)]
+        calibration_object.create_valid_realization_file(agent, calibration_object.adf)
 
         # Indicate completion 
         calibration_object.write_run_complete_file(agent.run_name, agent.workdir)
@@ -424,7 +431,8 @@ def gwo_search(start_iteration: int, iterations: int,  agent)->None:
         if start_iteration == 0:
             if calibration_object.output is None:
                 print("Running {} to produce initial simulation".format(agent.cmd))
-                agent.update_config(start_iteration, calibration_object.df[[str(start_iteration), 'param', 'model']], calibration_object.id)
+                calibration_object.df_fill(start_iteration)
+                agent.update_config(start_iteration, calibration_object.adf[[str(start_iteration), 'param', 'model']], calibration_object.id)
                 _execute(agent, start_iteration)
             with pushd(agent.job.workdir):
                 _evaluate(0, calibration_object, agent, info=True)
@@ -445,11 +453,14 @@ def gwo_search(start_iteration: int, iterations: int,  agent)->None:
         print(calibration_object.df[['param','global_best']].set_index('param'))
 
         # Save and plot history
-        cost_hist_file = calibration_object.write_hist_file(optimizer, agent, list(calibration_object.df['param']))
+        cost_hist_file = calibration_object.write_hist_file(optimizer, agent, calibration_object.df)
         plot_cost_func(calibration_object, agent, cost_hist_file, agent.algorithm)
 
         # Create configuration files for validation run
-        calibration_object.create_valid_realization_file(agent, calibration_object.df)
+        calibration_object.df[str(iterations)] = calibration_object.df['global_best']
+        calibration_object.df_fill(iterations)
+        calibration_object.adf['global_best'] = calibration_object.adf[str(iterations)]
+        calibration_object.create_valid_realization_file(agent, calibration_object.adf)
 
         # Indicate completion
         calibration_object.write_run_complete_file(agent.run_name, agent.workdir)

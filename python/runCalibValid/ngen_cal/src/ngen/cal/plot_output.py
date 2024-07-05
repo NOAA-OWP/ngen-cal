@@ -259,4 +259,4 @@ def plot_cost_func(
     else:
         plotfile = os.path.join(agent.workdir, calibration_object.basinID + '_cost_hist.png')
     title  = algorithm.upper() + ' Convergence Curve ' + '\n' + calibration_object.station_name
-    plf.plot_cost_hist(cost_hist_file, plotfile, title)
+    plf.plot_cost_hist(cost_hist_file, plotfile, title, algorithm, calib_iter)

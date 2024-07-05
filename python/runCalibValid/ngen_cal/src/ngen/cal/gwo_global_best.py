@@ -197,7 +197,6 @@ class GlobalBestGWO(SwarmOptimizer):
             self.swarm.pbest_pos, self.swarm.pbest_cost = compute_pbest(self.swarm)
             # Update leader and best cost and the corresponding positions 
             alpha, beta, delta = self.__get_abd(self.swarm.n_particles, self.swarm.current_cost)
-            # Compute best cost and position
             if verbose:
                 self.rep.hook(best_cost=self.swarm.best_cost)
             # save history
