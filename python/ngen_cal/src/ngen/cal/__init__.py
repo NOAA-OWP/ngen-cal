@@ -8,12 +8,11 @@ def pyobject_schema(cls, field_schema):
 
 PyObject.__modify_schema__ = classmethod(pyobject_schema)
 
+PROJECT_SLUG: Final = "ngen.cal"
+hookimpl = pluggy.HookimplMarker(PROJECT_SLUG)
+
 from .configuration import General, Model
 from .calibratable import Calibratable, Adjustable, Evaluatable
 from .calibration_set import CalibrationSet, UniformCalibrationSet
 from .meta import JobMeta
 from .plot import *
-
-PROJECT_SLUG: Final = "ngen.cal"
-
-hookimpl = pluggy.HookimplMarker(PROJECT_SLUG)
