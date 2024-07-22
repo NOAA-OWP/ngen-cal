@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from typing import Callable
 
     from ngen.cal.configuration import General
+    from pathlib import Path
 
 
 def test_setup_plugin_manager():
@@ -49,6 +50,13 @@ def ngen_cal_start() -> None:
 def ngen_cal_finish() -> None:
     """Called after exiting the calibration loop."""
 
+@hookimpl
+def ngen_cal_model_output() -> None:
+    """Test model output plugin"""
+
+@hookimpl
+def ngen_cal_model_post_iteration(path: Path, iteration: int) -> None:
+    """Test model post iteration"""
 
 class ClassBasedPlugin:
     @hookimpl
@@ -61,3 +69,11 @@ class ClassBasedPlugin:
     @hookimpl
     def ngen_cal_finish(self) -> None:
         """Called after exiting the calibration loop."""
+
+    @hookimpl
+    def ngen_cal_model_output(self) -> None:
+        """Test model output plugin"""
+
+    @hookimpl
+    def ngen_cal_model_post_iteration(self, path: Path, iteration: int) -> None:
+        """Test model post iteration"""
