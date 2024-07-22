@@ -60,7 +60,7 @@ def test_restart_1(ngen_config: 'Ngen', eval: 'EvaluationOptions', workdir: 'Dir
     eval.write_param_log_file(2)
     
     #make sure the catchment param df is saved before trying to restart
-    ngen_config.adjustables[0].check_point(workdir)
+    ngen_config.adjustables[0].check_point(workdir, 1)
 
     iteration = ngen_config.restart()
     assert iteration == 3

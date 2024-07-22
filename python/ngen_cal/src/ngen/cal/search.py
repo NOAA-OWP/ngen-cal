@@ -125,7 +125,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
             _execute(agent)
         with pushd(agent.job.workdir):
             _evaluate(0, calibration_object, info=True)
-        calibration_object.check_point(agent.job.workdir)
+        calibration_object.check_point(agent.job.workdir, 0)
         start_iteration += 1
 
     for i in range(start_iteration, iterations+1):
@@ -137,7 +137,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
         _execute(agent)
         with pushd(agent.job.workdir):
             _evaluate(i, calibration_object, info=True)
-        calibration_object.check_point(agent.job.workdir)
+        calibration_object.check_point(agent.job.workdir, i)
 
 def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
     """
@@ -175,7 +175,7 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
                 _execute(agent)
             with pushd(agent.job.workdir):
                 _evaluate(0, calibration_set, info=True)
-            calibration_set.check_point(agent.job.workdir)
+            calibration_set.check_point(agent.job.workdir, 0)
             start_iteration += 1
 
         for i in range(start_iteration, iterations+1):
@@ -188,7 +188,7 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
             _execute(agent)
             with pushd(agent.job.workdir):
                 _evaluate(i, calibration_set, info=True)
-            calibration_set.check_point(agent.job.workdir)
+            calibration_set.check_point(agent.job.workdir, i)
 
 def compute(calibration_object, iteration, input) -> float:
     params = input[0]
@@ -202,7 +202,7 @@ def compute(calibration_object, iteration, input) -> float:
         agent.update_config(iteration, calibration_object.df[[str(iteration), 'param', 'model']], calibration_object.id)
         _execute(agent)
         cost = _evaluate(iteration, calibration_object)
-        calibration_object.check_point(agent.workdir)
+        calibration_object.check_point(agent.workdir, iteration)
         #cost = _objective_func(calibration_object.output, calibration_object.observed, calibration_object.objective, calibration_object.evaluation_range)
     return cost
 
@@ -272,7 +272,7 @@ def pso_search(start_iteration: int, iterations: int,  agent):
         #For pyswarm, DO NOT use the embedded multi-processing -- it is impossible to track the mapping of an agent to the params
         cost, pos = optimizer.optimize(cf, iters=iterations, n_processes=None)
         calibration_object.df.loc[:,'global_best'] = pos
-        calibration_object.check_point("./")
+        calibration_object.check_point("./", iterations)
         print("Best params with cost {}:".format(cost))
         print(calibration_object.df[['param','global_best']].set_index('param'))
     
