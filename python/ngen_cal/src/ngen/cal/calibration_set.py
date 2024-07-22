@@ -137,14 +137,6 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         """
         return self._id
 
-    def save_output(self, i) -> None:
-        """
-            Save the last output to output for iteration i
-        """
-        #FIXME ensure _output_file exists
-        #FIXME re-enable this once more complete
-        shutil.move(self._output_file, '{}_last'.format(self._output_file))
-    
     #update handled in meta, TODO remove this method???
     def update_params(self, iteration: int) -> None:
         pass

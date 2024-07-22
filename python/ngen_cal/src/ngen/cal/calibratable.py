@@ -92,13 +92,6 @@ class Adjustable(ABC):
         """
         self._df = read_parquet(path/self.check_point_file)
 
-    @abstractmethod
-    def save_output(self, i: int) -> None:
-        """
-            Save the last output of the runtime for iteration i
-        """
-        pass
-
     def restart(self) -> None:
             self.load_df('./')
 
