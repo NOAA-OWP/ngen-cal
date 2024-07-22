@@ -1,5 +1,6 @@
 from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field, root_validator
-from typing import Optional, Tuple, Union
+from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Union
+from types import ModuleType, FunctionType
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -8,6 +9,9 @@ from datetime import datetime
 from pathlib import Path
 from abc import ABC, abstractmethod
 from .strategy import Objective
+from ngen.cal._plugin_system import setup_plugin_manager
+from .utils import PyObjectOrModule, type_as_import_string
+from pluggy import PluginManager
 # additional constrained types
 PosInt = conint(gt=-1)
 
@@ -213,6 +217,23 @@ class ModelExec(BaseModel, Configurable):
     args: Optional[str]
     workdir: DirectoryPath = Path("./") #FIXME test the various workdirs
     eval_params: Optional[EvaluationOptions] = Field(default_factory=EvaluationOptions)
+    plugins: List[PyObjectOrModule] = Field(default_factory=list)
+    plugin_settings: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+
+    _plugin_manager: PluginManager
+    class Config(BaseModel.Config):
+        # properly serialize plugins
+        json_encoders = {
+            type: type_as_import_string,
+            ModuleType: lambda mod: mod.__name__,
+            FunctionType: type_as_import_string,
+        }
+        underscore_attrs_are_private = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+        model_plugins = cast(List[Union[Callable, ModuleType]], self.plugins)
+        self._plugin_manager = setup_plugin_manager(model_plugins)
 
     #FIXME formalize type: str = "ModelName"
     def get_binary(self)->str:
