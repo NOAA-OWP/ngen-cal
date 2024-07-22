@@ -22,7 +22,7 @@ from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
 from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
 from .calibration_set import CalibrationSet, UniformCalibrationSet
-from .ngen_hooks.ngen_output import TrouteOutput
+from .ngen_hooks.ngen_output import TrouteOutput, NgenSaveOutput
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation # type: ignore
 from hypy.nexus import Nexus # type: ignore
@@ -111,6 +111,7 @@ class NgenBase(ModelExec):
         #now we work ours
         # Register the default ngen output hook
         self._plugin_manager.register(TrouteOutput(self.routing_output))
+        self._plugin_manager.register(NgenSaveOutput())
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
        
