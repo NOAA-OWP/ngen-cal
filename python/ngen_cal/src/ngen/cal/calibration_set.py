@@ -90,15 +90,7 @@ class CalibrationSet(Evaluatable):
     def observed(self, df):
         self._observed = df
 
-    def save_output(self, i) -> None:
-        """
-            Save the last output to output for iteration i
-        """
-        #FIXME ensure _output_file exists
-        #FIXME re-enable this once more complete
-        shutil.move(self._output_file, '{}_last'.format(self._output_file))
-    
-    def check_point(self, path: 'Path') -> None:
+    def check_point(self, path: 'Path', iteration: int) -> None:
         """
             Save calibration information
         """
