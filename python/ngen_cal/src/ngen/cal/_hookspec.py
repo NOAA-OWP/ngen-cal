@@ -8,6 +8,8 @@ from ngen.cal import PROJECT_SLUG
 
 if TYPE_CHECKING:
     from ngen.cal.configuration import General
+    from pandas import Series
+    from pathlib import Path
 
 hookspec = pluggy.HookspecMarker(PROJECT_SLUG)
 
@@ -42,3 +44,21 @@ def ngen_cal_finish(exception: Exception | None) -> None:
     raised during the calibration loop.
     `exception` will be non-none if an exception was raised during calibration.
     """
+
+class ModelHooks():
+    @hookspec(firstresult=True)
+    def ngen_cal_model_output(id: str | None) -> Series:
+        """
+            Called during each calibration iteration to provide the model output in the form
+            of a pandas Series, indexed by time.
+            Output series should be in units of cubic meters per second.
+        """
+
+    @hookspec
+    def ngen_cal_model_post_iteration(path: Path, iteration: int) -> None:
+        """
+            Called after each model iteration is completed and evaluated.
+            And before the next iteration is configured and started.
+            Currently called at the end of an Adjustable's check_point function
+            which writes out calibration/parameter state data each iteration.
+        """
