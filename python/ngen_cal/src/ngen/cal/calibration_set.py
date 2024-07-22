@@ -5,11 +5,13 @@ import pandas as pd
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
+    from pluggy import HookRelay
     from datetime import datetime
     from typing import Tuple, Optional
     from .model import EvaluationOptions
 import os
 from pathlib import Path
+import warnings
 from hypy.nexus import Nexus
 from .calibratable import Adjustable, Evaluatable
 
@@ -19,14 +21,15 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: 'HookRelay', start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
         """
 
         """
         super().__init__(eval_params)
         self._eval_nexus = eval_nexus
         self._adjustables = adjustables
-        self._output_file = routing_output
+        # record the hooks needed for output
+        self._output_hook = hooks.ngen_cal_model_output
 
         #use the nwis location to get observation data
         obs =self._eval_nexus._hydro_location.get_data(start_time, end_time)
@@ -53,41 +56,22 @@ class CalibrationSet(Evaluatable):
             This re-reads the output file each call, as the output for given calibration catchment changes
             for each calibration iteration. If it doesn't exist, should return None
         """
-        try:
-            #in this case, look for routed data
-            #this is really model specific, so not as generalizable the way this
-            #is coded right now =(
-            #would be better to hook this from the model object???
-            #read the routed flow at the eval_nexus
-            df = pd.read_csv(self._output_file, index_col=0)
-            df.index = df.index.map(lambda x: 'wb-'+str(x))
-            tuples = [ eval(x) for x in df.columns ]
-            df.columns = pd.MultiIndex.from_tuples(tuples)
-            # TODO should contributing_catchments be singular??? assuming it is for now...
-            df = df.loc[self._eval_nexus.contributing_catchments[0].replace('cat', 'wb')]
-            self._output = df.xs('q', level=1, drop_level=False)
-            #This is a hacky way to get the time index...pass the time around???
-            tnx_file = list(Path(self._output_file).parent.glob("nex*.csv"))[0]
-            tnx_df = pd.read_csv(tnx_file, index_col=0, parse_dates=[1], names=['ts', 'time', 'Q']).set_index('time')
-            dt_range = pd.date_range(tnx_df.index[0], tnx_df.index[-1], len(self._output.index)).round('min')
-            self._output.index = dt_range
-            #this may not be strictly nessicary...I think the _evalutate will align these...
-            self._output = self._output.resample('1H').first()
-            self._output.name="sim_flow"
-            # self._output = read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time', dtype={self._output_var: 'float64'})
-            # self._output.rename(columns={self._output_var:'sim_flow'}, inplace=True)
-            hydrograph = self._output
+        # TODO should contributing_catchments be singular??? assuming it is for now...
+        # Call output hooks, take first non-none result provided from hooks (called in LIFO order of registration)
+        df = self._output_hook(id=self._eval_nexus.contributing_catchments[0].replace('cat', 'wb'))
+        if not df:
+            # list of results is empty
+            print("No suitable output found from output hooks...")
+            df = None
+        elif len(df) > 1:
+            # TODO with the hook being firstresult=True, I don't think this is possible to hit...
+            warnings.warn("Multiple output data found, using first registered")
+            df = df[0]
+        else:
+            df = df[0]
+        return df
 
-        except FileNotFoundError:
-            print("{} not found. Current working directory is {}".format(self._output_file, os.getcwd()))
-            print("Setting output to None")
-            hydrograph = None
-        except Exception as e:
-            raise(e)
-        #if hydrograph is None:
-        #    raise(RuntimeError("Error reading output: {}".format(self._output_file)))
-        return hydrograph
-
+    # TODO should we still allow a setter here given the output hook used for this property?
     @output.setter
     def output(self, df):
         self._output = df
@@ -134,11 +118,11 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, eval_nexus: Nexus, routing_output: 'Path', start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
+    def __init__(self, eval_nexus: Nexus, hooks: 'HookRelay', start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
         """
 
         """
-        super().__init__(adjustables=[self], eval_nexus=eval_nexus, routing_output=routing_output, start_time=start_time, end_time=end_time, eval_params=eval_params)
+        super().__init__(adjustables=[self], eval_nexus=eval_nexus, hooks=hooks, start_time=start_time, end_time=end_time, eval_params=eval_params)
         Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
 
         #For now, set this to None so meta update does the right thing
