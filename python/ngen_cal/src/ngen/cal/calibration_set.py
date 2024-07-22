@@ -28,8 +28,9 @@ class CalibrationSet(Evaluatable):
         super().__init__(eval_params)
         self._eval_nexus = eval_nexus
         self._adjustables = adjustables
-        # record the hooks needed for output
+        # record the hooks needed for output and checkpointing
         self._output_hook = hooks.ngen_cal_model_output
+        self._post_hook = hooks.ngen_cal_model_post_iteration
 
         #use the nwis location to get observation data
         obs =self._eval_nexus._hydro_location.get_data(start_time, end_time)
@@ -96,6 +97,8 @@ class CalibrationSet(Evaluatable):
         """
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(path/adjustable.check_point_file)
+        # call any model post hooks
+        self._post_hook(path = path, iteration = iteration)
 
     def restart(self) -> int:
         try:
