@@ -7,9 +7,9 @@ import pandas as pd
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
-    from pluggy import HookRelay
     from datetime import datetime
     from typing import Tuple, Optional
+    from ngen.cal._hookspec import ModelHooks
     from ngen.cal.model import EvaluationOptions
     from ngen.cal.meta import JobMeta
 
@@ -25,7 +25,7 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: 'HookRelay', start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
         """
 
         """
@@ -117,7 +117,7 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, eval_nexus: Nexus, hooks: 'HookRelay', start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
+    def __init__(self, eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
         """
 
         """
