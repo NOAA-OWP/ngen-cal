@@ -10,7 +10,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ngen.cal.meta import JobMeta
 
-class TrouteOutput():
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ngen.cal.meta import JobMeta
+
+class TrouteOutput:
 
     def __init__(self, filepath: Path) -> None:
         self._output_file = filepath
@@ -38,7 +43,7 @@ class TrouteOutput():
     # Try external provided output hooks, if those fail, try this one
     # this will only execute if all other hooks return None (or they don't exist)
     @hookimpl(specname="ngen_cal_model_output", trylast=True)    
-    def getOutput(self, id: str) -> Series:
+    def get_output(self, id: str) -> Series:
         try:
             #look for routed data
             #read the routed flow at the given id
