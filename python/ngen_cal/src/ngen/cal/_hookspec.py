@@ -8,6 +8,7 @@ from ngen.cal import PROJECT_SLUG
 
 if TYPE_CHECKING:
     from ngen.cal.configuration import General
+    from ngen.cal.meta import JobMeta
     from pandas import Series
     from pathlib import Path
 
@@ -47,7 +48,7 @@ def ngen_cal_finish(exception: Exception | None) -> None:
 
 class ModelHooks():
     @hookspec(firstresult=True)
-    def ngen_cal_model_output(id: str | None) -> Series:
+    def ngen_cal_model_output(self, id: str | None) -> Series:
         """
             Called during each calibration iteration to provide the model output in the form
             of a pandas Series, indexed by time.
@@ -55,7 +56,7 @@ class ModelHooks():
         """
 
     @hookspec
-    def ngen_cal_model_post_iteration(path: Path, iteration: int) -> None:
+    def ngen_cal_model_iteration_finish(self, info: JobMeta, iteration: int) -> None:
         """
             Called after each model iteration is completed and evaluated.
             And before the next iteration is configured and started.
