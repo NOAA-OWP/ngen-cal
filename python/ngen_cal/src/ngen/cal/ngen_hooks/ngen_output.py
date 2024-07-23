@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from ngen.cal import hookimpl
 
 import pandas as pd
 from pandas import DataFrame, Series
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ngen.cal.meta import JobMeta
 
 class TrouteOutput():
 
@@ -64,11 +70,12 @@ class NgenSaveOutput():
     coastal_pattern = "cnx-*.csv"
     routing_output = "flowveldepth_Ngen.csv"
     @hookimpl(trylast=True)
-    def ngen_cal_model_post_iteration(self, path: Path, iteration: int) -> None:
+    def ngen_cal_model_iteration_finish(self, info: JobMeta, iteration: int) -> None:
         """
             After each iteration, copy the old outputs for possible future
             evaluation and inspection.
         """
+        path = info.workdir
         out_dir = path/f"output_{iteration}"
         Path.mkdir(out_dir)
         globs = []

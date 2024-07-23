@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pandas import DataFrame# type: ignore
 import shutil
 from typing import TYPE_CHECKING, Sequence
@@ -8,7 +10,9 @@ if TYPE_CHECKING:
     from pluggy import HookRelay
     from datetime import datetime
     from typing import Tuple, Optional
-    from .model import EvaluationOptions
+    from ngen.cal.model import EvaluationOptions
+    from ngen.cal.meta import JobMeta
+
 import os
 from pathlib import Path
 import warnings
@@ -30,7 +34,7 @@ class CalibrationSet(Evaluatable):
         self._adjustables = adjustables
         # record the hooks needed for output and checkpointing
         self._output_hook = hooks.ngen_cal_model_output
-        self._post_hook = hooks.ngen_cal_model_post_iteration
+        self._iteration_finish_hook = hooks.ngen_cal_model_iteration_finish
 
         #use the nwis location to get observation data
         obs =self._eval_nexus._hydro_location.get_data(start_time, end_time)
@@ -91,14 +95,14 @@ class CalibrationSet(Evaluatable):
     def observed(self, df):
         self._observed = df
 
-    def check_point(self, path: 'Path', iteration: int) -> None:
+    def check_point(self, info: JobMeta, iteration: int) -> None:
         """
             Save calibration information
         """
         for adjustable in self.adjustables:
-            adjustable.df.to_parquet(path/adjustable.check_point_file)
+            adjustable.df.to_parquet(info.workdir/adjustable.check_point_file)
         # call any model post hooks
-        self._post_hook(path = path, iteration = iteration)
+        self._iteration_finish_hook(info = info, iteration = iteration)
 
     def restart(self) -> int:
         try:
