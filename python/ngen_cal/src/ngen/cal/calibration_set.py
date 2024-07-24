@@ -63,16 +63,9 @@ class CalibrationSet(Evaluatable):
         # TODO should contributing_catchments be singular??? assuming it is for now...
         # Call output hooks, take first non-none result provided from hooks (called in LIFO order of registration)
         df = self._hooks.ngen_cal_model_output(id=self._eval_nexus.contributing_catchments[0].replace('cat', 'wb'))
-        if not df:
+        if df is None:
             # list of results is empty
             print("No suitable output found from output hooks...")
-            df = None
-        elif len(df) > 1:
-            # TODO with the hook being firstresult=True, I don't think this is possible to hit...
-            warnings.warn("Multiple output data found, using first registered")
-            df = df[0]
-        else:
-            df = df[0]
         return df
 
     # TODO should we still allow a setter here given the output hook used for this property?
