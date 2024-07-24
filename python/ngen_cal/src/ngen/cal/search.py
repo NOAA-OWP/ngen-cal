@@ -137,7 +137,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
         _execute(agent)
         with pushd(agent.job.workdir):
             _evaluate(i, calibration_object, info=True)
-        calibration_object.check_point(agent.job.workdir, i)
+        calibration_object.check_point(agent.job, i)
 
 def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
     """
@@ -272,7 +272,7 @@ def pso_search(start_iteration: int, iterations: int,  agent):
         #For pyswarm, DO NOT use the embedded multi-processing -- it is impossible to track the mapping of an agent to the params
         cost, pos = optimizer.optimize(cf, iters=iterations, n_processes=None)
         calibration_object.df.loc[:,'global_best'] = pos
-        calibration_object.check_point("./", iterations)
+        calibration_object.check_point(agent.job, iterations)
         print("Best params with cost {}:".format(cost))
         print(calibration_object.df[['param','global_best']].set_index('param'))
     
