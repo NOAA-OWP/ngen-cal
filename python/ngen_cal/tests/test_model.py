@@ -1,6 +1,7 @@
 import pytest
 from typing import TYPE_CHECKING
 from ngen.cal.ngen import Ngen
+from ngen.cal.meta import JobMeta
 if TYPE_CHECKING:
     from ngen.cal.model import EvaluationOptions
     from pydantic import DirectoryPath
@@ -58,9 +59,9 @@ def test_restart_1(ngen_config: 'Ngen', eval: 'EvaluationOptions', workdir: 'Dir
     eval._best_params_iteration = "1"
     ngen_config.adjustables[0]._best_params = "1"
     eval.write_param_log_file(2)
-    
+    info = JobMeta(ngen_config.type, workdir, workdir = workdir)
     #make sure the catchment param df is saved before trying to restart
-    ngen_config.adjustables[0].check_point(workdir, 1)
+    ngen_config.adjustables[0].check_point(info, 1)
 
     iteration = ngen_config.restart()
     assert iteration == 3
