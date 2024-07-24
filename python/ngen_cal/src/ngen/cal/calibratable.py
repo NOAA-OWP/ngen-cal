@@ -83,7 +83,7 @@ class Adjustable(ABC):
         """
         return Path('{}_parameter_df_state.parquet'.format(self.id))
 
-    def check_point(self, info: JobMeta, iteration: int) -> None:
+    def check_point(self, iteration: int, info: JobMeta) -> None:
         """
             Save calibration information
         """
