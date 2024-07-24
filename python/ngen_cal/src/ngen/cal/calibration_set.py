@@ -33,8 +33,7 @@ class CalibrationSet(Evaluatable):
         self._eval_nexus = eval_nexus
         self._adjustables = adjustables
         # record the hooks needed for output and checkpointing
-        self._output_hook = hooks.ngen_cal_model_output
-        self._iteration_finish_hook = hooks.ngen_cal_model_iteration_finish
+        self._hooks = hooks
 
         #use the nwis location to get observation data
         obs =self._eval_nexus._hydro_location.get_data(start_time, end_time)
@@ -63,7 +62,7 @@ class CalibrationSet(Evaluatable):
         """
         # TODO should contributing_catchments be singular??? assuming it is for now...
         # Call output hooks, take first non-none result provided from hooks (called in LIFO order of registration)
-        df = self._output_hook(id=self._eval_nexus.contributing_catchments[0].replace('cat', 'wb'))
+        df = self._hooks.ngen_cal_model_output(id=self._eval_nexus.contributing_catchments[0].replace('cat', 'wb'))
         if not df:
             # list of results is empty
             print("No suitable output found from output hooks...")
@@ -102,7 +101,7 @@ class CalibrationSet(Evaluatable):
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(info.workdir/adjustable.check_point_file)
         # call any model post hooks
-        self._iteration_finish_hook(info = info, iteration = iteration)
+        self._hooks.ngen_cal_model_iteration_finish(info = info, iteration = iteration)
 
     def restart(self) -> int:
         try:
