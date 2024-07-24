@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from pandas import Series, read_parquet # type: ignore
 from typing import Optional, TYPE_CHECKING
@@ -8,7 +10,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from datetime import datetime
     from typing import Tuple, Callable, Optional
-    from .model import EvaluationOptions
+    from ngen.cal.model import EvaluationOptions
+    from ngen.cal.meta import JobMeta
 
 class Adjustable(ABC):
     """
@@ -80,10 +83,11 @@ class Adjustable(ABC):
         """
         return Path('{}_parameter_df_state.parquet'.format(self.id))
 
-    def check_point(self, path: 'Path', iteration: int) -> None:
+    def check_point(self, info: JobMeta, iteration: int) -> None:
         """
             Save calibration information
         """
+        path = info.workdir
         self.df.to_parquet(path/self.check_point_file)
 
     def load_df(self, path: 'Path') -> None:
