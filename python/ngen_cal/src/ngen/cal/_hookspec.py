@@ -46,7 +46,7 @@ def ngen_cal_finish(exception: Exception | None) -> None:
     `exception` will be non-none if an exception was raised during calibration.
     """
 
-class ModelHooks():
+class ModelHooks:
     @hookspec(firstresult=True)
     def ngen_cal_model_output(self, id: str | None) -> Series:
         """
