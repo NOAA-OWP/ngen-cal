@@ -111,7 +111,6 @@ class NgenBase(ModelExec):
         #now we work ours
         # Register the default ngen output hook
         self._plugin_manager.register(TrouteOutput(self.routing_output))
-        self._plugin_manager.register(NgenSaveOutput())
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
        
