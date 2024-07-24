@@ -94,7 +94,7 @@ class CalibrationSet(Evaluatable):
     def observed(self, df):
         self._observed = df
 
-    def check_point(self, info: JobMeta, iteration: int) -> None:
+    def check_point(self, iteration: int, info: JobMeta) -> None:
         """
             Save calibration information
         """
