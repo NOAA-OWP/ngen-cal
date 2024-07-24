@@ -9,9 +9,10 @@ from datetime import datetime
 from pathlib import Path
 from abc import ABC, abstractmethod
 from .strategy import Objective
-from ngen.cal._plugin_system import setup_plugin_manager
+from ngen.cal._plugin_system import setup_scoped_plugin_manager
 from .utils import PyObjectOrModule, type_as_import_string
 from pluggy import PluginManager
+from ngen.cal._hookspec import ModelHooks
 # additional constrained types
 PosInt = conint(gt=-1)
 
@@ -233,7 +234,7 @@ class ModelExec(BaseModel, Configurable):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
         model_plugins = cast(List[Union[Callable, ModuleType]], self.plugins)
-        self._plugin_manager = setup_plugin_manager(model_plugins)
+        self._plugin_manager = setup_scoped_plugin_manager(ModelHooks, model_plugins)
 
     #FIXME formalize type: str = "ModelName"
     def get_binary(self)->str:

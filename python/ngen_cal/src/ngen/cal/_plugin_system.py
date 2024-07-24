@@ -27,3 +27,17 @@ def setup_plugin_manager(plugins: list[Callable | ModuleType]) -> PluginManager:
             assert_never(plugin)
 
     return pm
+
+def setup_scoped_plugin_manager(spec: type, plugins: list[Callable | ModuleType]) -> PluginManager:
+    pm = pluggy.PluginManager(PROJECT_SLUG)
+    pm.add_hookspecs(spec)
+
+    for plugin in plugins:
+        if isinstance(plugin, Callable):
+            pm.register(plugin())
+        elif isinstance(plugin, ModuleType):
+            pm.register(plugin)
+        else:
+            assert_never(plugin)
+
+    return pm
