@@ -56,7 +56,7 @@ class ModelHooks:
         """
 
     @hookspec
-    def ngen_cal_model_iteration_finish(self, info: JobMeta, iteration: int) -> None:
+    def ngen_cal_model_iteration_finish(self, iteration: int, info: JobMeta) -> None:
         """
             Called after each model iteration is completed and evaluated.
             And before the next iteration is configured and started.

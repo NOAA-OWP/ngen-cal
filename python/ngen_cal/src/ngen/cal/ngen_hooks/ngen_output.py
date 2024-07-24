@@ -75,7 +75,7 @@ class NgenSaveOutput():
     coastal_pattern = "cnx-*.csv"
     routing_output = "flowveldepth_Ngen.csv"
     @hookimpl(trylast=True)
-    def ngen_cal_model_iteration_finish(self, info: JobMeta, iteration: int) -> None:
+    def ngen_cal_model_iteration_finish(self, iteration: int, info: JobMeta) -> None:
         """
             After each iteration, copy the old outputs for possible future
             evaluation and inspection.
