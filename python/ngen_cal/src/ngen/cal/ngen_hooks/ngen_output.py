@@ -57,7 +57,7 @@ class TrouteOutput:
             dt_range = pd.date_range(tnx_df.index[0], tnx_df.index[-1], len(output.index)).round('min')
             output.index = dt_range
             #this may not be strictly nessicary...I think the _evalutate will align these...
-            output = output.resample('1H').first()
+            output = output.resample('1h').first()
             output.name="sim_flow"
             return output
         except FileNotFoundError:
