@@ -101,7 +101,7 @@ class CalibrationSet(Evaluatable):
         for adjustable in self.adjustables:
             adjustable.df.to_parquet(info.workdir/adjustable.check_point_file)
         # call any model post hooks
-        self._hooks.ngen_cal_model_iteration_finish(info = info, iteration = iteration)
+        self._hooks.ngen_cal_model_iteration_finish(iteration = iteration, info = info)
 
     def restart(self) -> int:
         try:
