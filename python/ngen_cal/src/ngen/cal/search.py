@@ -267,6 +267,10 @@ def pso_search(start_iteration: int, iterations: int,  agent):
         # we are using here to interface with pyswarm, which only calls the cost_func once per iteration, and tracks other states internally
         # this is a significant problem, especially considering the computation costs of our "cost_function"
         optimizer = ps.single.GlobalBestPSO(n_particles=num_particles, dimensions=len(calibration_object.df), options=options, bounds=bounds)
+        # NOTE: this partial chaining to move calibration_object requirements through the pipeline
+        #causes some issues with multiplrocessing if the calibration_object (e.g. CalibrationSet)
+        #contains non-pickleable components, which with the new plugin system it does if the plugins are loaded
+        #from a module. Using class scoped/namespaced plugins and registering the class seems to avoid this problem
         cf = partial(cost_func, calibration_object, agents, _pool)
         # Perform optimization
         #For pyswarm, DO NOT use the embedded multi-processing -- it is impossible to track the mapping of an agent to the params
