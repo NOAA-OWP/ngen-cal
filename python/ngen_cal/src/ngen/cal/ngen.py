@@ -117,16 +117,34 @@ class NgenBase(ModelExec):
        
         # Read the catchment hydrofabric data
         if self.hydrofabric is not None:
-            self._read_hydrofabric()
+            if self._is_legacy_gpkg_hydrofabric(self.hydrofabric):
+                self._read_legacy_gpkg_hydrofabric()
+            else:
+                self._read_gpkg_hydrofabric()
         else:
-            self._read_legacy_hydrofabric()
+            self._read_legacy_geojson_hydrofabric()
 
         #Read the calibration specific info
         with open(self.realization) as fp:
             data = json.load(fp)
         self.ngen_realization = NgenRealization(**data)
 
-    def _read_hydrofabric(self):
+    @staticmethod
+    def _is_legacy_gpkg_hydrofabric(hydrofabric: Path) -> bool:
+        """Return True if legacy hydrofabric."""
+        import sqlite3
+        connection = sqlite3.connect(hydrofabric)
+        # hydrofabric <= 2.1 use 'flowpaths'
+        # hydrofabric > 2.1 use 'flowlines'
+        query = "SELECT name FROM sqlite_master WHERE type='table' AND name='flowpaths';"
+        try:
+            cursor = connection.execute(query)
+            value = cursor.fetchone()
+        finally:
+            connection.close()
+        return value is not None
+
+    def _read_gpkg_hydrofabric(self) -> None:
         # Read geopackage hydrofabric
         self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
         self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
@@ -134,14 +152,35 @@ class NgenBase(ModelExec):
         self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
         self._nexus_hydro_fabric.set_index('id', inplace=True)
 
-        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
+        # hydrofabric > 2.1 use 'flowlines'
+        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowlines')
         self._flowpath_hydro_fabric.set_index('id', inplace=True)
 
-        attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes")
+        # hydrofabric > 2.1 use 'flowpath-attributes'
+        attributes = gpd.read_file(self.hydrofabric, layer="flowpath-attributes")
+        attributes.set_index("id", inplace=True)
 
         self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
 
-    def _read_legacy_hydrofabric(self):
+    def _read_legacy_gpkg_hydrofabric(self) -> None:
+        # Read geopackage hydrofabric
+        self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
+        self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
+
+        self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric <= 2.1 use 'flowpaths'
+        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
+        self._flowpath_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric <= 2.1 use 'flowpath_attributes'
+        attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes")
+        attributes.set_index("id", inplace=True)
+
+        self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+
+    def _read_legacy_geojson_hydrofabric(self) -> None:
         # Legacy geojson support
         assert self.catchments is not None, "missing geojson catchments file"
         assert self.nexus is not None, "missing geojson nexus file"
