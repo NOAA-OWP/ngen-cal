@@ -24,8 +24,9 @@ from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
 from .calibration_set import CalibrationSet, UniformCalibrationSet
 from .ngen_hooks.ngen_output import TrouteOutput, NgenSaveOutput
 #HyFeatures components
-from hypy.hydrolocation import NWISLocation # type: ignore
-from hypy.nexus import Nexus # type: ignore
+from hypy.hydrolocation import NWISLocation
+from hypy.nexus import Nexus
+from hypy.catchment import Catchment
 
 class NgenStrategy(str, Enum):
     """
@@ -336,7 +337,7 @@ class NgenExplicit(NgenBase):
 
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.name, location, (), id)
+                nexus = Nexus(nexus_data.name, location, (), Catchment(id, {}))
                 output_var = catchment.formulations[0].params.main_output_variable
                 #read params from the realization calibration definition
                 params = {model:[Parameter(**p) for p in params] for model, params in catchment.calibration.items()}
@@ -419,13 +420,13 @@ class NgenIndependent(NgenBase):
             if nwis is not None:
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-                nexus = Nexus(nexus_data.name, location, (), id)
+                nexus = Nexus(nexus_data.name, location, (), Catchment(id, {}))
                 eval_nexus.append( nexus ) # FIXME why did I make this a tuple???
             else:
                 #in this case, we don't care if all nexus are observable, just need one downstream
                 #FIXME use the graph to work backwards from an observable nexus to all upstream catchments
                 #and create independent "sets"
-                nexus = Nexus(nexus_data.name, None, (), id)
+                nexus = Nexus(nexus_data.name, None, (), Catchment(id, {}))
             #FIXME pick up params per catchmment somehow???
             params = _map_params_to_realization(self.params, catchment)
             catchments.append(AdjustableCatchment(self.workdir, id, nexus, params))
@@ -469,6 +470,7 @@ class NgenUniform(NgenBase):
         eval_nexus = []
         
         for id, toid in self._catchment_hydro_fabric['toid'].items():
+            assert isinstance(id, str), f"id expected to be str subtype. is type: {type(id)}"
             #look for an observable nexus
             nexus_data = self._nexus_hydro_fabric.loc[toid]
             nwis = None
@@ -482,7 +484,7 @@ class NgenUniform(NgenBase):
                     continue
                 #establish the hydro location for the observation nexus associated with this catchment
             location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
-            nexus = Nexus(nexus_data.name, location, (), id)
+            nexus = Nexus(nexus_data.name, location, (), Catchment(id, {}))
             eval_nexus.append( nexus )
         
         if self.eval_feature:
