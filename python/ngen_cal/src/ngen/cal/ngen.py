@@ -115,44 +115,54 @@ class NgenBase(ModelExec):
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
        
-        #Read the catchment hydrofabric data
+        # Read the catchment hydrofabric data
         if self.hydrofabric is not None:
-            #Reading hydofabric from geopackage
-            self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
-            self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
-            self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
-            self._nexus_hydro_fabric.set_index('id', inplace=True)
-            self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
-            self._flowpath_hydro_fabric.set_index('id', inplace=True)
-            attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes").set_index('id')
-            self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+            self._read_hydrofabric()
         else:
-            # Legacy geojson support
-            assert self.catchments is not None, "missing geojson catchments file"      
-            assert self.nexus is not None, "missing geojson nexus file" 
-            assert self.crosswalk is not None, "missing crosswalk file"
-            self._catchment_hydro_fabric = gpd.read_file(self.catchments)
-            self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
-            self._catchment_hydro_fabric.set_index('id', inplace=True)
-            self._nexus_hydro_fabric = gpd.read_file(self.nexus)
-            self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
-            self._nexus_hydro_fabric.set_index('id', inplace=True)
-
-            self._x_walk = pd.Series(dtype=object)
-            with open(self.crosswalk) as fp:
-                data = json.load(fp)
-                for id, values in data.items():
-                    gage = values.get('Gage_no')
-                    if gage:
-                        if not isinstance(gage, str):
-                            gage = gage[0]
-                        if gage != "":
-                            self._x_walk[id] = gage
+            self._read_legacy_hydrofabric()
 
         #Read the calibration specific info
         with open(self.realization) as fp:
             data = json.load(fp)
         self.ngen_realization = NgenRealization(**data)
+
+    def _read_hydrofabric(self):
+        # Read geopackage hydrofabric
+        self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
+        self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
+
+        self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
+        self._flowpath_hydro_fabric.set_index('id', inplace=True)
+
+        attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes")
+
+        self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+
+    def _read_legacy_hydrofabric(self):
+        # Legacy geojson support
+        assert self.catchments is not None, "missing geojson catchments file"
+        assert self.nexus is not None, "missing geojson nexus file"
+        assert self.crosswalk is not None, "missing crosswalk file"
+        self._catchment_hydro_fabric = gpd.read_file(self.catchments)
+        self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
+        self._catchment_hydro_fabric.set_index('id', inplace=True)
+        self._nexus_hydro_fabric = gpd.read_file(self.nexus)
+        self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        self._x_walk = pd.Series(dtype=object)
+        with open(self.crosswalk) as fp:
+            data = json.load(fp)
+            for id, values in data.items():
+                gage = values.get('Gage_no')
+                if gage:
+                    if not isinstance(gage, str):
+                        gage = gage[0]
+                    if gage != "":
+                        self._x_walk[id] = gage
 
     @property
     def config_file(self) -> Path:
