@@ -254,11 +254,11 @@ class NgenBase(ModelExec):
         custom_args = False
         if args is None:
             if hydrofabric is not None:
-                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.resolve())
+                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
             else:
                 assert catchments is not None, f"catchments must be present: {values}"
                 assert nexus is not None, f"nexus must be present: {values}"
-                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.resolve())
+                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
             values['args'] = args
         else:
             custom_args = True
