@@ -12,7 +12,6 @@ global_config = {
                     "init_config": "/Users/nels.frazier/workspace/ngen//data/bmi/c/cfe/cat-27_bmi_config.ini",
                     "allow_exceed_end_time": False,
                     "fixed_time_step": False,
-                    "uses_forcing_file": False,
                     "variables_names_map": {
                         "atmosphere_water__liquid_equivalent_precipitation_rate": "precip_rate",
                         "water_potential_evaporation_flux": "potential_evapotranspiration",
@@ -66,7 +65,6 @@ catchment = {
                     "init_config": "/Users/nels.frazier/workspace/ngen//data/bmi/c/cfe/cat-27_bmi_config.ini",
                     "allow_exceed_end_time": False,
                     "fixed_time_step": False,
-                    "uses_forcing_file": False,
                     "variables_names_map": {
                         "atmosphere_water__liquid_equivalent_precipitation_rate": "precip_rate",
                         "water_potential_evaporation_flux": "potential_evapotranspiration",

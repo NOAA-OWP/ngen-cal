@@ -11,7 +11,6 @@
                     "init_config": "", 
                     "allow_exceed_end_time": false, 
                     "fixed_time_step": false, 
-                    "uses_forcing_file": false, 
                     "modules": [
                         {
                             "name": "bmi_fortran", 
@@ -22,7 +21,6 @@
                                 "init_config": "NOAH/cat-1.input", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
-                                "uses_forcing_file": false, 
                                 "variables_names_map": {
                                     "PRCPNONC": "atmosphere_water__liquid_equivalent_precipitation_rate", 
                                     "Q2": "atmosphere_air_water~vapor__relative_saturation", 
@@ -45,7 +43,6 @@
                                 "init_config": "cfe/config.txt", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
-                                "uses_forcing_file": false, 
                                 "variables_names_map": {
                                     "atmosphere_water__liquid_equivalent_precipitation_rate": "QINSUR", 
                                     "water_potential_evaporation_flux": "EVAPOTRANS", 
@@ -67,7 +64,6 @@
                                 "init_config": "/dev/null", 
                                 "allow_exceed_end_time": true, 
                                 "fixed_time_step": false, 
-                                "uses_forcing_file": false, 
                                 "model_params": {
                                     "sloth_ice_fraction_schaake(1,double,m,node)": 0.0, 
                                     "sloth_ice_fraction_xinan(1,double,1,node)": 0.0, 

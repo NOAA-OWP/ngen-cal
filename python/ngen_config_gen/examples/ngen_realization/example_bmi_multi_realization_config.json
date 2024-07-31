@@ -20,7 +20,6 @@
                                 "init_config": "/dev/null",
                                 "allow_exceed_end_time": true,
                                 "main_output_variable": "z",
-                                "uses_forcing_file": false,
                                 "model_params": {
                                     "sloth_ice_fraction_schaake(1,double,m,node)": 0.0,
                                     "sloth_ice_fraction_xinan(1,double,1,node)": 0.0,
@@ -48,7 +47,6 @@
                                     "SOLDN": "land_surface_radiation~incoming~shortwave__energy_flux",
                                     "SFCPRS": "land_surface_air__pressure"
                                 },
-                                "uses_forcing_file": false
                             }
                         },
                         {
@@ -75,11 +73,9 @@
                                     "ice_fraction_xinan": "sloth_ice_fraction_xinan",
                                     "soil_moisture_profile": "sloth_smp"
                                 },
-                                "uses_forcing_file": false
                             }
                         }
                     ],
-                    "uses_forcing_file": false
                 }
             }
         ],
