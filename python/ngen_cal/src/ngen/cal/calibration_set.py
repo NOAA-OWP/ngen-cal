@@ -62,7 +62,10 @@ class CalibrationSet(Evaluatable):
         """
         # TODO should contributing_catchments be singular??? assuming it is for now...
         # Call output hooks, take first non-none result provided from hooks (called in LIFO order of registration)
-        df = self._hooks.ngen_cal_model_output(id=self._eval_nexus.contributing_catchments[0].replace('cat', 'wb'))
+        cat_id = self._eval_nexus.contributing_catchments[0].id
+        assert cat_id.startswith("cat"), f"expected catchment id to start with 'cat': {cat_id}"
+        cat_id = cat_id.replace("cat", "wb")
+        df = self._hooks.ngen_cal_model_output(id=cat_id)
         if df is None:
             # list of results is empty
             print("No suitable output found from output hooks...")
