@@ -460,14 +460,16 @@ class NgenIndependent(NgenBase):
             #Need to fix the forcing definition or ngen will not work
             #for individual catchment configs, it doesn't apply pattern resolution
             #and will read the directory `path` key as the file key and will segfault
-            pattern = catchment_realizations[id].forcing.file_pattern
             path = catchment_realizations[id].forcing.path
+            pattern = catchment_realizations[id].forcing.file_pattern
             catchment_realizations[id].forcing.file_pattern = None
-            pattern = pattern.replace("{{id}}", id)
-            pattern = re.compile(pattern.replace("{{ID}}", id))
-            for f in path.iterdir():
-                if pattern.match(f.name):
-                    catchment_realizations[id].forcing.path = f.resolve()
+            # case when we have a pattern
+            if pattern is not None:
+                pattern = pattern.replace("{{id}}", id)
+                pattern = re.compile(pattern.replace("{{ID}}", id))
+                for f in path.iterdir():
+                    if pattern.match(f.name):
+                        catchment_realizations[id].forcing.path = f.resolve()
             
 
         self.ngen_realization.catchments = catchment_realizations
