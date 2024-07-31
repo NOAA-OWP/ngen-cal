@@ -240,21 +240,25 @@ class NgenBase(ModelExec):
         Returns:
             Dict: validated key/value pairs with default values set for known keys
         """
-        parallel = values.get('parallel')
-        partitions = values.get('partitions')
-        binary = values.get('binary')
-        args = values.get('args')
-        catchments = values.get('catchments')
-        nexus = values.get('nexus')
-        realization = values.get('realization')
-        hydrofabric = values.get('hydrofabric')
+        parallel: int | None = values.get('parallel')
+        partitions: Path | None = values.get('partitions')
+        assert "binary" in values, f"binary must be present: {values}"
+        binary: str = values['binary']
+        args: str | None = values.get('args')
+        catchments: Path | None = values.get('catchments')
+        nexus: Path | None = values.get('nexus')
+        assert "realization" in values, f"realization must be present: {values}"
+        realization: Path = values['realization']
+        hydrofabric: Path | None = values.get('hydrofabric')
 
         custom_args = False
         if args is None:
             if hydrofabric is not None:
-                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
+                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.resolve())
             else:
-                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
+                assert catchments is not None, f"catchments must be present: {values}"
+                assert nexus is not None, f"nexus must be present: {values}"
+                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.resolve())
             values['args'] = args
         else:
             custom_args = True
