@@ -115,44 +115,93 @@ class NgenBase(ModelExec):
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
        
-        #Read the catchment hydrofabric data
+        # Read the catchment hydrofabric data
         if self.hydrofabric is not None:
-            #Reading hydofabric from geopackage
-            self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
-            self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
-            self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
-            self._nexus_hydro_fabric.set_index('id', inplace=True)
-            self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
-            self._flowpath_hydro_fabric.set_index('id', inplace=True)
-            attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes").set_index('id')
-            self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+            if self._is_legacy_gpkg_hydrofabric(self.hydrofabric):
+                self._read_legacy_gpkg_hydrofabric()
+            else:
+                self._read_gpkg_hydrofabric()
         else:
-            # Legacy geojson support
-            assert self.catchments is not None, "missing geojson catchments file"      
-            assert self.nexus is not None, "missing geojson nexus file" 
-            assert self.crosswalk is not None, "missing crosswalk file"
-            self._catchment_hydro_fabric = gpd.read_file(self.catchments)
-            self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
-            self._catchment_hydro_fabric.set_index('id', inplace=True)
-            self._nexus_hydro_fabric = gpd.read_file(self.nexus)
-            self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
-            self._nexus_hydro_fabric.set_index('id', inplace=True)
-
-            self._x_walk = pd.Series(dtype=object)
-            with open(self.crosswalk) as fp:
-                data = json.load(fp)
-                for id, values in data.items():
-                    gage = values.get('Gage_no')
-                    if gage:
-                        if not isinstance(gage, str):
-                            gage = gage[0]
-                        if gage != "":
-                            self._x_walk[id] = gage
+            self._read_legacy_geojson_hydrofabric()
 
         #Read the calibration specific info
         with open(self.realization) as fp:
             data = json.load(fp)
         self.ngen_realization = NgenRealization(**data)
+
+    @staticmethod
+    def _is_legacy_gpkg_hydrofabric(hydrofabric: Path) -> bool:
+        """Return True if legacy hydrofabric."""
+        import sqlite3
+        connection = sqlite3.connect(hydrofabric)
+        # hydrofabric <= 2.1 use 'flowpaths'
+        # hydrofabric > 2.1 use 'flowlines'
+        query = "SELECT name FROM sqlite_master WHERE type='table' AND name='flowpaths';"
+        try:
+            cursor = connection.execute(query)
+            value = cursor.fetchone()
+        finally:
+            connection.close()
+        return value is not None
+
+    def _read_gpkg_hydrofabric(self) -> None:
+        # Read geopackage hydrofabric
+        self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
+        self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
+
+        self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric > 2.1 use 'flowlines'
+        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowlines')
+        self._flowpath_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric > 2.1 use 'flowpath-attributes'
+        attributes = gpd.read_file(self.hydrofabric, layer="flowpath-attributes")
+        attributes.set_index("id", inplace=True)
+
+        self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+
+    def _read_legacy_gpkg_hydrofabric(self) -> None:
+        # Read geopackage hydrofabric
+        self._catchment_hydro_fabric = gpd.read_file(self.hydrofabric, layer='divides')
+        self._catchment_hydro_fabric.set_index('divide_id', inplace=True)
+
+        self._nexus_hydro_fabric = gpd.read_file(self.hydrofabric, layer='nexus')
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric <= 2.1 use 'flowpaths'
+        self._flowpath_hydro_fabric = gpd.read_file(self.hydrofabric, layer='flowpaths')
+        self._flowpath_hydro_fabric.set_index('id', inplace=True)
+
+        # hydrofabric <= 2.1 use 'flowpath_attributes'
+        attributes = gpd.read_file(self.hydrofabric, layer="flowpath_attributes")
+        attributes.set_index("id", inplace=True)
+
+        self._x_walk = pd.Series( attributes[ ~ attributes['rl_gages'].isna() ]['rl_gages'] )
+
+    def _read_legacy_geojson_hydrofabric(self) -> None:
+        # Legacy geojson support
+        assert self.catchments is not None, "missing geojson catchments file"
+        assert self.nexus is not None, "missing geojson nexus file"
+        assert self.crosswalk is not None, "missing crosswalk file"
+        self._catchment_hydro_fabric = gpd.read_file(self.catchments)
+        self._catchment_hydro_fabric = self._catchment_hydro_fabric.rename(columns=str.lower)
+        self._catchment_hydro_fabric.set_index('id', inplace=True)
+        self._nexus_hydro_fabric = gpd.read_file(self.nexus)
+        self._nexus_hydro_fabric = self._nexus_hydro_fabric.rename(columns=str.lower)
+        self._nexus_hydro_fabric.set_index('id', inplace=True)
+
+        self._x_walk = pd.Series(dtype=object)
+        with open(self.crosswalk) as fp:
+            data = json.load(fp)
+            for id, values in data.items():
+                gage = values.get('Gage_no')
+                if gage:
+                    if not isinstance(gage, str):
+                        gage = gage[0]
+                    if gage != "":
+                        self._x_walk[id] = gage
 
     @property
     def config_file(self) -> Path:
@@ -191,20 +240,24 @@ class NgenBase(ModelExec):
         Returns:
             Dict: validated key/value pairs with default values set for known keys
         """
-        parallel = values.get('parallel')
-        partitions = values.get('partitions')
-        binary = values.get('binary')
-        args = values.get('args')
-        catchments = values.get('catchments')
-        nexus = values.get('nexus')
-        realization = values.get('realization')
-        hydrofabric = values.get('hydrofabric')
+        parallel: int | None = values.get('parallel')
+        partitions: Path | None = values.get('partitions')
+        assert "binary" in values, f"binary must be present: {values}"
+        binary: str = values['binary']
+        args: str | None = values.get('args')
+        catchments: Path | None = values.get('catchments')
+        nexus: Path | None = values.get('nexus')
+        assert "realization" in values, f"realization must be present: {values}"
+        realization: Path = values['realization']
+        hydrofabric: Path | None = values.get('hydrofabric')
 
         custom_args = False
         if args is None:
             if hydrofabric is not None:
                 args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
             else:
+                assert catchments is not None, f"catchments must be present: {values}"
+                assert nexus is not None, f"nexus must be present: {values}"
                 args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
             values['args'] = args
         else:
@@ -388,14 +441,16 @@ class NgenIndependent(NgenBase):
             #Need to fix the forcing definition or ngen will not work
             #for individual catchment configs, it doesn't apply pattern resolution
             #and will read the directory `path` key as the file key and will segfault
-            pattern = catchment_realizations[id].forcing.file_pattern
             path = catchment_realizations[id].forcing.path
+            pattern = catchment_realizations[id].forcing.file_pattern
             catchment_realizations[id].forcing.file_pattern = None
-            pattern = pattern.replace("{{id}}", id)
-            pattern = re.compile(pattern.replace("{{ID}}", id))
-            for f in path.iterdir():
-                if pattern.match(f.name):
-                    catchment_realizations[id].forcing.path = f.resolve()
+            # case when we have a pattern
+            if pattern is not None:
+                pattern = pattern.replace("{{id}}", id)
+                pattern = re.compile(pattern.replace("{{ID}}", id))
+                for f in path.iterdir():
+                    if pattern.match(f.name):
+                        catchment_realizations[id].forcing.path = f.resolve()
             
 
         self.ngen_realization.catchments = catchment_realizations
