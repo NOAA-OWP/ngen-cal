@@ -131,7 +131,7 @@ class NgenBase(ModelExec):
 
     @staticmethod
     def _is_legacy_gpkg_hydrofabric(hydrofabric: Path) -> bool:
-        """Return True if legacy hydrofabric."""
+        """Return True if legacy (<=v2.1) gpkg hydrofabric."""
         import sqlite3
         connection = sqlite3.connect(hydrofabric)
         # hydrofabric <= 2.1 use 'flowpaths'
