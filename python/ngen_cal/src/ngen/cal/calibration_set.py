@@ -25,23 +25,29 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
-        """
-
-        """
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: datetime, end_time: datetime, eval_params: EvaluationOptions):
         super().__init__(eval_params)
         self._eval_nexus = eval_nexus
         self._adjustables = adjustables
         # record the hooks needed for output and checkpointing
         self._hooks = hooks
 
-        #use the nwis location to get observation data
-        obs =self._eval_nexus._hydro_location.get_data(start_time, end_time)
-        #make sure data is hourly
-        self._observed = obs.set_index('value_time')['value'].resample('1h').nearest()
-        self._observed.rename('obs_flow', inplace=True)
-        #observations in ft^3/s convert to m^3/s
-        self._observed = self._observed * 0.028316847
+        # use the nwis location to get observation data
+        from hypy.hydrolocation.nwis_location import NWISLocation
+        location = self._eval_nexus._hydro_location
+        assert isinstance(location, NWISLocation), f"expected hypy.hydrolocation.NWISLocation instance, got {type(location)}"
+
+        # TODO: derive this from realization config
+        simulation_interval: pd.Timedelta = pd.Timedelta(3600, unit="s")
+        obs = self._hooks.ngen_cal_model_observations(
+            id=location.station_id,
+            start_time=start_time,
+            end_time=end_time,
+            simulation_interval=simulation_interval,
+        )
+        obs.rename("obs_flow", inplace=True)
+        self._observed = obs
+
         self._output = None
         self._eval_range = self.eval_params._eval_range
     
