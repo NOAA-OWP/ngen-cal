@@ -134,9 +134,12 @@ class NgenBase(ModelExec):
 
     def _register_default_ngen_plugins(self):
         from .ngen_hooks.ngen_output import TrouteOutput
+        from .ngen_hooks.observations import UsgsObservations
 
         # t-route outputs
         self._plugin_manager.register(TrouteOutput(self.routing_output))
+        # observations
+        self._plugin_manager.register(UsgsObservations())
 
     @staticmethod
     def _is_legacy_gpkg_hydrofabric(hydrofabric: Path) -> bool:
