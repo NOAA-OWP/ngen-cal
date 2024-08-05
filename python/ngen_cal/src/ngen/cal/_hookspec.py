@@ -7,9 +7,13 @@ import pluggy
 from ngen.cal import PROJECT_SLUG
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
+    import pandas as pd
+    from hypy.nexus import Nexus
+
     from ngen.cal.configuration import General
     from ngen.cal.meta import JobMeta
-    from pandas import Series
 
 hookspec = pluggy.HookspecMarker(PROJECT_SLUG)
 
@@ -45,20 +49,41 @@ def ngen_cal_finish(exception: Exception | None) -> None:
     `exception` will be non-none if an exception was raised during calibration.
     """
 
+
 class ModelHooks:
     @hookspec(firstresult=True)
-    def ngen_cal_model_output(self, id: str | None) -> Series:
+    def ngen_cal_model_observations(
+        self,
+        nexus: Nexus,
+        start_time: datetime,
+        end_time: datetime,
+        simulation_interval: pd.Timedelta,
+    ) -> pd.Series:
         """
-            Called during each calibration iteration to provide the model output in the form
-            of a pandas Series, indexed by time.
-            Output series should be in units of cubic meters per second.
+        Called during each calibration iteration to provide truth / observation
+        values in the form of a pandas Series, indexed by time with a record
+        every `simulation_interval`.
+        The returned pandas Series should be in units of cubic meters per
+        second.
+
+        `nexus`: HY_Features Nexus
+        `start_time`, `end_time`: inclusive simulation time range
+        `simulation_interval`: time (distance) between simulation values
+        """
+
+    @hookspec(firstresult=True)
+    def ngen_cal_model_output(self, id: str | None) -> pd.Series:
+        """
+        Called during each calibration iteration to provide the model output in
+        the form of a pandas Series, indexed by time.
+        Output series should be in units of cubic meters per second.
         """
 
     @hookspec
     def ngen_cal_model_iteration_finish(self, iteration: int, info: JobMeta) -> None:
         """
-            Called after each model iteration is completed and evaluated.
-            And before the next iteration is configured and started.
-            Currently called at the end of an Adjustable's check_point function
-            which writes out calibration/parameter state data each iteration.
+        Called after each model iteration is completed and evaluated.
+        And before the next iteration is configured and started.
+        Currently called at the end of an Adjustable's check_point function
+        which writes out calibration/parameter state data each iteration.
         """
