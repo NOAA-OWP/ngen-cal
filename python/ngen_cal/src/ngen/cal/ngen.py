@@ -24,7 +24,6 @@ from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
 from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
 from .calibration_set import CalibrationSet, UniformCalibrationSet
-from .ngen_hooks.ngen_output import TrouteOutput
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation
 from hypy.nexus import Nexus
@@ -66,6 +65,7 @@ def _map_params_to_realization(params: Mapping[str, Parameters], realization: Re
         return pd.concat(dfs)
     else:
         return _params_as_df(params, module.model_name)
+
 
 class NgenBase(ModelExec):
     """
@@ -113,10 +113,10 @@ class NgenBase(ModelExec):
         #Let pydantic work its magic
         super().__init__(**kwargs)
         #now we work ours
-        # Register the default ngen output hook
-        self._plugin_manager.register(TrouteOutput(self.routing_output))
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
+
+        self._register_default_ngen_plugins()
        
         # Read the catchment hydrofabric data
         if self.hydrofabric is not None:
@@ -131,6 +131,12 @@ class NgenBase(ModelExec):
         with open(self.realization) as fp:
             data = json.load(fp)
         self.ngen_realization = NgenRealization(**data)
+
+    def _register_default_ngen_plugins(self):
+        from .ngen_hooks.ngen_output import TrouteOutput
+
+        # t-route outputs
+        self._plugin_manager.register(TrouteOutput(self.routing_output))
 
     @staticmethod
     def _is_legacy_gpkg_hydrofabric(hydrofabric: Path) -> bool:
