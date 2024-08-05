@@ -26,6 +26,9 @@ class TrouteOutput:
         Returns:
             DataFrame: _description_
         """
+        if not self._output_file.exists():
+            return None
+
         if self._output_file.suffix == '.csv':
             df = pd.read_csv(self._output_file)
             # 't0' is reference time
