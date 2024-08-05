@@ -1,16 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from types import ModuleType
+from typing import TYPE_CHECKING
 
 from ngen.cal import hookimpl
 from ngen.cal._plugin_system import setup_plugin_manager
 
 if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
     from typing import Callable
 
+    import pandas as pd
+    from hypy.nexus import Nexus
+
     from ngen.cal.configuration import General
-    from pathlib import Path
 
 
 def test_setup_plugin_manager():
@@ -77,3 +81,13 @@ class ClassBasedPlugin:
     @hookimpl
     def ngen_cal_model_post_iteration(self, path: Path, iteration: int) -> None:
         """Test model post iteration"""
+
+    @hookimpl
+    def ngen_cal_model_observations(
+        self,
+        nexus: Nexus,
+        start_time: datetime,
+        end_time: datetime,
+        simulation_interval: pd.Timedelta,
+    ) -> pd.Series:
+        """Test observation plugin"""
