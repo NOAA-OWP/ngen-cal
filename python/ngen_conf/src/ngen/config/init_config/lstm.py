@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ngen.init_config import serializer_deserializer as serde
 from pydantic import Extra
 from pathlib import Path

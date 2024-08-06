@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, validator
 from typing import Any, Dict, TYPE_CHECKING, Union
 if TYPE_CHECKING:

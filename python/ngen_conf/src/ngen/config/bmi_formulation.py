@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, DirectoryPath, PyObject, Field, root_validator, validator
 from typing import Mapping, Optional, Union, Sequence, Any
 from typing_extensions import TypeAlias
