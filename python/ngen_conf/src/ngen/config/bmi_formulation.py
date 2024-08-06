@@ -42,7 +42,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     name: str
     model_name: str = Field(alias='model_type_name')
     main_output_variable: str
-    config: Union[Path] = Field(alias='init_config') #Bmi config, can be a file or a str pattern
+    config: Path = Field(alias='init_config') #Bmi config, can be a file or a str pattern
     
     #reasonable defaultable fields
     allow_exceed_end_time: bool = False
