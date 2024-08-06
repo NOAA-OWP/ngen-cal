@@ -36,7 +36,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
         Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
         #FIXME paramterize
-        self._output_file = workdir/'{}.csv'.format(self.id)
+        self._output_file = workdir/f'{self.id}.csv'
         self._workdir = workdir
     
     def save_output(self, i) -> None:
@@ -45,7 +45,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         """
         #FIXME ensure _output_file exists
         #FIXME re-enable this once more complete
-        shutil.move(self._output_file, '{}_last'.format(self._output_file))
+        shutil.move(self._output_file, f'{self._output_file}_last')
     
     #update handled in meta, TODO remove this method???
     def update_params(self, iteration: int) -> None:
@@ -120,7 +120,7 @@ class EvaluatableCatchment(Evaluatable):
         """
         hydrograph = self._observed
         if hydrograph is None:
-            raise(RuntimeError("Error reading observation for {}".format(self._id)))
+            raise(RuntimeError(f"Error reading observation for {self._id}"))
         return hydrograph
 
     @observed.setter

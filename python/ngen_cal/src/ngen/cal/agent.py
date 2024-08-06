@@ -108,7 +108,7 @@ class Agent(BaseAgent):
         """
             Proxy method to build command from contained model binary and args
         """
-        return "{} {}".format(self.model.get_binary(), self.model.get_args())
+        return f"{self.model.get_binary()} {self.model.get_args()}"
 
     def duplicate(self) -> 'Agent':
         #serialize a copy of the model
