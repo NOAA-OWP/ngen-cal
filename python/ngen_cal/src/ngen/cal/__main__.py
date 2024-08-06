@@ -72,7 +72,7 @@ def main(general: General, model_conf: "Mapping[str, Any]"):
             print("Restart not supported for PSO search, starting at 0")
         func = pso_search
 
-    print("Starting Iteration: {}".format(start_iteration))
+    print(f"Starting Iteration: {start_iteration}")
     # print("Starting Best param: {}".format(meta.best_params))
     # print("Starting Best score: {}".format(meta.best_score))
     print("Starting calibration loop")

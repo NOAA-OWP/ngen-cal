@@ -81,7 +81,7 @@ class Adjustable(ABC):
         """
             Filename checkpoint files are saved to
         """
-        return Path('{}_parameter_df_state.parquet'.format(self.id))
+        return Path(f'{self.id}_parameter_df_state.parquet')
 
     def check_point(self, iteration: int, info: JobMeta) -> None:
         """

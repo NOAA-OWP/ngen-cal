@@ -41,7 +41,7 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
         start_t = data['time']['start_time']
         end_t = data['time']['end_time']
     except KeyError as e:
-        raise(RuntimeError("Invalid time configuration: {} key missing from {}".format(e.args[0], config_file)))
+        raise(RuntimeError(f"Invalid time configuration: {e.args[0]} key missing from {config_file}"))
 
     #Setup each calibration catchment
     for id, catchment in data['catchments'].items():
@@ -54,11 +54,11 @@ def plot_stuff(workdir, catchment_data, nexus_data, cross_walk, config_file):
             try:
                 nwis = x_walk[id]['site_no']
             except KeyError:
-                raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+                raise(RuntimeError(f"Cannot establish mapping of catchment {id} to nwis location in cross walk"))
             try:
                 nexus_data = nexus_hydro_fabric.loc[fabric['toID']]
             except KeyError:
-                raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+                raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
 
             #establish the hydro location for the observation nexus associated with this catchment
             location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
@@ -84,15 +84,15 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     try:
         fabric = catchment_hydro_fabric.loc[id]
     except KeyError:
-        raise(RuntimeError("No data for id {}".format(id)))
+        raise(RuntimeError(f"No data for id {id}"))
     try:
         nwis = x_walk[id]['site_no']
     except KeyError:
-        raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+        raise(RuntimeError(f"Cannot establish mapping of catchment {id} to nwis location in cross walk"))
     try:
         nexus_data = nexus_hydro_fabric.loc[fabric['toID']]
     except KeyError:
-        raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+        raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
 
     #establish the hydro location for the observation nexus associated with this catchment
     location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
@@ -105,7 +105,7 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     obs = obs * 0.028316847 #convert to m^3/s
     obs.rename('obs_flow', inplace=True)
     plt.figure()
-    obs.plot(title='Observation at USGS {}'.format(nwis))
+    obs.plot(title=f'Observation at USGS {nwis}')
 
 def plot_output(output_file: 'Path'):
     #output = pd.read_csv(output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')

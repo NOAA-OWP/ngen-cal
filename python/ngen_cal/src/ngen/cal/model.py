@@ -116,14 +116,14 @@ class EvaluationOptions(BaseModel):
 
     def write_objective_log_file(self, i, score):
         with open(self.objective_log_file, 'a+') as log_file:
-            log_file.write('{}, '.format(i))
-            log_file.write('{}\n'.format(score))
+            log_file.write(f'{i}, ')
+            log_file.write(f'{score}\n')
     
     def write_param_log_file(self, i):
         with open(self.param_log_file, 'w+') as log_file:
-            log_file.write('{}\n'.format(i))
-            log_file.write('{}\n'.format(self.best_params))
-            log_file.write('{}\n'.format(self.best_score))
+            log_file.write(f'{i}\n')
+            log_file.write(f'{self.best_params}\n')
+            log_file.write(f'{self.best_score}\n')
 
     @property
     def best_score(self) -> float:

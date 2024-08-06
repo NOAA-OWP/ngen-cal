@@ -53,8 +53,8 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', info=False) -> float:
     #update meta info based on latest score and write some log files
     calibration_object.update(i, score, log=True)
     if info:
-        print("Current score {}\nBest score {}".format(score, calibration_object.best_score))
-        print("Best parameters at iteration {}".format(calibration_object.best_params))
+        print(f"Current score {score}\nBest score {calibration_object.best_score}")
+        print(f"Best parameters at iteration {calibration_object.best_params}")
     return score
 
 def dds_update(iteration: int, inclusion_probability: float, calibration_object: 'Adjustable', agent: 'Agent'):
@@ -64,14 +64,14 @@ def dds_update(iteration: int, inclusion_probability: float, calibration_object:
         iteration (int): _description_
     """
 
-    print( "inclusion probability: {}".format(inclusion_probability) )
+    print( f"inclusion probability: {inclusion_probability}" )
     #select a random subset of variables to modify
     #TODO convince myself that grabbing a random selction of P fraction of items
     #is the same as selecting item with probability P
     neighborhood = calibration_object.variables.sample(frac=inclusion_probability)
     if neighborhood.empty:
         neighborhood = calibration_object.variables.sample(n=1)
-    print( "neighborhood: {}".format(neighborhood) )
+    print( f"neighborhood: {neighborhood}" )
     #Copy the best parameter values so far into the next iterations parameter list
     calibration_object.df[str(iteration)] = calibration_object.df[agent.best_params]
     #print( data.calibration_df )
@@ -122,7 +122,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
         if calibration_object.output is None:
             #We are starting a new calibration and do not have an initial output state to evaluate, compute it
             #Need initial states  (iteration 0) to start DDS loop
-            print("Running {} to produce initial simulation".format(agent.cmd))
+            print(f"Running {agent.cmd} to produce initial simulation")
             agent.update_config(start_iteration, calibration_object.df[[str(start_iteration), 'param', 'model']], calibration_object.id)
             _execute(agent)
         with pushd(agent.job.workdir):
@@ -135,7 +135,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
         inclusion_probability = 1 - log(i)/log(iterations)
         dds_update(i, inclusion_probability, calibration_object, agent)
         #Run cmd Again...
-        print("Running {} for iteration {}".format(agent.cmd, i))
+        print(f"Running {agent.cmd} for iteration {i}")
         _execute(agent)
         with pushd(agent.job.workdir):
             _evaluate(i, calibration_object, info=True)
@@ -173,7 +173,7 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
             if calibration_set.output is None:
                 #We are starting a new calibration and do not have an initial output state to evaluate, compute it
                 #Need initial states  (iteration 0) to start DDS loop
-                print("Running {} to produce initial simulation".format(agent.cmd))
+                print(f"Running {agent.cmd} to produce initial simulation")
                 _execute(agent)
             with pushd(agent.job.workdir):
                 _evaluate(0, calibration_set, info=True)
@@ -186,7 +186,7 @@ def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
             for calibration_object in calibration_set.adjustables:
                 dds_update(i, inclusion_probability, calibration_object, agent)
             #Run cmd Again...
-            print("Running {} for iteration {}".format(agent.cmd, i))
+            print(f"Running {agent.cmd} for iteration {i}")
             _execute(agent)
             with pushd(agent.job.workdir):
                 _evaluate(i, calibration_set, info=True)
@@ -246,7 +246,7 @@ def pso_search(start_iteration: int, iterations: int,  agent):
     #TODO run first iteration?
     num_particles = agent.parameters.get('particles', 4)
     pool_size = agent.parameters.get("pool", 1)
-    print("Running PSO with {} particles using {} processes".format(num_particles, pool_size))
+    print(f"Running PSO with {num_particles} particles using {pool_size} processes")
     #TODO warn about potential loss of data when particles > pool
     _pool = pool.Pool(pool_size)
     agents = [agent] + [ agent.duplicate() for i in range(num_particles-1) ]
@@ -279,6 +279,5 @@ def pso_search(start_iteration: int, iterations: int,  agent):
         cost, pos = optimizer.optimize(cf, iters=iterations, n_processes=None)
         calibration_object.df.loc[:,'global_best'] = pos
         calibration_object.check_point(iterations, agent.job)
-        print("Best params with cost {}:".format(cost))
+        print(f"Best params with cost {cost}:")
         print(calibration_object.df[['param','global_best']].set_index('param'))
-    

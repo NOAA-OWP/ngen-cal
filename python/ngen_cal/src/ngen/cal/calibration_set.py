@@ -83,7 +83,7 @@ class CalibrationSet(Evaluatable):
         """
         hydrograph = self._observed
         if hydrograph is None:
-            raise(RuntimeError("Error reading observation for {}".format(self._id)))
+            raise(RuntimeError(f"Error reading observation for {self._id}"))
         return hydrograph
 
     @observed.setter
@@ -137,8 +137,8 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
 
     #Override this file name
     @property
-    def check_point_file(self) -> 'Path':
-        return Path('{}_parameter_df_state.parquet'.format(self._eval_nexus.id))
+    def check_point_file(self) -> Path:
+        return Path(f'{self._eval_nexus.id}_parameter_df_state.parquet')
 
     def restart(self):
         try:

@@ -61,7 +61,7 @@ class TrouteOutput:
             output.name="sim_flow"
             return output
         except FileNotFoundError:
-            print("{} not found. Current working directory is {}".format(self._output_file, Path.cwd()))
+            print(f"{self._output_file} not found. Current working directory is {Path.cwd()}")
             print("Setting output to None")
             return None
         except Exception as e:

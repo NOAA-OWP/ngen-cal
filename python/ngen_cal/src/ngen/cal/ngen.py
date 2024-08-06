@@ -255,9 +255,9 @@ class NgenBase(ModelExec):
         custom_args = False
         if args is None:
             if hydrofabric is not None:
-                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
+                args = f'{hydrofabric.resolve()} "all" {hydrofabric.resolve()} "all" {realization.name}'
             else:
-                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
+                args = f'{catchments.resolve()} "all" {nexus.resolve()} "all" {realization.name}'
             values['args'] = args
         else:
             custom_args = True
@@ -403,11 +403,11 @@ class NgenExplicit(NgenBase):
                 try:
                     nwis = self._x_walk[id]
                 except KeyError:
-                    raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+                    raise(RuntimeError(f"Cannot establish mapping of catchment {id} to nwis location in cross walk"))
                 try:
                     nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
                 except KeyError:
-                    raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+                    raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
 
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
@@ -484,7 +484,7 @@ class NgenIndependent(NgenBase):
             try:
                 nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
             except KeyError:
-                raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+                raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
             nwis = None
             try:
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
