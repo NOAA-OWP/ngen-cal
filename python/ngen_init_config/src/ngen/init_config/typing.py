@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 
 # see: https://docs.python.org/3.8/library/typing.html#typing.get_args

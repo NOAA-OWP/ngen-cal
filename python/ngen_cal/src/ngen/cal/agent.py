@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from ngen.cal.meta import JobMeta
 from ngen.cal.configuration import Model

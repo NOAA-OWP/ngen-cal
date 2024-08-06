@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 def lower_case(s: str) -> str:
     return s.lower()
 

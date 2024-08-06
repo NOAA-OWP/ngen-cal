@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import FilePath, root_validator, BaseModel, Field
 from typing import Optional, Sequence, Dict, Mapping, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8

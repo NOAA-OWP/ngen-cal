@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Dict, Protocol, Union, runtime_checkable
 from typing_extensions import Self
 
