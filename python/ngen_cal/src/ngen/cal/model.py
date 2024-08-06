@@ -183,7 +183,7 @@ class EvaluationOptions(BaseModel):
         return value
 
     def read_param_log_file(self):
-        with open(self.param_log_file, 'r') as log_file:
+        with open(self.param_log_file) as log_file:
             iteration = int(log_file.readline())
             best_params = int(log_file.readline())
             best_score = float(log_file.readline())
