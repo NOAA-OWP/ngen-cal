@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Sequence, Mapping, Any, Optional, TYPE_CHECKING
 from typing_extensions import Literal
 if TYPE_CHECKING:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from functools import lru_cache
 from typing import TYPE_CHECKING, Optional, Type, Union

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pandas import DataFrame, read_csv # type: ignore
 import shutil
 from typing import TYPE_CHECKING

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import subprocess
 import pandas as pd # type: ignore
 from math import log

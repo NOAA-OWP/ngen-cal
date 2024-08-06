@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import contextmanager
 from os import getcwd, chdir
 from typing import TYPE_CHECKING

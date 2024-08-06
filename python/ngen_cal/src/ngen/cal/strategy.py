@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
 from typing import Optional, Mapping, Any
 try: #to get literal in python 3.7, it was added to typing in 3.8

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from ngen.init_config import serializer_deserializer as serde

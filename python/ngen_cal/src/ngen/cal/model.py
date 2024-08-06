@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field, root_validator
 from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Union
 from types import ModuleType, FunctionType

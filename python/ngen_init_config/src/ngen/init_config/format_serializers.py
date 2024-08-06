@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import configparser
 from collections import OrderedDict
 from io import StringIO

@@ -50,6 +50,8 @@ Mapping the concepts this modules introduces onto the previously stated question
 For a more hands on experience, see example implementations:
 https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_config_gen/examples
 """
+from __future__ import annotations
+
 from typing import Any, Dict, Protocol, runtime_checkable, TYPE_CHECKING
 from pydantic import BaseModel
 
