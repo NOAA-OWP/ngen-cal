@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import importlib
-from typing import Any
-from types import ModuleType
+from typing import TYPE_CHECKING
 from copy import deepcopy
+
+if TYPE_CHECKING:
+    from typing import Any
+    from types import ModuleType
 
 
 __SENTINEL = object()
