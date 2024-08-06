@@ -11,7 +11,6 @@ from ngen.cal.utils import pushd
 if TYPE_CHECKING:
     from ngen.cal import Adjustable, Evaluatable
     from ngen.cal.agent import Agent
-    from typing import Tuple, Optional
     from datetime import datetime
 
 

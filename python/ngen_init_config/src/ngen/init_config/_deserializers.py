@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import configparser
 
-from typing import Any, Dict, Type
+from typing import Any
 
 from .typing import M
 from .utils import try_import

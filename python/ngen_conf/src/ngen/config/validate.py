@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 from pathlib import Path
-from typing import List
 
 
 class MissingPath:

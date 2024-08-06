@@ -1,4 +1,3 @@
-import pytest
 from ngen.cal.ngen import NgenExplicit, NgenIndependent, NgenUniform, NgenStrategy
 
 

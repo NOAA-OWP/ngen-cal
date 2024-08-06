@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, validator
-from typing import Any, Dict, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Optional
     from pathlib import Path
 
 class Formulation(BaseModel, smart_union=True):

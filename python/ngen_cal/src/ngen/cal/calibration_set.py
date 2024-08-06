@@ -1,21 +1,16 @@
 from __future__ import annotations
 
 from pandas import DataFrame# type: ignore
-import shutil
 from typing import TYPE_CHECKING, Sequence
-import pandas as pd
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
     from datetime import datetime
-    from typing import Tuple, Optional
     from ngen.cal._hookspec import ModelHooks
     from ngen.cal.model import EvaluationOptions
     from ngen.cal.meta import JobMeta
 
-import os
 from pathlib import Path
-import warnings
 from hypy.nexus import Nexus
 from .calibratable import Adjustable, Evaluatable
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import pandas as pd # type: ignore
 from hydrotools.metrics.metrics import *
 
 weights = [0.4, 0.2, 0.4]

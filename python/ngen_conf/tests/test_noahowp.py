@@ -1,4 +1,3 @@
-import pytest
 from ngen.config.formulation import Formulation
 from ngen.config.noahowp import NoahOWP
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pydantic import PyObject, Field
-from typing import Literal, Union
+from pydantic import Field
+from typing import Literal
 from .bmi_formulation import BMIC
 
 class PET(BMIC):

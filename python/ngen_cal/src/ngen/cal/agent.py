@@ -7,7 +7,7 @@ from ngen.cal.utils import pushd
 from pathlib import Path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Sequence, Optional, Mapping, Any
+    from typing import Sequence, Mapping, Any
     from pandas import DataFrame
     from pathlib import Path
     from ngen.cal.calibratable import Adjustable

@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pandas import Series, read_parquet # type: ignore
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from pathlib import Path
 
 if TYPE_CHECKING:
     from pandas import DataFrame, Series
     from pathlib import Path
     from datetime import datetime
-    from typing import Tuple, Callable, Optional
+    from typing import Callable
     from ngen.cal.model import EvaluationOptions
     from ngen.cal.meta import JobMeta
 

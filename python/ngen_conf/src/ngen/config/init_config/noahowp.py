@@ -4,7 +4,7 @@ import warnings
 from datetime import datetime
 from enum import Enum
 from pathlib import Path, PosixPath, WindowsPath
-from typing import ClassVar, Dict, List, Literal, Union
+from typing import ClassVar, List, Literal
 
 from ngen.init_config import core
 from ngen.init_config import serializer_deserializer as serde

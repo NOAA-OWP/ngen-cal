@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Collection, Dict, Iterable, Protocol, Union, TYPE_CHECKING
+from typing import Any, Collection, Iterable, Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .hook_providers import HookProvider
