@@ -64,7 +64,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     _config_prefix: Optional[DirectoryPath] = Field(default=None, alias="config_prefix")
     _output_map: Optional[Mapping[str, str]] = Field(None, alias="output_map")
 
-    def resolve_paths(self, relative_to: Optional[Path]=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         """Resolve relative paths into absolute paths
 
         Args: 
@@ -185,7 +185,7 @@ class BMILib(BMIParams):
     #optional
     _library_prefix: Optional[DirectoryPath] = Field(None, alias="library_prefix")
     
-    def resolve_paths(self, relative_to: Optional[Path]=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         super().resolve_paths(relative_to)
         if relative_to is None:
             self.library = self.library.resolve()

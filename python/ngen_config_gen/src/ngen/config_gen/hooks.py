@@ -71,7 +71,7 @@ class Builder(Protocol):
 
 @runtime_checkable
 class Visitable(Protocol):
-    def visit(self, hook_provider: "HookProvider") -> None:
+    def visit(self, hook_provider: HookProvider) -> None:
         """
         Classes that implement `visit` are assumed to also implement some or all hook methods (e.g. `hydrofabric_hook`).
         Classes that implement `visit` should call associated hook provider methods for each hook
@@ -119,7 +119,7 @@ class HydrofabricHook(Protocol):
     """
 
     def hydrofabric_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         """
         Expect to receive a hydrofabric version, data (see class docs), and the associated divide_id.
@@ -177,7 +177,7 @@ class HydrofabricLinkedDataHook(Protocol):
     """
 
     def hydrofabric_linked_data_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         """
         Expect to receive a hydrofabric linked data version, data (see class docs), and the associated divide_id.

@@ -33,15 +33,15 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
     def __new__(
         cls,
         *args: StrPath,
-        inner: Optional[T] = None,
+        inner: T | None = None,
         reader: Reader = path_reader,
         writer: Writer = path_writer,
-        serializer: Optional[Serializer[T]] = None,
-        deserializer: Optional[Deserializer[T]] = None,
+        serializer: Serializer[T] | None = None,
+        deserializer: Deserializer[T] | None = None,
         **kwargs: Any,
-    ) -> Union["WindowsPathPair[T]", "PosixPathPair[T]"]:
+    ) -> WindowsPathPair[T] | PosixPathPair[T]:
         cls = WindowsPathPair[T] if os.name == "nt" else PosixPathPair[T]
-        self: Union[WindowsPathPair[T], PosixPathPair[T]] = Path.__new__(
+        self: WindowsPathPair[T] | PosixPathPair[T] = Path.__new__(
             cls, *args, **kwargs
         )
         self._inner = inner
@@ -59,9 +59,9 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
         path: StrPath = "",
         reader: Reader = path_reader,
         writer: Writer = path_writer,
-        serializer: Optional[Serializer[T]] = None,
-        deserializer: Optional[Deserializer[T]] = None,
-    ) -> Union["PosixPathPair[T]", "WindowsPathPair[T]"]:
+        serializer: Serializer[T] | None = None,
+        deserializer: Deserializer[T] | None = None,
+    ) -> PosixPathPair[T] | WindowsPathPair[T]:
         return cls(
             Path(path),
             inner=obj,
@@ -76,7 +76,7 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
         yield cls.validate
 
     @classmethod
-    def __modify_schema__(cls, field_schema: Dict[str, Any]):
+    def __modify_schema__(cls, field_schema: dict[str, Any]):
         field_schema.clear()
         field_schema["format"] = "path"
         field_schema["type"] = "string"
@@ -112,13 +112,13 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         cls,
         *args: StrPath,
         pattern: str,
-        inner: Optional[List["PosixPathPair[T]"]] = None,
+        inner: list[PosixPathPair[T]] | None = None,
         reader: Reader = path_reader,
         writer: Writer = path_writer,
-        serializer: Optional[Serializer[T]] = None,
-        deserializer: Optional[Deserializer[T]] = None,
+        serializer: Serializer[T] | None = None,
+        deserializer: Deserializer[T] | None = None,
         **kwargs: Any,
-    ) -> Union["WindowsPathPairCollection[T]", "PosixPathPairCollection[T]"]:
+    ) -> WindowsPathPairCollection[T] | PosixPathPairCollection[T]:
         cls = (
             WindowsPathPairCollection[T]
             if os.name == "nt"
@@ -137,9 +137,9 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
                     f"Filename not derived from template and pattern, {template_str.name!r} {pattern!r}: {item}"
                 )
 
-        self: Union[
-            WindowsPathPairCollection[T], PosixPathPairCollection[T]
-        ] = Path.__new__(
+        self: (
+            WindowsPathPairCollection[T] | PosixPathPairCollection[T]
+        ) = Path.__new__(
             cls,
             *args,
             inner=inner,
@@ -159,7 +159,7 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
 
     @staticmethod
     def _get_id(
-        p: "PosixPathPair[T]",
+        p: PosixPathPair[T],
         prefix: str,
         suffix: str,
     ) -> str:
@@ -178,16 +178,16 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
     @classmethod
     def with_objects(
         cls,
-        objs: List[T],
+        objs: list[T],
         *,
         path: Path,
         pattern: str,
-        ids: List[str],
-        reader: Optional[Reader] = path_reader,
-        writer: Optional[Writer] = path_writer,
-        serializer: Optional[Serializer[T]] = None,
-        deserializer: Optional[Deserializer[T]] = None,
-    ) -> Union["PosixPathPairCollection[T]", "WindowsPathPairCollection[T]"]:
+        ids: list[str],
+        reader: Reader | None = path_reader,
+        writer: Writer | None = path_writer,
+        serializer: Serializer[T] | None = None,
+        deserializer: Deserializer[T] | None = None,
+    ) -> PosixPathPairCollection[T] | WindowsPathPairCollection[T]:
         assert len(objs) == len(ids)
         prefix, _, suffix = path.name.partition(pattern)
         assert prefix != "" and suffix != ""
@@ -220,7 +220,7 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         yield cls.validate
 
     @classmethod
-    def __modify_schema__(cls, field_schema: Dict[str, Any]):
+    def __modify_schema__(cls, field_schema: dict[str, Any]):
         field_schema.clear()
         field_schema["format"] = "path"
         field_schema["type"] = "string"

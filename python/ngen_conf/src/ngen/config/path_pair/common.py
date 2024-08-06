@@ -22,7 +22,7 @@ def pydantic_serializer(o: BaseModel) -> bytes:
     return o.json(by_alias=True).encode()
 
 
-def pydantic_deserializer(m: Type[M]) -> Deserializer[M]:
+def pydantic_deserializer(m: type[M]) -> Deserializer[M]:
     def deserialize(data: bytes) -> M:
         return m.parse_raw(data)
 

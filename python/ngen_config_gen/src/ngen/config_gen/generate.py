@@ -11,17 +11,17 @@ from .file_writer import FileWriter
 
 class DivideIdHookObject:
     def __init__(self):
-        self.__divide_id: Union[str, None] = None
+        self.__divide_id: str | None = None
 
     def hydrofabric_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         self.__divide_id = divide_id
 
-    def visit(self, hook_provider: "HookProvider") -> None:
+    def visit(self, hook_provider: HookProvider) -> None:
         hook_provider.provide_hydrofabric_data(self)
 
-    def divide_id(self) -> Union[str, None]:
+    def divide_id(self) -> str | None:
         return self.__divide_id
 
 
@@ -33,7 +33,7 @@ class BuilderVisitableFn(Protocol):
 
 
 def generate_configs(
-    hook_providers: Iterable["HookProvider"],
+    hook_providers: Iterable[HookProvider],
     hook_objects: Collection[BuilderVisitableFn],
     file_writer: FileWriter,
 ):

@@ -6,7 +6,7 @@ from typing import List
 
 
 class MissingPath:
-    def __init__(self, models: List[BaseModel], name: str, value: Path):
+    def __init__(self, models: list[BaseModel], name: str, value: Path):
         """Chain of pydantic model instances the last of which `name` and `value` properties belong"""
         self.models = models
         """Pydantic model instance on which `name` and `value` properties belong"""
@@ -28,16 +28,16 @@ class MissingPath:
         )
 
 
-def validate_paths(m: BaseModel) -> List[MissingPath]:
+def validate_paths(m: BaseModel) -> list[MissingPath]:
     """
     Recursively walk a pydantic model's fields and return a list of MissingPath
     instances for each encountered `pathlib.Path` instance that does not exist.
     The empty list means any `pathlib.Path` instances that were encountered
     exist.
     """
-    paths_that_dont_exist: List[MissingPath] = []
+    paths_that_dont_exist: list[MissingPath] = []
 
-    def rec(mod: BaseModel, visited: List[BaseModel]):
+    def rec(mod: BaseModel, visited: list[BaseModel]):
         for f_name in mod.__fields__.keys():
             f_value = getattr(mod, f_name)
             if isinstance(f_value, Path):

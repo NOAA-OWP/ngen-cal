@@ -17,12 +17,12 @@ class Formulation(BaseModel, smart_union=True):
     """
     #TODO make this an enum?
     name: str
-    params:  "KnownFormulations"
+    params:  KnownFormulations
 
     @validator("params", pre=True)
     def _validate_params(
-        cls, value: Union[Dict[str, Any], "KnownFormulations"]
-    ) -> Union[Dict[str, Any], "KnownFormulations"]:
+        cls, value: dict[str, Any] | KnownFormulations
+    ) -> dict[str, Any] | KnownFormulations:
         if isinstance(value, BaseModel):
             return value
 
@@ -37,7 +37,7 @@ class Formulation(BaseModel, smart_union=True):
                 raise ValueError("'name' and 'model_type_name' fields are required when deserializing _into_ a 'Formulation'.")
         return value
 
-    def resolve_paths(self, relative_to: 'Optional[Path]'=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         self.params.resolve_paths(relative_to)
 
 #NOTE To avoid circular import and support recrusive modules

@@ -13,7 +13,7 @@ __HASATTR_SENTINEL = object()
 
 def get_attr(
     __o: object, __name: str, __default: object = __SENTINEL
-) -> Union[Any, object]:
+) -> Any | object:
     value = __o
     partial_attrs = __name.split(".")
 
@@ -32,8 +32,8 @@ def has_attr(__o: object, __name: str) -> bool:
 
 
 def merge_class_attr(
-    __t: Type[object], __name: str, __default: object = __SENTINEL
-) -> Union[Any, object]:
+    __t: type[object], __name: str, __default: object = __SENTINEL
+) -> Any | object:
     """
     Walk a type's mro from back to front and merge or retrieve a _deep copy_ of a class attribute.
     Mergable attribute types (including subtypes) are, lists, dictionaries, and sets. Attributes are
@@ -53,7 +53,7 @@ def merge_class_attr(
     """
     mro = __t.mro()
 
-    final: Union[object, Any] = __MERGE_SENTINEL
+    final: object | Any = __MERGE_SENTINEL
 
     # unique id of source collection.
     # its healthy to think of this as a pointer to a source collection.

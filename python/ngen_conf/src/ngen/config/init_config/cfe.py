@@ -75,7 +75,7 @@ class CFEBase(serde.IniSerializerDeserializer):
         return [x.strip() for x in value.split(",")]
 
     class Config(serde.IniSerializerDeserializer.Config):
-        def _serialize_list(l: List[float]) -> str:
+        def _serialize_list(l: list[float]) -> str:
             return ",".join(map(lambda x: str(x), l))
 
         field_serializers = {
@@ -159,14 +159,14 @@ class CFE(serde.IniSerializerDeserializer):
     def dict(
         self,
         *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        include: AbstractSetIntStr | MappingIntStrAny | None = None,
+        exclude: AbstractSetIntStr | MappingIntStrAny | None = None,
         by_alias: bool = False,
-        skip_defaults: Optional[bool] = None,
+        skip_defaults: bool | None = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "DictStrAny":
+    ) -> DictStrAny:
         serial = super().dict(
             include=include,
             exclude=exclude,

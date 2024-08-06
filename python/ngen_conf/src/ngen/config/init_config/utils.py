@@ -33,7 +33,7 @@ _FLOAT_UNIT_PAIR_RE_PATTERN = r"([-]?\d*\.\d+|[-]?\d+)([Ee][-+]?\d+)?\[([^\]]*)\
 _FLOAT_UNIT_PAIR_RE = re.compile(_FLOAT_UNIT_PAIR_RE_PATTERN)
 
 
-def _parse_float_unit_str(s: str) -> Tuple[float, str]:
+def _parse_float_unit_str(s: str) -> tuple[float, str]:
     match = _FLOAT_UNIT_PAIR_RE.search(s)
 
     if match is None:
@@ -55,7 +55,7 @@ class FloatUnitPair(GenericModel, Generic[L]):
     unit: L
 
     @classmethod
-    def __modify_schema__(cls, field_schema: Dict[str, Any]):
+    def __modify_schema__(cls, field_schema: dict[str, Any]):
         field_schema.update(
             type="string",
             pattern=_FLOAT_UNIT_PAIR_RE_PATTERN,
@@ -63,7 +63,7 @@ class FloatUnitPair(GenericModel, Generic[L]):
         )
 
     @classmethod
-    def validate(cls: Type[Self], value: Any) -> Self:
+    def validate(cls: type[Self], value: Any) -> Self:
         if isinstance(value, FloatUnitPair):
             return value
 
@@ -87,14 +87,14 @@ class FloatUnitPair(GenericModel, Generic[L]):
     def dict(
         self,
         *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        include: AbstractSetIntStr | MappingIntStrAny | None = None,
+        exclude: AbstractSetIntStr | MappingIntStrAny | None = None,
         by_alias: bool = False,
-        skip_defaults: Optional[bool] = None,
+        skip_defaults: bool | None = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "DictStrAny":
+    ) -> DictStrAny:
         return str(self)
 
 

@@ -14,7 +14,7 @@ from .calibration_cathment import CalibrationCatchment
 if TYPE_CHECKING:
     from pathlib import Path
 
-def plot_objective(objective_log_file: 'Path'):
+def plot_objective(objective_log_file: Path):
     """
         Plot the objective funtion
     """
@@ -107,7 +107,7 @@ def plot_obs(id, catchment_data, nexus_data, cross_walk):
     plt.figure()
     obs.plot(title=f'Observation at USGS {nwis}')
 
-def plot_output(output_file: 'Path'):
+def plot_output(output_file: Path):
     #output = pd.read_csv(output_file, usecols=["Time", "Flow"], parse_dates=['Time'], index_col='Time')
     #output.rename(columns={'Flow':'sim_flow'}, inplace=True)
     output = pd.read_csv(output_file, parse_dates=['Time'], index_col='Time')
@@ -118,7 +118,7 @@ def plot_output(output_file: 'Path'):
     plt.figure()
     output['Flow'].plot(title='simulated flow')
 
-def plot_parameter_space(path: 'Path'):
+def plot_parameter_space(path: Path):
     params = pd.read_parquet(path)
     params.drop(columns=['min', 'max', 'sigma'], inplace=True)
     params.set_index('param', inplace=True)

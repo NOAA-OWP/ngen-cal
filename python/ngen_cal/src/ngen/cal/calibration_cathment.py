@@ -23,7 +23,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         parameteters used by the catchment.
     """
 
-    def __init__(self,  workdir: 'Path', id: str, nexus, params: dict = {}):
+    def __init__(self,  workdir: Path, id: str, nexus, params: dict = {}):
         """Create an adjustable catchment and initialize its parameter space
 
         Args:
@@ -56,7 +56,7 @@ class EvaluatableCatchment(Evaluatable):
         A catchment which is "observable" which means model output can be evaluated against
         these observations for this catchment.
     """
-    def __init__(self, nexus: Nexus, start_time: str, end_time: str, fabric: "GeoSeries", output_var: str, eval_params: 'EvaluationOptions'):
+    def __init__(self, nexus: Nexus, start_time: str, end_time: str, fabric: GeoSeries, output_var: str, eval_params: EvaluationOptions):
         """Initialize the evaluatable catchment
 
         Args:
@@ -83,11 +83,11 @@ class EvaluatableCatchment(Evaluatable):
         self._eval_range = self.eval_params._eval_range
         
     @property
-    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
+    def evaluation_range(self) -> tuple[datetime, datetime] | None:
         return self._eval_range
 
     @property
-    def output(self) -> 'DataFrame':
+    def output(self) -> DataFrame:
         """
             The model output hydrograph for this catchment
             This re-reads the output file each call, as the output for given calibration catchment changes
@@ -114,7 +114,7 @@ class EvaluatableCatchment(Evaluatable):
         self._output = df
 
     @property
-    def observed(self) -> 'DataFrame':
+    def observed(self) -> DataFrame:
         """
             The observed hydrograph for this catchment FIXME move output/observed to calibratable?
         """
@@ -131,7 +131,7 @@ class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
     """
         A Calibratable interface defining required properties for a calibratable object
     """
-    def __init__(self, workdir: str, id: str, nexus: Nexus, start_time: str, end_time: str, fabric: "GeoSeries", output_var: str, eval_params: 'EvaluationOptions', params: dict = {}):
+    def __init__(self, workdir: str, id: str, nexus: Nexus, start_time: str, end_time: str, fabric: GeoSeries, output_var: str, eval_params: EvaluationOptions, params: dict = {}):
         EvaluatableCatchment.__init__(self, nexus, start_time, end_time, fabric, output_var, eval_params)
         AdjustableCatchment.__init__(self,  workdir, id, nexus, params)
 

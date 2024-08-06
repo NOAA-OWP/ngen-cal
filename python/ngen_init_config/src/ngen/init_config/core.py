@@ -70,12 +70,12 @@ class Base(BaseModel):
         self,
         to_dict: bool = False,
         by_alias: bool = False,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        include: AbstractSetIntStr | MappingIntStrAny | None = None,
+        exclude: AbstractSetIntStr | MappingIntStrAny | None = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "TupleGenerator":
+    ) -> TupleGenerator:
         # NOTE: majority of this code was copy pasted from `pydantic==1.10.5`. Due to `pydantic`'s
         # stability and implementation of this method, it was easier and more straightforward to go
         # this route rather than an implementation overload. For readability and maintainability,
@@ -203,21 +203,21 @@ class Base(BaseModel):
             yield dict_key, v
 
 
-def _get_field_type_serializers(t: Type[Base]) -> TypeSerializers:
+def _get_field_type_serializers(t: type[Base]) -> TypeSerializers:
     return merge_class_attr(t, "Config.field_type_serializers", {})  # type: ignore
 
 
-def _has_field_type_serializers(t: Type[Base]) -> bool:
+def _has_field_type_serializers(t: type[Base]) -> bool:
     return bool(_get_field_serializers(t))
 
 
 @lru_cache(maxsize=None)
-def _get_field_serializers(t: Type[Base]) -> FieldSerializers:
+def _get_field_serializers(t: type[Base]) -> FieldSerializers:
     return merge_class_attr(t, "Config.field_serializers", {})  # type: ignore
 
 
 @lru_cache(maxsize=None)
-def _uses_composition(cls: Type[Base]) -> bool:
+def _uses_composition(cls: type[Base]) -> bool:
     for v in cls.__fields__.values():
         flat_type_hints = flatten_args(v.type_)
         for t in flat_type_hints:

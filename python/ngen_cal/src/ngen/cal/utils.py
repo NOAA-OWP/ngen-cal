@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from pydantic.typing import CallableGenerator
 
 @contextmanager
-def pushd(path: 'Path') -> None:
+def pushd(path: Path) -> None:
     """Change working directory to `path` for duration of the context
 
     Args:
