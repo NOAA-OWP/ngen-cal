@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 
 # see: https://docs.python.org/3.8/library/typing.html#typing.get_args
@@ -12,8 +14,6 @@ from typing import (
     Any,
     Callable,
     Dict,
-    List,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -30,7 +30,7 @@ FieldSerializers: TypeAlias = Dict[str, FnJsonSerializable]
 TypeSerializers: TypeAlias = Dict[Type[Any], FnJsonSerializable]
 
 
-def flatten_args(t: Type[object]) -> Tuple[Type[object], ...]:
+def flatten_args(t: type[object]) -> tuple[type[object], ...]:
     """Flatten and deduplicate nested type hints. Order is preserved. In line with `get_args`'
     behavior, `typing.Union` are excluded.
 
@@ -40,8 +40,8 @@ def flatten_args(t: Type[object]) -> Tuple[Type[object], ...]:
     ```
     """
     # NOTE: python 3.7 >= dictionaries are ordered
-    flat: Dict[Type[object], None] = {}
-    horizon: List[Type[object]] = [t]
+    flat: dict[type[object], None] = {}
+    horizon: list[type[object]] = [t]
 
     while True:
         if not horizon:

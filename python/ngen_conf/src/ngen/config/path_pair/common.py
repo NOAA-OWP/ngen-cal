@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
-from pathlib import Path
 
 from .protocol import Deserializer
 
-from typing import Type, TypeVar
+from typing import TypeVar, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 M = TypeVar("M", bound=BaseModel)
 
@@ -20,7 +24,7 @@ def pydantic_serializer(o: BaseModel) -> bytes:
     return o.json(by_alias=True).encode()
 
 
-def pydantic_deserializer(m: Type[M]) -> Deserializer[M]:
+def pydantic_deserializer(m: type[M]) -> Deserializer[M]:
     def deserialize(data: bytes) -> M:
         return m.parse_raw(data)
 

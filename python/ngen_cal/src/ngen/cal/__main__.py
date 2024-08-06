@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 def _loaded_plugins(pm: PluginManager) -> str:
     from .utils import type_as_import_string
 
-    plugins: List[str] = []
+    plugins: list[str] = []
     for (name, plugin) in pm.list_name_plugin():
         if not name:
             continue
@@ -34,7 +34,7 @@ def _loaded_plugins(pm: PluginManager) -> str:
     return f"Plugins Loaded: {', '.join(plugins)}"
 
 
-def main(general: General, model_conf: "Mapping[str, Any]"):
+def main(general: General, model_conf: Mapping[str, Any]):
     #seed the random number generators if requested
     if general.random_seed is not None:
         import random
@@ -72,7 +72,7 @@ def main(general: General, model_conf: "Mapping[str, Any]"):
             print("Restart not supported for PSO search, starting at 0")
         func = pso_search
 
-    print("Starting Iteration: {}".format(start_iteration))
+    print(f"Starting Iteration: {start_iteration}")
     # print("Starting Best param: {}".format(meta.best_params))
     # print("Starting Best score: {}".format(meta.best_score))
     print("Starting calibration loop")

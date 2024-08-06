@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 from typing import Optional, Mapping, Sequence, Any
 from pathlib import Path
@@ -13,7 +15,7 @@ class Realization(BaseModel):
     forcing: Forcing
     calibration: Optional[ Mapping[ str, Sequence[ Any ]] ]
 
-    def resolve_paths(self, relative_to: Optional['Path']=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         for f in self.formulations:
             f.resolve_paths(relative_to)
         if self.forcing :
@@ -43,7 +45,7 @@ class NgenRealization(BaseModel):
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
         }
 
-    def resolve_paths(self, relative_to: Optional['Path']=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         """resolve possible relative paths in configuration
         """
         self.global_config.resolve_paths(relative_to)

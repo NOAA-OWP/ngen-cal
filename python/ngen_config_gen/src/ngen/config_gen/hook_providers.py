@@ -1,4 +1,6 @@
-from typing import Any, Dict, Protocol, Union, runtime_checkable
+from __future__ import annotations
+
+from typing import Any, Protocol, runtime_checkable
 from typing_extensions import Self
 
 import geopandas as gpd
@@ -52,8 +54,8 @@ class DefaultHookProvider(HookProvider):
         self.hf_iter = self.__hf.iterrows()
         self.hf_lnk_iter = self.__hf_lnk.iterrows()
 
-        self.hf_row: Union[Dict[str, Any], None] = None
-        self.hf_lnk_row: Union[Dict[str, Any], None] = None
+        self.hf_row: dict[str, Any] | None = None
+        self.hf_lnk_row: dict[str, Any] | None = None
 
     def provide_hydrofabric_data(self, hook: HydrofabricHook):
         if self.hf_row is None:

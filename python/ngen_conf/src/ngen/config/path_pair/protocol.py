@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 
 if sys.version_info >= (3, 8):
@@ -5,9 +7,12 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Protocol
 
-from pathlib import Path
 
 from .typing import T, S
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Writer(Protocol):

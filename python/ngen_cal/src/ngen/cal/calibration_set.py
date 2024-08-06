@@ -1,21 +1,16 @@
 from __future__ import annotations
 
 from pandas import DataFrame# type: ignore
-import shutil
 from typing import TYPE_CHECKING, Sequence
-import pandas as pd
 if TYPE_CHECKING:
     from pandas import DataFrame
     from pathlib import Path
     from datetime import datetime
-    from typing import Tuple, Optional
     from ngen.cal._hookspec import ModelHooks
     from ngen.cal.model import EvaluationOptions
     from ngen.cal.meta import JobMeta
 
-import os
 from pathlib import Path
-import warnings
 from hypy.nexus import Nexus
 from .calibratable import Adjustable, Evaluatable
 
@@ -25,7 +20,7 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: EvaluationOptions):
         """
 
         """
@@ -46,7 +41,7 @@ class CalibrationSet(Evaluatable):
         self._eval_range = self.eval_params._eval_range
     
     @property
-    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
+    def evaluation_range(self) -> tuple[datetime, datetime] | None:
         return self._eval_range
 
     @property
@@ -54,7 +49,7 @@ class CalibrationSet(Evaluatable):
         return self._adjustables
 
     @property
-    def output(self) -> 'DataFrame':
+    def output(self) -> DataFrame:
         """
             The model output hydrograph for this catchment
             This re-reads the output file each call, as the output for given calibration catchment changes
@@ -77,13 +72,13 @@ class CalibrationSet(Evaluatable):
         self._output = df
 
     @property
-    def observed(self) -> 'DataFrame':
+    def observed(self) -> DataFrame:
         """
             The observed hydrograph for this catchment FIXME move output/observed to calibratable?
         """
         hydrograph = self._observed
         if hydrograph is None:
-            raise(RuntimeError("Error reading observation for {}".format(self._id)))
+            raise(RuntimeError(f"Error reading observation for {self._id}"))
         return hydrograph
 
     @observed.setter
@@ -112,7 +107,7 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
+    def __init__(self, eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: EvaluationOptions, params: dict = {}):
         """
 
         """
@@ -137,8 +132,8 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
 
     #Override this file name
     @property
-    def check_point_file(self) -> 'Path':
-        return Path('{}_parameter_df_state.parquet'.format(self._eval_nexus.id))
+    def check_point_file(self) -> Path:
+        return Path(f'{self._eval_nexus.id}_parameter_df_state.parquet')
 
     def restart(self):
         try:

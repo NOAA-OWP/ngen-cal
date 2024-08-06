@@ -50,7 +50,9 @@ Mapping the concepts this modules introduces onto the previously stated question
 For a more hands on experience, see example implementations:
 https://github.com/NOAA-OWP/ngen-cal/tree/master/python/ngen_config_gen/examples
 """
-from typing import Any, Dict, Protocol, runtime_checkable, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import Any, Protocol, runtime_checkable, TYPE_CHECKING
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
@@ -69,7 +71,7 @@ class Builder(Protocol):
 
 @runtime_checkable
 class Visitable(Protocol):
-    def visit(self, hook_provider: "HookProvider") -> None:
+    def visit(self, hook_provider: HookProvider) -> None:
         """
         Classes that implement `visit` are assumed to also implement some or all hook methods (e.g. `hydrofabric_hook`).
         Classes that implement `visit` should call associated hook provider methods for each hook
@@ -117,7 +119,7 @@ class HydrofabricHook(Protocol):
     """
 
     def hydrofabric_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         """
         Expect to receive a hydrofabric version, data (see class docs), and the associated divide_id.
@@ -175,7 +177,7 @@ class HydrofabricLinkedDataHook(Protocol):
     """
 
     def hydrofabric_linked_data_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         """
         Expect to receive a hydrofabric linked data version, data (see class docs), and the associated divide_id.

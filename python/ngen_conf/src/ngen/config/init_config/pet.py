@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum
-from typing import Literal, Union
+from typing import Literal
 
 from ngen.init_config import serializer_deserializer as serde
 from pydantic import validator
@@ -66,8 +68,8 @@ class PET(
 
     @validator("pet_method", pre=True)
     def _coerce_pet_method(
-        cls, value: Union[str, int, PetMethod]
-    ) -> Union[int, PetMethod]:
+        cls, value: str | int | PetMethod
+    ) -> int | PetMethod:
         if isinstance(value, (PetMethod, int)):
             return value
         return int(value)

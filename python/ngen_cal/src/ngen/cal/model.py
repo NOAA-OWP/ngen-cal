@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, DirectoryPath, conint, PyObject, validator, Field, root_validator
 from typing import Any, cast, Callable, Dict, List, Optional, Tuple, Union
 from types import ModuleType, FunctionType
@@ -114,14 +116,14 @@ class EvaluationOptions(BaseModel):
 
     def write_objective_log_file(self, i, score):
         with open(self.objective_log_file, 'a+') as log_file:
-            log_file.write('{}, '.format(i))
-            log_file.write('{}\n'.format(score))
+            log_file.write(f'{i}, ')
+            log_file.write(f'{score}\n')
     
     def write_param_log_file(self, i):
         with open(self.param_log_file, 'w+') as log_file:
-            log_file.write('{}\n'.format(i))
-            log_file.write('{}\n'.format(self.best_params))
-            log_file.write('{}\n'.format(self.best_score))
+            log_file.write(f'{i}\n')
+            log_file.write(f'{self.best_params}\n')
+            log_file.write(f'{self.best_score}\n')
 
     @property
     def best_score(self) -> float:
@@ -181,7 +183,7 @@ class EvaluationOptions(BaseModel):
         return value
 
     def read_param_log_file(self):
-        with open(self.param_log_file, 'r') as log_file:
+        with open(self.param_log_file) as log_file:
             iteration = int(log_file.readline())
             best_params = int(log_file.readline())
             best_score = float(log_file.readline())

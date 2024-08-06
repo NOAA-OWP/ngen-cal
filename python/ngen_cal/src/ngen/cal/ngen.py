@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pydantic import FilePath, root_validator, BaseModel, Field
-from typing import Optional, Sequence, Dict, Mapping, Union
+from typing import Optional, Sequence, Mapping, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -22,7 +24,7 @@ from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
 from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
 from .calibration_set import CalibrationSet, UniformCalibrationSet
-from .ngen_hooks.ngen_output import TrouteOutput, NgenSaveOutput
+from .ngen_hooks.ngen_output import TrouteOutput
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation
 from hypy.nexus import Nexus
@@ -93,7 +95,7 @@ class NgenBase(ModelExec):
     args: Optional[str]
 
     #private, not validated
-    _catchments: Sequence['CalibrationCatchment'] = []
+    _catchments: Sequence[CalibrationCatchment] = []
     _catchment_hydro_fabric: gpd.GeoDataFrame
     _nexus_hydro_fabric: gpd.GeoDataFrame
     _flowpath_hydro_fabric: gpd.GeoDataFrame
@@ -213,7 +215,7 @@ class NgenBase(ModelExec):
         return self.realization
 
     @property
-    def adjustables(self) -> Sequence['CalibrationCatchment']:
+    def adjustables(self) -> Sequence[CalibrationCatchment]:
         """A list of Catchments for calibration
         
         These catchments hold information about the parameters/calibration data for that catchment
@@ -224,7 +226,7 @@ class NgenBase(ModelExec):
         return self._catchments
 
     @root_validator
-    def set_defaults(cls, values: Dict):
+    def set_defaults(cls, values: dict):
         """Compose default values 
 
             This validator will set/adjust the following data values for the class
@@ -252,9 +254,9 @@ class NgenBase(ModelExec):
         custom_args = False
         if args is None:
             if hydrofabric is not None:
-                args = '{} "all" {} "all" {}'.format(hydrofabric.resolve(), hydrofabric.resolve(), realization.name)
+                args = f'{hydrofabric.resolve()} "all" {hydrofabric.resolve()} "all" {realization.name}'
             else:
-                args = '{} "all" {} "all" {}'.format(catchments.resolve(), nexus.resolve(), realization.name)
+                args = f'{catchments.resolve()} "all" {nexus.resolve()} "all" {realization.name}'
             values['args'] = args
         else:
             custom_args = True
@@ -325,7 +327,7 @@ class NgenBase(ModelExec):
 
         return values
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
+    def update_config(self, i: int, params: pd.DataFrame, id: str = None, path=Path("./")):
         """_summary_
 
         Args:
@@ -378,11 +380,11 @@ class NgenExplicit(NgenBase):
                 try:
                     nwis = self._x_walk[id]
                 except KeyError:
-                    raise(RuntimeError("Cannot establish mapping of catchment {} to nwis location in cross walk".format(id)))
+                    raise(RuntimeError(f"Cannot establish mapping of catchment {id} to nwis location in cross walk"))
                 try:
                     nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
                 except KeyError:
-                    raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+                    raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
 
                 #establish the hydro location for the observation nexus associated with this catchment
                 location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
@@ -396,7 +398,7 @@ class NgenExplicit(NgenBase):
                 eval_params.id = id
                 self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, eval_params, params))
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str, **kwargs):
+    def update_config(self, i: int, params: pd.DataFrame, id: str, **kwargs):
         """_summary_
 
         Args:
@@ -457,7 +459,7 @@ class NgenIndependent(NgenBase):
             try:
                 nexus_data = self._nexus_hydro_fabric.loc[fabric['toid']]
             except KeyError:
-                raise(RuntimeError("No suitable nexus found for catchment {}".format(id)))
+                raise(RuntimeError(f"No suitable nexus found for catchment {id}"))
             nwis = None
             try:
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
@@ -583,7 +585,7 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     def type(self):
         return self.__root__.type
 
-    def resolve_paths(self, relative_to: Optional[Path]=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         """resolve any possible relative paths in the realization
         """
         if self.__root__.ngen_realization != None:

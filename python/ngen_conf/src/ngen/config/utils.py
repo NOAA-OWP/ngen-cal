@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import contextmanager
 from os import getcwd, chdir
 from typing import TYPE_CHECKING
@@ -5,7 +7,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 @contextmanager
-def pushd(path: 'Path') -> None:
+def pushd(path: Path) -> None:
     """Change working directory to `path` for duration of the context
 
     Args:

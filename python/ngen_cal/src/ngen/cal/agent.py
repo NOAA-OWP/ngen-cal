@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from ngen.cal.meta import JobMeta
 from ngen.cal.configuration import Model
@@ -5,7 +7,7 @@ from ngen.cal.utils import pushd
 from pathlib import Path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Sequence, Optional, Mapping, Any
+    from typing import Sequence, Mapping, Any
     from pandas import DataFrame
     from pathlib import Path
     from ngen.cal.calibratable import Adjustable
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
 class BaseAgent(ABC):
 
     @property
-    def adjustables(self) -> 'Sequence[Adjustable]':
+    def adjustables(self) -> Sequence[Adjustable]:
         return self.model.adjustables
 
     def restart(self) -> int:
@@ -29,15 +31,15 @@ class BaseAgent(ABC):
     
     @property
     @abstractmethod
-    def model(self) -> 'Model':
+    def model(self) -> Model:
         pass
 
     @property
     @abstractmethod
-    def job(self) -> 'JobMeta':
+    def job(self) -> JobMeta:
         pass
     
-    def update_config(self, i: int, params: 'DataFrame', id: str):
+    def update_config(self, i: int, params: DataFrame, id: str):
         """
             For a given calibration iteration, i, update the input files/configuration to prepare for that iterations
             calibration run.
@@ -57,7 +59,7 @@ class BaseAgent(ABC):
 
 class Agent(BaseAgent):
 
-    def __init__(self, model_conf, workdir: 'Path', log: bool=False, restart: bool=False, parameters: 'Optional[Mapping[str, Any]]' = {}):
+    def __init__(self, model_conf, workdir: Path, log: bool=False, restart: bool=False, parameters: Mapping[str, Any] | None = {}):
         self._workdir = workdir
         self._job = None
         if restart:
@@ -86,11 +88,11 @@ class Agent(BaseAgent):
         self._params = parameters
     
     @property
-    def parameters(self) -> 'Mapping[str, Any]':
+    def parameters(self) -> Mapping[str, Any]:
         return self._params
 
     @property
-    def workdir(self) -> 'Path':
+    def workdir(self) -> Path:
         return self._workdir
 
     @property
@@ -106,9 +108,9 @@ class Agent(BaseAgent):
         """
             Proxy method to build command from contained model binary and args
         """
-        return "{} {}".format(self.model.get_binary(), self.model.get_args())
+        return f"{self.model.get_binary()} {self.model.get_args()}"
 
-    def duplicate(self) -> 'Agent':
+    def duplicate(self) -> Agent:
         #serialize a copy of the model
         #FIXME ??? if you do self.model.resolve_paths() here, the duplicated agent
         #doesn't have fully qualified paths...but if you do it in constructor, it works fine...

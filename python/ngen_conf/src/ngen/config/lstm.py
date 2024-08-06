@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import PyObject, Field
 from typing import Literal, Union
 from .bmi_formulation import BMIPython

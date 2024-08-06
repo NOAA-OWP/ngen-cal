@@ -1,4 +1,4 @@
-from pathlib import Path
+from __future__ import annotations
 
 from .core import Base
 from .utils import merge_class_attr
@@ -10,7 +10,11 @@ from ._deserializers import (
     from_toml_str,
 )
 
-from typing_extensions import Self
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+    from pathlib import Path
 
 
 class IniDeserializer(Base):

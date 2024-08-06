@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, validator
-from typing import Any, Dict, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Optional
     from pathlib import Path
 
 class Formulation(BaseModel, smart_union=True):
@@ -15,12 +16,12 @@ class Formulation(BaseModel, smart_union=True):
     """
     #TODO make this an enum?
     name: str
-    params:  "KnownFormulations"
+    params:  KnownFormulations
 
     @validator("params", pre=True)
     def _validate_params(
-        cls, value: Union[Dict[str, Any], "KnownFormulations"]
-    ) -> Union[Dict[str, Any], "KnownFormulations"]:
+        cls, value: dict[str, Any] | KnownFormulations
+    ) -> dict[str, Any] | KnownFormulations:
         if isinstance(value, BaseModel):
             return value
 
@@ -35,7 +36,7 @@ class Formulation(BaseModel, smart_union=True):
                 raise ValueError("'name' and 'model_type_name' fields are required when deserializing _into_ a 'Formulation'.")
         return value
 
-    def resolve_paths(self, relative_to: 'Optional[Path]'=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         self.params.resolve_paths(relative_to)
 
 #NOTE To avoid circular import and support recrusive modules

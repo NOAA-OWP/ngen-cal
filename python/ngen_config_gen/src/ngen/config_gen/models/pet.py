@@ -1,4 +1,6 @@
-from typing import Any, Dict, TYPE_CHECKING, Union
+from __future__ import annotations
+
+from typing import Any, TYPE_CHECKING
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
@@ -28,11 +30,11 @@ class Pet:
     """
 
     def __init__(self, method: PetMethod = PetMethod.energy_balance):
-        self.data: Dict[str, Union[bool, float, int, str]] = {}
+        self.data: dict[str, bool | float | int | str] = {}
         self.__pet_method = method
 
     def hydrofabric_linked_data_hook(
-        self, version: str, divide_id: str, data: Dict[str, Any]
+        self, version: str, divide_id: str, data: dict[str, Any]
     ) -> None:
         """
         Implements `ngen.config_gen.hooks.hydrofabric_linked_data_hook`.
@@ -78,7 +80,7 @@ class Pet:
         """
         return PetConfig(**self.data)
 
-    def visit(self, hook_provider: "HookProvider") -> None:
+    def visit(self, hook_provider: HookProvider) -> None:
         """
         Call associated `hook_provider` methods for all hooks implemented by Self.
 

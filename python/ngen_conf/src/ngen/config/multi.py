@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from typing import Sequence, Mapping, Any, Optional, TYPE_CHECKING
-from typing_extensions import Literal
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -15,7 +16,7 @@ class MultiBMI(BMIParams, smart_union=True):
     #required
     #Due to a recursive formulation definition, have to postpone this
     #type definition and use `update_forward_refs`
-    modules: Sequence["Formulation"]
+    modules: Sequence[Formulation]
     #defaults
     name: str = Field("bmi_multi", const=True)
 
@@ -32,7 +33,7 @@ class MultiBMI(BMIParams, smart_union=True):
     name_map: Mapping[str, str] = Field(None, const=True) #not relevant for multi-bmi
     model_params: Optional[Mapping[str, str]] = Field(None, const=True) #not relevant for multi-bmi
     
-    def resolve_paths(self, relative_to: Optional['Path']=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         for m in self.modules:
             m.resolve_paths(relative_to)
 

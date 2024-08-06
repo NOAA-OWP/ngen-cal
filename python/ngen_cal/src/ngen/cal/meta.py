@@ -1,4 +1,5 @@
-import pandas as pd # type: ignore
+from __future__ import annotations
+
 from pathlib import Path
 from tempfile import mkdtemp
 from datetime import datetime
@@ -31,17 +32,17 @@ class JobMeta:
             self._log_file = self._workdir/Path(name+".log")
 
     @property
-    def workdir(self) -> 'Path':
+    def workdir(self) -> Path:
         return self._workdir
     
     @workdir.setter
-    def workdir(self, path: 'Path') -> None:
+    def workdir(self, path: Path) -> None:
         self._workdir = path
         if self._log_file is not None:
             self._log_file = self._workdir/Path(self._log_file.name)
 
     @property
-    def log_file(self) -> 'Path':
+    def log_file(self) -> Path:
         """
             Path to the job's log file, or None.
         """

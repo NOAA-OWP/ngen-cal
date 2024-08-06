@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from typing import Generic, Iterable, Optional
+from typing import Generic, Iterable
 from typing_extensions import Self
 
 from .typing import StrPath, T
@@ -19,7 +21,7 @@ class AbstractPathPairMixin(ABC, Generic[T]):
 
     @property
     @abstractmethod
-    def inner(self) -> Optional[T]:
+    def inner(self) -> T | None:
         """Return the inner object if it exists."""
 
     @abstractmethod
@@ -34,7 +36,7 @@ class AbstractPathPairMixin(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def serialize(self) -> Optional[bytes]:
+    def serialize(self) -> bytes | None:
         """
         If the inner `T` exists, return a serialized version.
 
@@ -141,7 +143,7 @@ class AbstractPathPairCollectionMixin(ABC, Generic[T]):
 
     @abstractmethod
     def deserialize(
-        self, data: Iterable[bytes], *, paths: Optional[Iterable[StrPath]] = None
+        self, data: Iterable[bytes], *, paths: Iterable[StrPath] | None = None
     ) -> bool:
         """
         Deserialize iterable of bytes into `T`'s and wrap each `T` as a `PathPair[T]`. Replace
