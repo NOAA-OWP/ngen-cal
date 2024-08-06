@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from ngen.cal.configuration import General
     from ngen.cal.meta import JobMeta
     from pandas import Series
-    from pathlib import Path
 
 hookspec = pluggy.HookspecMarker(PROJECT_SLUG)
 

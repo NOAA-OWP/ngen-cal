@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .protocol import Deserializer
 
-from typing import Type, TypeVar
+from typing import TypeVar
 
 M = TypeVar("M", bound=BaseModel)
 

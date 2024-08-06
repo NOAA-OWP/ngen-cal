@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import FilePath, root_validator, BaseModel, Field
-from typing import Optional, Sequence, Dict, Mapping, Union
+from typing import Optional, Sequence, Mapping, Union
 try: #to get literal in python 3.7, it was added to typing in 3.8
     from typing import Literal
 except ImportError:
@@ -24,7 +24,7 @@ from .model import ModelExec, PosInt, Configurable
 from .parameter import Parameter, Parameters
 from .calibration_cathment import CalibrationCatchment, AdjustableCatchment
 from .calibration_set import CalibrationSet, UniformCalibrationSet
-from .ngen_hooks.ngen_output import TrouteOutput, NgenSaveOutput
+from .ngen_hooks.ngen_output import TrouteOutput
 #HyFeatures components
 from hypy.hydrolocation import NWISLocation
 from hypy.nexus import Nexus

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from ngen.cal.search import dds
 
 if TYPE_CHECKING:
-    from ngen.cal.meta import CalibrationMeta
     from ngen.cal.calibration_cathment import CalibrationCatchment
     from ngen.cal.agent import Agent
 

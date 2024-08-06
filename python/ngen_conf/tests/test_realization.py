@@ -3,7 +3,6 @@ from pathlib import Path
 from ngen.config.realization import Realization, NgenRealization
 from ngen.config.formulation import Formulation
 
-import json
 
 @pytest.mark.parametrize("forcing",["csv", "netcdf"], indirect=True )
 def test_realization(forcing, time, cfe):

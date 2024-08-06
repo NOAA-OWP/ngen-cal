@@ -1,9 +1,6 @@
 import pytest
 from math import inf
-from typing import TYPE_CHECKING
 import pandas as pd # type: ignore
-if TYPE_CHECKING:
-    from pandas import DataFrame
 from ngen.cal.objectives import *
 
 #A data frame of "perfectly simulated" data

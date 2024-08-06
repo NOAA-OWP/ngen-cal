@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from pathlib import Path
     from geopandas import GeoSeries
     from datetime import datetime
-    from typing import Tuple, Optional
     from .model import EvaluationOptions
 
 from hypy.catchment import FormulatableCatchment # type: ignore
