@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from typing import Generic, Iterable, Optional
+from typing import Generic, Iterable
 from typing_extensions import Self
 
 from .typing import StrPath, T

@@ -8,10 +8,10 @@ import geopandas as gpd # type: ignore
 from ngen.cal.configuration import General
 from ngen.cal.ngen import Ngen
 from ngen.cal.meta import JobMeta
-from ngen.cal.calibration_cathment import CalibrationCatchment, EvaluatableCatchment, AdjustableCatchment
+from ngen.cal.calibration_cathment import CalibrationCatchment
 from ngen.cal.model import EvaluationOptions
 from ngen.cal.agent import Agent
-from hypy import Nexus, HydroLocation
+from hypy import Nexus
 
 from .utils import *
 

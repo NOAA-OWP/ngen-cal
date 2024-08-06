@@ -6,7 +6,7 @@ from pathlib import Path
 from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
 from ._utils import path_unlink_37
 
-from typing import Optional, Iterable
+from typing import Iterable
 from typing_extensions import Self
 from .typing import StrPath, T
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal, Union
+from typing import Literal
 
 from ngen.init_config import serializer_deserializer as serde
 from pydantic import validator

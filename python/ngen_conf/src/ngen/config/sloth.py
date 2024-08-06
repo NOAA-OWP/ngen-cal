@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Literal, Optional, Mapping
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from .bmi_formulation import BMICxx
 

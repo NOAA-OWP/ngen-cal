@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, TYPE_CHECKING, Union
+from typing import Any, TYPE_CHECKING
 from pydantic import BaseModel
 
 if TYPE_CHECKING:

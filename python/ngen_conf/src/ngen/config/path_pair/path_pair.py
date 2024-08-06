@@ -8,7 +8,7 @@ from .common import path_reader, path_writer
 from ._abc_mixins import AbstractPathPairMixin, AbstractPathPairCollectionMixin
 from ._mixins import PathPairMixin, PathPairCollectionMixin
 
-from typing import Any, Dict, Generic, Optional, Union, List
+from typing import Any, Generic
 from typing_extensions import Self
 from .typing import StrPath, T
 

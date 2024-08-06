@@ -1,4 +1,3 @@
-import pytest
 from typing import TYPE_CHECKING
 from ngen.cal.ngen import Ngen
 from ngen.cal.meta import JobMeta

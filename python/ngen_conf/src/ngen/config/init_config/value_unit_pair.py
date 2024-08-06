@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Generic, List, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Generic, List, TypeVar
 
 from pydantic import validator
 from pydantic.generics import GenericModel

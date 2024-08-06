@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, List
+from typing import Callable
 
 
 def str_split(sep: str, *, strip: bool = False) -> Callable[[str], list[str]]:
