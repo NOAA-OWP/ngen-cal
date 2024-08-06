@@ -36,7 +36,7 @@ MODIFIED_IGBP_MODIS_NOAH_NVEG = 20
 USGS_NVEG = 27
 
 
-def _set_nveg_based_on_veg_class_name(parameters: "Parameters", structure: "Structure"):
+def _set_nveg_based_on_veg_class_name(parameters: Parameters, structure: Structure):
     # don't set if `nveg` is provided
     if structure.nveg is not None:
         return
@@ -51,13 +51,13 @@ def _set_nveg_based_on_veg_class_name(parameters: "Parameters", structure: "Stru
 
 
 class NoahOWP(serde.NamelistSerializerDeserializer):
-    timing: "Timing"
-    parameters: "Parameters"
-    location: "Location"
-    forcing: "Forcing"
-    model_options: "ModelOptions"
-    structure: "Structure"
-    initial_values: "InitialValues"
+    timing: Timing
+    parameters: Parameters
+    location: Location
+    forcing: Forcing
+    model_options: ModelOptions
+    structure: Structure
+    initial_values: InitialValues
 
     class Config(serde.NamelistSerializerDeserializer.Config):
         # NOTE: must explicitly specify Path subtype (i.e. `PosixPath`) here b.c.
@@ -70,7 +70,7 @@ class NoahOWP(serde.NamelistSerializerDeserializer):
         }
 
     @root_validator
-    def _validate(cls, values: Dict[str, BaseModel]) -> Dict[str, BaseModel]:
+    def _validate(cls, values: dict[str, BaseModel]) -> dict[str, BaseModel]:
         parameters: Parameters = values["parameters"]  # type: ignore
         structure: Structure = values["structure"]  # type: ignore
         _set_nveg_based_on_veg_class_name(parameters, structure)
@@ -94,7 +94,7 @@ class Timing(core.Base):
     )(validate_str_len_lt(257))
 
     @validator("startdate", "enddate", pre=True)
-    def _validate_dates(cls, value: Union[datetime, str]):
+    def _validate_dates(cls, value: datetime | str):
         if isinstance(value, datetime):
             return value
         return datetime.strptime(value, cls._datetime_format)
@@ -274,7 +274,7 @@ class InitialValues(core.Base):
 
 
 def _warn_if_soil_or_veg_type_is_water_but_not_both(
-    parameters: "Parameters", structure: "Structure"
+    parameters: Parameters, structure: Structure
 ):
     if parameters.soil_class_name not in ("STAS", "STAS-RUC"):
         return

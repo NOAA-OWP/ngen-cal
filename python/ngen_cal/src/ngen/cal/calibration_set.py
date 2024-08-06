@@ -25,7 +25,7 @@ class CalibrationSet(Evaluatable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions'):
+    def __init__(self, adjustables: Sequence[Adjustable], eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: EvaluationOptions):
         """
 
         """
@@ -46,7 +46,7 @@ class CalibrationSet(Evaluatable):
         self._eval_range = self.eval_params._eval_range
     
     @property
-    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
+    def evaluation_range(self) -> tuple[datetime, datetime] | None:
         return self._eval_range
 
     @property
@@ -54,7 +54,7 @@ class CalibrationSet(Evaluatable):
         return self._adjustables
 
     @property
-    def output(self) -> 'DataFrame':
+    def output(self) -> DataFrame:
         """
             The model output hydrograph for this catchment
             This re-reads the output file each call, as the output for given calibration catchment changes
@@ -77,7 +77,7 @@ class CalibrationSet(Evaluatable):
         self._output = df
 
     @property
-    def observed(self) -> 'DataFrame':
+    def observed(self) -> DataFrame:
         """
             The observed hydrograph for this catchment FIXME move output/observed to calibratable?
         """
@@ -112,7 +112,7 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
         A HY_Features based catchment with additional calibration information/functionality
     """
 
-    def __init__(self, eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: 'EvaluationOptions', params: dict = {}):
+    def __init__(self, eval_nexus: Nexus, hooks: ModelHooks, start_time: str, end_time: str, eval_params: EvaluationOptions, params: dict = {}):
         """
 
         """

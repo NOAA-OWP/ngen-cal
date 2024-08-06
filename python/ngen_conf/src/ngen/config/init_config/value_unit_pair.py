@@ -25,7 +25,7 @@ class ValueUnitPair(GenericModel, Generic[V, U]):
 
     @override
     @classmethod
-    def validate(cls: Type[Self], value: Any) -> Self:
+    def validate(cls: type[Self], value: Any) -> Self:
         if isinstance(value, ValueUnitPair):
             # return a shallow copy. this also validates / coerces mismatching generic types
             return cls(value=value.value, unit=value.unit)
@@ -55,7 +55,7 @@ class ValueUnitPair(GenericModel, Generic[V, U]):
 
     @override
     @classmethod
-    def parse_obj(cls: Type[Self], obj: Any) -> Self:
+    def parse_obj(cls: type[Self], obj: Any) -> Self:
         return cls.validate(obj)
 
     def _serialize(self) -> str:
@@ -65,14 +65,14 @@ class ValueUnitPair(GenericModel, Generic[V, U]):
     def dict(
         self,
         *,
-        include: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
-        exclude: Optional[Union["AbstractSetIntStr", "MappingIntStrAny"]] = None,
+        include: AbstractSetIntStr | MappingIntStrAny | None = None,
+        exclude: AbstractSetIntStr | MappingIntStrAny | None = None,
         by_alias: bool = False,
-        skip_defaults: Optional[bool] = None,
+        skip_defaults: bool | None = None,
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "DictStrAny":
+    ) -> DictStrAny:
         return self._serialize()
 
 
@@ -83,7 +83,7 @@ T = TypeVar("T", str, int, float, bool)
 
 class ListUnitPair(ValueUnitPair[List[T], U], Generic[T, U]):
     @validator("value", pre=True)
-    def _coerce_values(cls, value: Union[str, List[str]]) -> List[str]:
+    def _coerce_values(cls, value: str | list[str]) -> list[str]:
         if isinstance(value, list):
             return value
         if not isinstance(value, str):

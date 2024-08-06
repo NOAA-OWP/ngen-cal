@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 @contextmanager
-def pushd(path: 'Path') -> None:
+def pushd(path: Path) -> None:
     """Change working directory to `path` for duration of the context
 
     Args:

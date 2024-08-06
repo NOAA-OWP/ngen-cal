@@ -11,7 +11,7 @@ from ._constants import NO_SECTIONS
 from .utils import try_import
 
 
-def to_namelist_str(d: Dict[str, Any]) -> str:
+def to_namelist_str(d: dict[str, Any]) -> str:
     """Serialize a dictionary as an namelist formatted string."""
     f90nml = try_import("f90nml", extras_require_name="namelist")
 
@@ -36,7 +36,7 @@ NON_NONE_JSON_DICT: TypeAlias = Dict[
 
 
 def to_ini_str(
-    d: Dict[str, NON_NONE_JSON_DICT],
+    d: dict[str, NON_NONE_JSON_DICT],
     *,
     space_around_delimiters: bool = True,
     preserve_key_case: bool = False,
@@ -100,7 +100,7 @@ def to_ini_no_section_header_str(
         return buff[buff.find("\n") + 1 :].rstrip()
 
 
-def to_yaml_str(d: Dict[str, Any]) -> str:
+def to_yaml_str(d: dict[str, Any]) -> str:
     """Serialize a dictionary as a yaml formatted string."""
     yaml = try_import("yaml", extras_require_name="yaml")
 
@@ -117,7 +117,7 @@ def to_yaml_str(d: Dict[str, Any]) -> str:
     return yaml.dump(d, Dumper=Dumper).rstrip()
 
 
-def to_toml_str(d: Dict[str, Any]) -> str:
+def to_toml_str(d: dict[str, Any]) -> str:
     """Serialize a dictionary as a toml formatted string."""
     tomli_w = try_import("tomli_w", extras_require_name="toml")
     # drop eol chars
