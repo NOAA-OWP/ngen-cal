@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
-import pathlib
 
 from . import core, format_serializers, utils
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pathlib
 
 
 class IniSerializer(core.Base):
