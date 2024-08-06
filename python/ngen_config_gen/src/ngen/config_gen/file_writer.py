@@ -22,7 +22,7 @@ from typing_extensions import Literal, Self
 
 
 class FileWriter(Protocol):
-    def __call__(self, id: Union[str, Literal["global"]], data: BaseModel): ...
+    def __call__(self, id: str | Literal["global"], data: BaseModel): ...
 
 
 class _Reader(Protocol):
@@ -31,7 +31,7 @@ class _Reader(Protocol):
     EOF is empty bytes buffer of empty str.
     """
 
-    def read(self, size: Union[int, None] = ...) -> Union[bytes, str]: ...
+    def read(self, size: int | None = ...) -> bytes | str: ...
 
 
 def _sha256_hexdigest(r: _Reader) -> str:
@@ -105,7 +105,7 @@ def _get_file_extension(data: BaseModel) -> str:
 
 
 class DefaultFileWriter:
-    def __init__(self, root: Union[str, Path]):
+    def __init__(self, root: str | Path):
         root = Path(root)
         if not root.exists():
             root.mkdir(parents=True)
@@ -124,7 +124,7 @@ class DefaultFileWriter:
             i += 1
         return f_name
 
-    def __call__(self, id: Union[str, Literal["global"]], data: BaseModel):
+    def __call__(self, id: str | Literal["global"], data: BaseModel):
         class_name = data.__class__.__name__
         ext = _get_file_extension(data)
         output_file = self.__root / f"{class_name}_{id}.{ext}"
@@ -208,7 +208,7 @@ class TarFileWriter:
             self._filehandle.close()
             self._filehandle = None
 
-    def __call__(self, id: Union[str, Literal["global"]], data: BaseModel) -> None:
+    def __call__(self, id: str | Literal["global"], data: BaseModel) -> None:
         class_name = data.__class__.__name__
         ext = _get_file_extension(data)
         output_file = f"{class_name}_{id}.{ext}"

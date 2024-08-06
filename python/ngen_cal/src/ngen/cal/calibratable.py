@@ -18,11 +18,11 @@ class Adjustable(ABC):
         An Adjustable interface defning required properties for adjusting an object's state
     """
 
-    def __init__(self, df: Optional['DataFrame'] = None):
+    def __init__(self, df: DataFrame | None = None):
         self._df = df
 
     @property
-    def df(self) -> 'DataFrame':
+    def df(self) -> DataFrame:
         """
             A dataframe of the objects parameter values to calculate indexed relative to the variables
             being calibrated.  The columns of the dataframe will be appended to with each search iterations
@@ -46,14 +46,14 @@ class Adjustable(ABC):
         pass
 
     @property
-    def variables(self) -> 'Series':
+    def variables(self) -> Series:
         """
             Index series of variables
         """
         return Series(self.df.index.values)
 
     @property
-    def bounds(self) -> 'Tuple[Series, Series]':
+    def bounds(self) -> tuple[Series, Series]:
         """The bounds of each parameter that is adjustable
 
         Returns:
@@ -77,7 +77,7 @@ class Adjustable(ABC):
         pass
 
     @property
-    def check_point_file(self) -> 'Path':
+    def check_point_file(self) -> Path:
         """
             Filename checkpoint files are saved to
         """
@@ -90,7 +90,7 @@ class Adjustable(ABC):
         path = info.workdir
         self.df.to_parquet(path/self.check_point_file)
 
-    def load_df(self, path: 'Path') -> None:
+    def load_df(self, path: Path) -> None:
         """
             Load saved calibration information
         """
@@ -104,9 +104,9 @@ class Evaluatable(ABC):
         An Evaluatable interface defining required properties for a evaluating and object's state
     """
 
-    eval_params: 'EvaluationOptions'
+    eval_params: EvaluationOptions
 
-    def __init__(self, eval_params: 'EvaluationOptions', **kwargs):
+    def __init__(self, eval_params: EvaluationOptions, **kwargs):
         """
         Args:
             eval_params (EvaluationOptions): The options configuring this evaluatable
@@ -115,7 +115,7 @@ class Evaluatable(ABC):
 
     @property
     @abstractmethod
-    def output(self) -> 'DataFrame':
+    def output(self) -> DataFrame:
         """
             The output data for the calibrated object
             Calibration re-reads the output each call, as the output for given calibration is expected to change
@@ -125,7 +125,7 @@ class Evaluatable(ABC):
 
     @property
     @abstractmethod
-    def observed(self) -> 'DataFrame':
+    def observed(self) -> DataFrame:
         """
             The observed data for this calibratable.
             This should be rather static, and can be set at initialization then accessed via the property
@@ -134,7 +134,7 @@ class Evaluatable(ABC):
 
     @property
     @abstractmethod
-    def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
+    def evaluation_range(self) -> tuple[datetime, datetime] | None:
         """
             The datetime range to evaluate the model results at.
             This should be a tuple in the form of (start_time, end_time).
@@ -142,7 +142,7 @@ class Evaluatable(ABC):
         pass
     
     @property
-    def objective(self, *args, **kwargs) -> 'Callable':
+    def objective(self, *args, **kwargs) -> Callable:
         """
             The objective function to compute cost values with.
 
@@ -191,5 +191,5 @@ class Calibratable(Adjustable, Evaluatable):
     """
         A Calibratable interface defining required properties for a calibratable object
     """
-    def __init__(self, df: Optional['DataFrame'] = None):
+    def __init__(self, df: DataFrame | None = None):
         Adjustable.__init__(self, df)

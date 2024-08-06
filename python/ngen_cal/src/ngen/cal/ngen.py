@@ -96,7 +96,7 @@ class NgenBase(ModelExec):
     args: Optional[str]
 
     #private, not validated
-    _catchments: Sequence['CalibrationCatchment'] = []
+    _catchments: Sequence[CalibrationCatchment] = []
     _catchment_hydro_fabric: gpd.GeoDataFrame
     _nexus_hydro_fabric: gpd.GeoDataFrame
     _flowpath_hydro_fabric: gpd.GeoDataFrame
@@ -216,7 +216,7 @@ class NgenBase(ModelExec):
         return self.realization
 
     @property
-    def adjustables(self) -> Sequence['CalibrationCatchment']:
+    def adjustables(self) -> Sequence[CalibrationCatchment]:
         """A list of Catchments for calibration
         
         These catchments hold information about the parameters/calibration data for that catchment
@@ -227,7 +227,7 @@ class NgenBase(ModelExec):
         return self._catchments
 
     @root_validator
-    def set_defaults(cls, values: Dict):
+    def set_defaults(cls, values: dict):
         """Compose default values 
 
             This validator will set/adjust the following data values for the class
@@ -350,7 +350,7 @@ class NgenBase(ModelExec):
                 "ngen realization `output_root` field is not supported by ngen.cal. will be removed in future; see https://github.com/NOAA-OWP/ngen-cal/issues/150"
             )
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
+    def update_config(self, i: int, params: pd.DataFrame, id: str = None, path=Path("./")):
         """_summary_
 
         Args:
@@ -421,7 +421,7 @@ class NgenExplicit(NgenBase):
                 eval_params.id = id
                 self._catchments.append(CalibrationCatchment(self.workdir, id, nexus, start_t, end_t, fabric, output_var, eval_params, params))
 
-    def update_config(self, i: int, params: 'pd.DataFrame', id: str, **kwargs):
+    def update_config(self, i: int, params: pd.DataFrame, id: str, **kwargs):
         """_summary_
 
         Args:
@@ -610,7 +610,7 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     def type(self):
         return self.__root__.type
 
-    def resolve_paths(self, relative_to: Optional[Path]=None):
+    def resolve_paths(self, relative_to: Path | None=None):
         """resolve any possible relative paths in the realization
         """
         if self.__root__.ngen_realization != None:

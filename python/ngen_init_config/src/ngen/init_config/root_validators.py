@@ -5,7 +5,7 @@ from typing import Any, Dict, Type
 from .typing import M
 
 
-def case_insensitive_keys(cls: Type[M], values: Dict[str, Any]) -> Dict[str, Any]:
+def case_insensitive_keys(cls: type[M], values: dict[str, Any]) -> dict[str, Any]:
     """pydantic root validator that case insensitively remaps input `values` keys to model alias, if
     present, or field names.
     """
@@ -14,7 +14,7 @@ def case_insensitive_keys(cls: Type[M], values: Dict[str, Any]) -> Dict[str, Any
 
     # NOTE: only guarantees remapping defined fields to their case insensitive representation;
     # e.g. if `Config.extra = "allow"`, undefined fields will be included as is.
-    remapped: Dict[str, Any] = {}
+    remapped: dict[str, Any] = {}
     for k, v in values.items():
         try:
             key = keys_map[k.casefold()]

@@ -23,7 +23,7 @@ class PathPairMixin(AbstractPathPairMixin[T]):
         return Path(self).parent
 
     @property
-    def inner(self) -> Optional[T]:
+    def inner(self) -> T | None:
         return self._inner
 
     def with_path(self, *args: StrPath) -> Self:
@@ -36,7 +36,7 @@ class PathPairMixin(AbstractPathPairMixin[T]):
             deserializer=self._deserializer,
         )
 
-    def serialize(self) -> Optional[bytes]:
+    def serialize(self) -> bytes | None:
         if self._serializer is None or self._inner is None:
             return None
 
@@ -131,7 +131,7 @@ class PathPairCollectionMixin(AbstractPathPairCollectionMixin[T]):
             yield self._serializer(item)
 
     def deserialize(
-        self, data: Iterable[bytes], *, paths: Optional[Iterable[StrPath]] = None
+        self, data: Iterable[bytes], *, paths: Iterable[StrPath] | None = None
     ) -> bool:
         """
         Deserialize collection of bytes into T's and wrap each T as a `PathPair[T]`. Replace

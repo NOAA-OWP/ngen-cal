@@ -23,7 +23,7 @@ managed by a calibration agent.
 """
 __iteration_counter = 0
 
-def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range: 'Optional[Tuple[datetime, datetime]]' = None):
+def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range: tuple[datetime, datetime] | None = None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
     if df.empty:
         print("WARNING: Cannot compute objective function, do time indicies align?")
@@ -33,7 +33,7 @@ def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_r
     #Evaluate custom objective function providing simulated, observed series
     return objective(df['obs_flow'], df['sim_flow'])
 
-def _execute(meta: 'Agent'):
+def _execute(meta: Agent):
     """
         Execute a model run defined by the calibration meta cmd
     """
@@ -43,7 +43,7 @@ def _execute(meta: 'Agent'):
         with open(meta.job.log_file, 'a+') as log_file:
             subprocess.check_call(meta.cmd, stdout=log_file, stderr=log_file, shell=True, cwd=meta.job.workdir)
 
-def _evaluate(i: int, calibration_object: 'Evaluatable', info=False) -> float:
+def _evaluate(i: int, calibration_object: Evaluatable, info=False) -> float:
     """
         Performs the evaluation logic of a calibration step
     """
@@ -57,7 +57,7 @@ def _evaluate(i: int, calibration_object: 'Evaluatable', info=False) -> float:
         print(f"Best parameters at iteration {calibration_object.best_params}")
     return score
 
-def dds_update(iteration: int, inclusion_probability: float, calibration_object: 'Adjustable', agent: 'Agent'):
+def dds_update(iteration: int, inclusion_probability: float, calibration_object: Adjustable, agent: Agent):
     """_summary_
 
     Args:
@@ -102,7 +102,7 @@ def dds_update(iteration: int, inclusion_probability: float, calibration_object:
     agent.update_config(iteration, calibration_object.df[[str(iteration), 'param', 'model']], calibration_object.id)
 
 
-def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable', agent: 'Agent'):
+def dds(start_iteration: int, iterations: int,  calibration_object: Evaluatable, agent: Agent):
     """
     """
     if iterations < 2:
@@ -141,7 +141,7 @@ def dds(start_iteration: int, iterations: int,  calibration_object: 'Evaluatable
             _evaluate(i, calibration_object, info=True)
         calibration_object.check_point(i, agent.job)
 
-def dds_set(start_iteration: int, iterations: int, agent: 'Agent'):
+def dds_set(start_iteration: int, iterations: int, agent: Agent):
     """
         DDS search that applies to a set of calibration objects.
 
@@ -208,7 +208,7 @@ def compute(calibration_object, iteration, input) -> float:
         #cost = _objective_func(calibration_object.output, calibration_object.observed, calibration_object.objective, calibration_object.evaluation_range)
     return cost
 
-def cost_func( calibration_object: 'Adjustable', agents: 'Agent', pool, params):
+def cost_func( calibration_object: Adjustable, agents: Agent, pool, params):
     """_summary_
 
     Args:
