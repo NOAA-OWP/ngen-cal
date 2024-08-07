@@ -115,10 +115,10 @@ if __name__ == "__main__":
                         help='The configuration yaml file for catchments to be operated on')
 
     args = parser.parse_args()
-    
+
     with open(args.config_file) as file:
         conf = yaml.safe_load(file)
-    
+
     general = General(**conf['general'])
     # change directory to workdir
     chdir(general.workdir)

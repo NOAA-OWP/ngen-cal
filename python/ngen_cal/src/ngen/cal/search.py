@@ -157,7 +157,7 @@ def dds_set(start_iteration: int, iterations: int, agent: Agent):
         raise(ValueError("start_iteration must be <= iterations"))
 
     neighborhood_size = agent.parameters.get('neighborhood', 0.2)
-    
+
     calibration_sets = agent.model.adjustables
     init = start_iteration - 1 if start_iteration > 0 else start_iteration
     for calibration_set in calibration_sets:
@@ -194,7 +194,7 @@ def dds_set(start_iteration: int, iterations: int, agent: Agent):
 def compute(calibration_object, iteration, input) -> float:
     params = input[0]
     agent = input[1]
-    
+
     #Update the meta info and prepare for next iteration
     #Pass the parameter and interation columns of the object we are calibrating to the update function
     calibration_object.df[str(iteration)] = params
@@ -221,7 +221,7 @@ def cost_func( calibration_object: Adjustable, agents: Agent, pool, params):
     costs = np.fromiter(pool.imap(func, zip(params, agents)), dtype=float)
     # for r in :
     #     costs.append(r)
-    #Update global iteration counter 
+    #Update global iteration counter
     __iteration_counter = __iteration_counter + 1
 
     return costs

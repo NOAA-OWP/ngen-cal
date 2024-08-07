@@ -28,10 +28,10 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
 
     The class args here set configuration options of the BaseModel meta class.
 
-    smart_union (bool): 
+    smart_union (bool):
         Use smart_union capabilities https://pydantic-docs.helpmanual.io/usage/model_config/#smart-union
-    
-    allow_population_by_field_name (bool): 
+
+    allow_population_by_field_name (bool):
         Initialize the allow_population_by_field_name config of the BaseModel meta class.
         Allows objects to be created with keyword args which match the python class attribute
         names or the field name/alias
@@ -43,7 +43,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     model_name: str = Field(alias='model_type_name')
     main_output_variable: str
     config: Path = Field(alias='init_config') #Bmi config, can be a file or a str pattern
-    
+
     #reasonable defaultable fields
     allow_exceed_end_time: bool = False
     # see #NOAA-OWP/ngen-cal #47 for explanation
@@ -67,7 +67,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
     def resolve_paths(self, relative_to: Path | None=None):
         """Resolve relative paths into absolute paths
 
-        Args: 
+        Args:
             relative_to (Optional[Path]): If set, the relative_to path is prepended to the path to resolve
                                           before attempting resolution.
         Returns:
@@ -111,7 +111,7 @@ class BMIParams(BaseModel, smart_union=True, allow_population_by_field_name = Tr
             values['output_vars'] = output_vars
             values['output_headers'] = output_headers
         return values
-    
+
     @validator("name_map", always=True, pre=True)
     def update_name_map(cls, name_map: Mapping[str, str]) -> Mapping[str, str]:
         """Update any default name map, ensuring the provided keys are overridden by the given `name_map`.
@@ -184,7 +184,7 @@ class BMILib(BMIParams):
     library: Path = Field(alias="library_file")
     #optional
     _library_prefix: Optional[DirectoryPath] = Field(None, alias="library_prefix")
-    
+
     def resolve_paths(self, relative_to: Path | None=None):
         super().resolve_paths(relative_to)
         if relative_to is None:
