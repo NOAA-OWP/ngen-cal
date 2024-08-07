@@ -31,7 +31,7 @@ class Configurable(ABC):
         Returns:
             str: The binary name or path used to execute the Configurable model
         """
-    
+
     @abstractmethod
     def get_args() -> str:
         """Get the args to pass to the binary
@@ -73,7 +73,7 @@ class EvaluationOptions(BaseModel):
 
     def __init__(self, **kwargs):
         """
-        
+
         """
         self._param_log_file = kwargs.pop('param_log_file', Path('best_params.txt'))
         self._objective_log_file = kwargs.pop('objective_log_file', Path('objective_log.txt'))
@@ -118,7 +118,7 @@ class EvaluationOptions(BaseModel):
         with open(self.objective_log_file, 'a+') as log_file:
             log_file.write(f'{i}, ')
             log_file.write(f'{score}\n')
-    
+
     def write_param_log_file(self, i):
         with open(self.param_log_file, 'w+') as log_file:
             log_file.write(f'{i}\n')

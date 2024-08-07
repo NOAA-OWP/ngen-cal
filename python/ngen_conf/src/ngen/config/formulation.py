@@ -40,8 +40,8 @@ class Formulation(BaseModel, smart_union=True):
         self.params.resolve_paths(relative_to)
 
 #NOTE To avoid circular import and support recrusive modules
-#note that `params` is one of KnownFormulations, 
-#of which MultiBMI may be one of those.  
+#note that `params` is one of KnownFormulations,
+#of which MultiBMI may be one of those.
 #A MultiBMI has a sequence of Formulation objects, making a recursive type
 # So we defer type cheking and importing the KnownFormulations until after
 #MultiBMI is defined, then update_forward_refs()

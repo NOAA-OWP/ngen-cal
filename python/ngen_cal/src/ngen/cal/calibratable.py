@@ -66,7 +66,7 @@ class Adjustable(ABC):
         """
             FIXME update of parameter dataframe is currently done "inplace" -- there is no interface function
             There likely *should* be one -- the big question is can it be "bundled" with the Evaluatable update function
-            or should it be a unique update/name, e.g. update_params(...) that does this?  With the CalibrationMeta 
+            or should it be a unique update/name, e.g. update_params(...) that does this?  With the CalibrationMeta
             refactored largely under the Evaluatable interface, there are a few options for this to consider.
             Need to decide if this needs to remain???
             Parameters
@@ -140,7 +140,7 @@ class Evaluatable(ABC):
             This should be a tuple in the form of (start_time, end_time).
         """
         pass
-    
+
     @property
     def objective(self, *args, **kwargs) -> Callable:
         """
@@ -150,7 +150,7 @@ class Evaluatable(ABC):
             Callable: objective function which takes simulation and observation time series as args
         """
         return self.eval_params.objective
- 
+
     def update(self, i: int, score: float, log: bool) -> None:
         """
            Update the meta state for iteration `i` having score `score`
@@ -163,7 +163,7 @@ class Evaluatable(ABC):
             log (bool): writes objective information to log file if True
         """
         self.eval_params.update(i, score, log)
-    
+
     @property
     def best_params(self) -> str:
         """
@@ -173,7 +173,7 @@ class Evaluatable(ABC):
             str: iteration number
         """
         return self.eval_params._best_params_iteration
-    
+
     @property
     def best_score(self) -> float:
         """
@@ -183,7 +183,7 @@ class Evaluatable(ABC):
             float: best score
         """
         return self.eval_params.best_score
-    
+
     def restart(self) -> int:
         return self.eval_params.restart()
 

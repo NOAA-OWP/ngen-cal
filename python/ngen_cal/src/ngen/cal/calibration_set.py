@@ -41,7 +41,7 @@ class CalibrationSet(Evaluatable):
 
         self._output = None
         self._eval_range = self.eval_params._eval_range
-    
+
     @property
     def evaluation_range(self) -> tuple[datetime, datetime] | None:
         return self._eval_range
@@ -118,7 +118,7 @@ class UniformCalibrationSet(CalibrationSet, Adjustable):
 
         #For now, set this to None so meta update does the right thing
         #at some point, may want to refactor model update to handle this better
-        self._id = None 
+        self._id = None
 
     #Required Adjustable properties
     @property

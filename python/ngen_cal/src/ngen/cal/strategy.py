@@ -25,7 +25,7 @@ class Objective(str, Enum):
     """
     """Dynamic Dimensioned Search Algorithm
     """
-    __func_map__ = {"custom": objectives.custom, 
+    __func_map__ = {"custom": objectives.custom,
                     "kling_gupta": objectives.kge,
                     "nnse": objectives.normalized_nash_sutcliffe,
                     "single_peak": objectives.peak_error_single,
