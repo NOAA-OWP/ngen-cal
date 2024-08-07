@@ -33,7 +33,7 @@ class JobMeta:
     @property
     def workdir(self) -> 'Path':
         return self._workdir
-    
+
     @workdir.setter
     def workdir(self, path: 'Path') -> None:
         self._workdir = path

@@ -13,27 +13,27 @@
     "id": "nex-26",
     "properties": {
         "toid": "cat-27"
-        }, 
+        },
     "geometry": {
         "type": "Point",
             "coordinates": [-80.71918431799998, 35.1761134781112]}},
 {
-    "type": "Feature", 
-    "id": "nex-34", 
+    "type": "Feature",
+    "id": "nex-34",
     "properties": {
         "toid": "cat-52"
-        }, 
+        },
     "geometry": {
-        "type": "Point", 
+        "type": "Point",
         "coordinates": [-80.71308451799996, 35.15839061111134]}},
 {
-    "type": "Feature", 
-    "id": "nex-68", 
+    "type": "Feature",
+    "id": "nex-68",
     "properties": {
         "toid": "cat-67"
-        }, 
+        },
     "geometry": {
-        "type": "Point", 
+        "type": "Point",
         "coordinates": [-80.73677251799995, 35.18693221111115]}}
 ]
 }

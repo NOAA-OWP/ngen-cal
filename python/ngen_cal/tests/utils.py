@@ -127,7 +127,7 @@ algorithm_bad = {"algorithm": "foo"}
 strategy_estimation = {"type": "estimation", **algorithm_good}
 strategy_sensitivity = {"type": "sensitivity"}
 
-general_no_defaults = {"strategy":strategy_estimation, 
+general_no_defaults = {"strategy":strategy_estimation,
                     "iterations": 10,
                     "restart": True,
                     "start_iteration": 5,
@@ -136,13 +136,13 @@ general_no_defaults = {"strategy":strategy_estimation,
                     "parameter_log_file": "test_param_log",
                     "objectective_log_file": "test_obj_log"}
 
-general_w_defaults = {"strategy":strategy_estimation, 
+general_w_defaults = {"strategy":strategy_estimation,
                     "iterations": 10,
-                    "evaluation_start": "2015-12-01 00:00:00", 
+                    "evaluation_start": "2015-12-01 00:00:00",
                     "evaluation_stop": "2015-12-30 23:00:00"}
 
 evaluation_options = {"eval_params":{
-                        "evaluation_start": "2015-12-01 00:00:00", 
+                        "evaluation_start": "2015-12-01 00:00:00",
                         "evaluation_stop": "2015-12-30 23:00:00"}
                     }
 

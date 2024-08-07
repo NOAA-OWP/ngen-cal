@@ -20,7 +20,7 @@
 - Allow additional search algorithm parameters to be configured by the user
     - For DDS, the configuration can supply the `neighborhood` parameter as follows, if not supplied, a default of 0.2 is used
     ```yaml
-        strategy: 
+        strategy:
         type: estimation
         algorithm: dds
         parameters:
@@ -28,7 +28,7 @@
     ```
     - For PSO, the configuration can supply the following parameters
     ```yaml
-        strategy: 
+        strategy:
         type: estimation
         algorithm: "pso"
         parameters:

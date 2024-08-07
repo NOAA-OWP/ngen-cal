@@ -26,7 +26,7 @@ class BaseAgent(ABC):
             return starts[0]
         else:
             return 0
-    
+
     @property
     @abstractmethod
     def model(self) -> 'Model':
@@ -36,7 +36,7 @@ class BaseAgent(ABC):
     @abstractmethod
     def job(self) -> 'JobMeta':
         pass
-    
+
     def update_config(self, i: int, params: 'DataFrame', id: str):
         """
             For a given calibration iteration, i, update the input files/configuration to prepare for that iterations
@@ -50,7 +50,7 @@ class BaseAgent(ABC):
                 DataFrame containing the parameter name in `param` and value in `i` columns
         """
         return self.model.update_config(i, params, id, path=self.job.workdir)
-    
+
     @property
     def best_params(self) -> str:
         return self.model.best_params
@@ -84,7 +84,7 @@ class Agent(BaseAgent):
         self._model.model.resolve_paths(self.job.workdir)
 
         self._params = parameters
-    
+
     @property
     def parameters(self) -> 'Mapping[str, Any]':
         return self._params
@@ -96,7 +96,7 @@ class Agent(BaseAgent):
     @property
     def job(self) -> JobMeta:
         return self._job
-    
+
     @property
     def model(self) -> Model:
         return self._model.model

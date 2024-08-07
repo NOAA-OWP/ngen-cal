@@ -20,7 +20,7 @@ class TrouteOutput:
     def __init__(self, filepath: Path) -> None:
         self._output_file = filepath
         self._type = filepath.suffix
-    
+
     def _get_dataframe(self) -> DataFrame | None:
         """Get the t-route output raw dataframe from either csv or hdf5 files
 
@@ -39,16 +39,16 @@ class TrouteOutput:
         else:
             df = None
         return df
-    
+
     # Try external provided output hooks, if those fail, try this one
     # this will only execute if all other hooks return None (or they don't exist)
-    @hookimpl(specname="ngen_cal_model_output", trylast=True)    
+    @hookimpl(specname="ngen_cal_model_output", trylast=True)
     def get_output(self, id: str) -> Series:
         try:
             #look for routed data
             #read the routed flow at the given id
             df = self._get_dataframe()
-            
+
             df = df.loc[id]
             output = df.xs('q', level=1, drop_level=False)
             #This is a hacky way to get the time index...pass the time around???

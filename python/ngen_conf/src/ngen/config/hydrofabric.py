@@ -12,7 +12,7 @@ def validate_toid(value: str) -> str:
     if _TOID_REGEX.search(value) is None:
         raise ValueError(f"Invalid 'toid' property value: {value!r}")
     return value
-    
+
 class CatchmentFeatureProperty(BaseModel):
     id : Optional[str] = None
     toid: str

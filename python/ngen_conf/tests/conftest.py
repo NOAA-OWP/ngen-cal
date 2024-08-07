@@ -51,8 +51,8 @@ def cfe_params():
             'model_type_name': 'CFE',
             'name': 'bmi_c',
             'config_prefix':path,
-            # 'config': "{{id}}_config.txt", 
-            'config': "config.txt", 
+            # 'config': "{{id}}_config.txt",
+            'config': "config.txt",
             'library_prefix':path,
             'library': 'libfakecfe.so',
             'model_params':{'slope':0.42, 'expon':42}}
@@ -65,8 +65,8 @@ def sloth_params():
             'model_type_name': 'SLOTH',
             'name': 'bmi_c++',
             'config_prefix':path,
-            # 'config': "{{id}}_config.txt", 
-            'config': "config.txt", 
+            # 'config': "{{id}}_config.txt",
+            'config': "config.txt",
             'library_prefix':path,
             'library': 'libfakesloth.so',
             'main_output_variable': 'TEST'}
@@ -79,8 +79,8 @@ def topmod_params():
             'model_type_name': 'TOPMODEL',
             'name': 'bmi_c',
             'config_prefix':path,
-            # 'config': "{{id}}_config.txt", 
-            'config': "config.txt", 
+            # 'config': "{{id}}_config.txt",
+            'config': "config.txt",
             'library_prefix':path,
             'library': 'libfakecfe.so',
             'model_params':{'t0':0.42, 'szm':42}}
@@ -94,11 +94,11 @@ def noahowp_params():
             'model_type_name': 'NoahOWP',
             'name': 'bmi_fortran',
             'config_prefix':path,
-            'config': "{{id}}.input", 
+            'config': "{{id}}.input",
             'library_prefix': libpath,
             'library': 'libfakecfe.so'
             }
-    return data   
+    return data
 
 @pytest.fixture
 def lstm_params():

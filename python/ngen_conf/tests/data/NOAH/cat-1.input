@@ -26,7 +26,7 @@
 
 &model_options ! see OptionsType.f90 for details
   precip_phase_option               = 1
-  snow_albedo_option                = 1 
+  snow_albedo_option                = 1
   dynamic_veg_option                = 4
   runoff_option                     = 3
   drainage_option                   = 8

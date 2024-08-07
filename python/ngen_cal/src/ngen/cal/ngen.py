@@ -55,7 +55,7 @@ def _params_as_df(params: Mapping[str, Parameters], name: str = None):
 def _map_params_to_realization(params: Mapping[str, Parameters], realization: Realization):
     # don't even think about calibration multiple formulations at once just yet..
     module = realization.formulations[0].params
-    
+
     if isinstance(module, MultiBMI):
         dfs = []
         for m in module.modules:
@@ -67,7 +67,7 @@ def _map_params_to_realization(params: Mapping[str, Parameters], realization: Re
 class NgenBase(ModelExec):
     """
         Data class specific for Ngen
-        
+
         Inherits the ModelParams attributes and Configurable interface
     """
     type: Literal['ngen']
@@ -114,7 +114,7 @@ class NgenBase(ModelExec):
         self._plugin_manager.register(TrouteOutput(self.routing_output))
         #Make a copy of the config file, just in case
         shutil.copy(self.realization, str(self.realization)+'_original')
-       
+
         # Read the catchment hydrofabric data
         if self.hydrofabric is not None:
             if self._is_legacy_gpkg_hydrofabric(self.hydrofabric):
@@ -215,7 +215,7 @@ class NgenBase(ModelExec):
     @property
     def adjustables(self) -> Sequence['CalibrationCatchment']:
         """A list of Catchments for calibration
-        
+
         These catchments hold information about the parameters/calibration data for that catchment
 
         Returns:
@@ -225,7 +225,7 @@ class NgenBase(ModelExec):
 
     @root_validator
     def set_defaults(cls, values: Dict):
-        """Compose default values 
+        """Compose default values
 
             This validator will set/adjust the following data values for the class
             args: if not explicitly configured, ngen args default to
@@ -310,9 +310,9 @@ class NgenBase(ModelExec):
 
         if hf is None and cats is None and nex is None and x is None:
             msg = "Must provide a geopackage input with the hydrofabric key"\
-                  "or proide catchment, nexus, and crosswalk geojson files."  
+                  "or proide catchment, nexus, and crosswalk geojson files."
             raise ValueError(msg)
-        
+
         if hf is not None:
             try:
                 p = Path(hf)
@@ -333,7 +333,7 @@ class NgenBase(ModelExec):
             params (pd.DataFrame): _description_
             id (str): _description_
         """
-        
+
         if id is None: #Update global
             module = self.ngen_realization.global_config.formulations[0].params
         else: #update specific catchment
@@ -356,9 +356,9 @@ class NgenBase(ModelExec):
         # it works, so here it be...
         for file in Path(path).glob("*NEXOUT.parquet"):
             file.unlink()
-    
+
 class NgenExplicit(NgenBase):
-    
+
     strategy: Literal[NgenStrategy.explicit] = NgenStrategy.explicit
 
     def __init__(self, **kwargs):
@@ -369,7 +369,7 @@ class NgenExplicit(NgenBase):
         end_t = self.ngen_realization.time.end_time
         #Setup each calibration catchment
         for id, catchment in self.ngen_realization.catchments.items():
-            
+
             if hasattr(catchment, 'calibration'):
                 try:
                     fabric = self._catchment_hydro_fabric.loc[id]
@@ -407,7 +407,7 @@ class NgenExplicit(NgenBase):
 
         if id is None:
             raise RuntimeError("NgenExplicit calibration must recieve an id to update, not None")
-        
+
         super().update_config(i, params, id, **kwargs)
 
 class NgenIndependent(NgenBase):
@@ -445,10 +445,10 @@ class NgenIndependent(NgenBase):
             for f in path.iterdir():
                 if pattern.match(f.name):
                     catchment_realizations[id].forcing.path = f.resolve()
-            
+
 
         self.ngen_realization.catchments = catchment_realizations
-        
+
         for id, catchment in self.ngen_realization.catchments.items():#data['catchments'].items():
             try:
                 fabric = self._catchment_hydro_fabric.loc[id]
@@ -462,7 +462,7 @@ class NgenIndependent(NgenBase):
             try:
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
             except KeyError:
-                try: 
+                try:
                     nwis = self._x_walk.loc[id]
                 except KeyError:
                     nwis = None
@@ -479,7 +479,7 @@ class NgenIndependent(NgenBase):
             #FIXME pick up params per catchmment somehow???
             params = _map_params_to_realization(self.params, catchment)
             catchments.append(AdjustableCatchment(self.workdir, id, nexus, params))
-        
+
         if self.eval_feature:
             for n in eval_nexus:
                 wb = self._flowpath_hydro_fabric[ self._flowpath_hydro_fabric['toid'] == n.id ]
@@ -489,7 +489,7 @@ class NgenIndependent(NgenBase):
                     break
 
         if len(eval_nexus) != 1:
-            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged, set the eval_feature key to pick one.")     
+            raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged, set the eval_feature key to pick one.")
         self._catchments.append(CalibrationSet(catchments, eval_nexus[0], self._plugin_manager.hook, start_t, end_t, self.eval_params))
 
     def _strip_global_params(self) -> None:
@@ -499,7 +499,7 @@ class NgenIndependent(NgenBase):
                 m.params.model_params = None
         else:
             module.model_params = None
-            
+
 
 class NgenUniform(NgenBase):
     """
@@ -517,7 +517,7 @@ class NgenUniform(NgenBase):
         start_t = self.ngen_realization.time.start_time
         end_t = self.ngen_realization.time.end_time
         eval_nexus = []
-        
+
         for id, toid in self._catchment_hydro_fabric['toid'].items():
             assert isinstance(id, str), f"id expected to be str subtype. is type: {type(id)}"
             #look for an observable nexus
@@ -526,7 +526,7 @@ class NgenUniform(NgenBase):
             try:
                 nwis = self._x_walk.loc[id.replace('cat', 'wb')]
             except KeyError:
-                try: 
+                try:
                     nwis = self._x_walk.loc[id]
                 except KeyError:
                     #not an observable nexus, try the next one
@@ -535,7 +535,7 @@ class NgenUniform(NgenBase):
             location = NWISLocation(nwis, nexus_data.name, nexus_data.geometry)
             nexus = Nexus(nexus_data.name, location, (), Catchment(id, {}))
             eval_nexus.append( nexus )
-        
+
         if self.eval_feature:
             for n in eval_nexus:
                 wb = self._flowpath_hydro_fabric[ self._flowpath_hydro_fabric['toid'] == n.id ]
@@ -548,7 +548,7 @@ class NgenUniform(NgenBase):
             raise RuntimeError( "Currently only a single nexus in the hydrfabric can be gaged, set the eval_feature key to pick one.")
         params = _params_as_df(self.params)
         self._catchments.append(UniformCalibrationSet(eval_nexus=eval_nexus[0], hooks=self._plugin_manager.hook, start_time=start_t, end_time=end_t, eval_params=self.eval_params, params=params))
-            
+
 class Ngen(BaseModel, Configurable, smart_union=True):
     __root__: Union[NgenExplicit, NgenIndependent, NgenUniform] = Field(discriminator="strategy")
 
@@ -567,7 +567,7 @@ class Ngen(BaseModel, Configurable, smart_union=True):
     @property
     def strategy(self):
         return self.__root__.strategy
-    
+
     def restart(self) -> int:
         starts = []
         for catchment in self.adjustables:
