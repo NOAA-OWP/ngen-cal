@@ -36,7 +36,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         #FIXME paramterize
         self._output_file = workdir/'{}.csv'.format(self.id)
         self._workdir = workdir
-    
+
     def save_output(self, i) -> None:
         """
             Save the last output to output for iteration i
@@ -44,7 +44,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         #FIXME ensure _output_file exists
         #FIXME re-enable this once more complete
         shutil.move(self._output_file, '{}_last'.format(self._output_file))
-    
+
     #update handled in meta, TODO remove this method???
     def update_params(self, iteration: int) -> None:
         pass
@@ -79,7 +79,7 @@ class EvaluatableCatchment(Evaluatable):
         self._output = None
         self._fabric = fabric
         self._eval_range = self.eval_params._eval_range
-        
+
     @property
     def evaluation_range(self) -> 'Optional[Tuple[datetime, datetime]]':
         return self._eval_range
@@ -142,4 +142,4 @@ class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
         except FileNotFoundError:
             pass
         return restart_iteration
-        
+

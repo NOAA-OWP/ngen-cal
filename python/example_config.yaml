@@ -7,7 +7,7 @@ general:
   # Defaults to `ngen-calibration`
   #name: None
   # Strategy configuration
-  strategy: 
+  strategy:
       # Type of strategey, currently supported is estimation
       type: estimation
       #defaults to dds (currently, the only supported algorithm)
@@ -101,27 +101,27 @@ general:
 #Describe the model parameters you want to use, valid for independent and uniform
 #ngen strategies
 cfe_params: &cfe_params
-  - 
+  -
       name: maxsmc
       min: 0.2
       max: 1.0
       init: 0.439
-  - 
+  -
       name: satdk
       min: 0.0
       max: 0.000726
       init: 3.38e-06
-  - 
+  -
       name: slope
       min: 0.0
       max: 1.0
       init: 0.01
-#   - 
+#   -
 #       name: bb
 #       min: 0.0
 #       max: 21.9
 #       init: 4.05
-  - 
+  -
       name: expon
       min: 1.0
       max: 8.0
@@ -156,12 +156,12 @@ model:
     crosswalk: ../cfe-cal-2/hydrofabric/crosswalk.json
     #ngen calibration strategies include
     #uniform: Each catchment shares the same parameter space, evaluates at one observable nexus
-    #independet: Each catchment upstream of observable nexus gets its own permuated parameter space, evalutates at one observable nexus 
+    #independet: Each catchment upstream of observable nexus gets its own permuated parameter space, evalutates at one observable nexus
     #explicit: only calibrates basins in the realization_config with a "calibration" definition and an observable nexus
     strategy: independent
-    params: 
+    params:
         CFE: *cfe_params
-    
+
     eval_params:
       # This is the range of the hydrograph dates to run the objective function over
       # To evaluate the entire period, you can comment these lines out

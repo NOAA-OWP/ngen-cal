@@ -24,14 +24,14 @@ class MultiBMI(BMIParams, smart_union=True):
     main_output_variable: Optional[str]
     #NOTE aliases don't propagate to subclasses, so we have to repeat the alias
     model_name: str = Field(None, alias="model_type_name")
-    
+
     #override const since these shouldn't be used for multi bmi, but are currently
     #required to exist as keys for ngen
     config: Optional[str] = Field('', const=True, alias="init_config")
     _config_prefix: Optional[str] = Field(None, const=True, alias="config_prefix")
     name_map: Mapping[str, str] = Field(None, const=True) #not relevant for multi-bmi
     model_params: Optional[Mapping[str, str]] = Field(None, const=True) #not relevant for multi-bmi
-    
+
     def resolve_paths(self, relative_to: Optional['Path']=None):
         for m in self.modules:
             m.resolve_paths(relative_to)
@@ -49,7 +49,7 @@ class MultiBMI(BMIParams, smart_union=True):
 
         Returns:
             Mapping[str, Any]: Attributes to assign to the class, with a (possibly) modifed `model_name`
-        """ 
+        """
         name = values.get('model_name') or values.get('model_type_name')
         modules = values.get('modules')
         if not name and modules:

@@ -1,7 +1,7 @@
 # Entry point to validating NGen catchment,nexus, and realization files
 import sys, json
 from ngen.config.realization import NgenRealization
-from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON 
+from ngen.config.hydrofabric import CatchmentGeoJSON , NexusGeoJSON
 
 def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file=None):
     """
@@ -39,14 +39,14 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file=No
         if id is None: id = jfeat.properties.id # descrapancy between geopandas and pydantic
         toid = jfeat.properties.toid
         nexi.append(id)
-    
+
     # Convert to list
     subset_list = nexus_subset.split(',')
     msg = 'Nexus subset includes nexus that were not found in nexus config'
     msg += f'\nNexus from config {nexi}\nNexus in subset {nexus_subset}'
     assert all([jnex in nexi for jnex in subset_list]), msg
 
-    # Validate all nexus in catchment config match those provided 
+    # Validate all nexus in catchment config match those provided
     msg = 'Nexus-Catchment pairs do not match! Check Catchment and Nexus config files!'
     msg += f'\nPairs from catchment config:{catchments}\nPairs from nexus config:{nexi}'
     assert all([jpair[1] in nexi for jpair in catchment_pairs]), msg
@@ -60,13 +60,13 @@ def validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file=No
     for jpair in nexus_pairs:
         jcatch, jnexus = jpair
         if jnexus in nexus_subset:
-            assert jcatch in catchment_subset, 'Sub selected catchments/nexuses do not match!'        
+            assert jcatch in catchment_subset, 'Sub selected catchments/nexuses do not match!'
 
     # Validate Realization config
     if rel_file is not None:
         with open(rel_file) as fp:
             data = json.load(fp)
-            NgenRealization(**data)  
+            NgenRealization(**data)
     else:
         print('Did not validate realization file!!!')
 
@@ -82,5 +82,5 @@ if __name__ == "__main__":
 
     validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file)
 
-    
+
 

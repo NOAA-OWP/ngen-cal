@@ -15,13 +15,13 @@ class Forcing(BaseModel, smart_union=True):
         """
         CSV = "CsvPerFeature"
         NetCDF = "NetCDF"
-    
+
     #required
     file_pattern: Optional[Union[Path, str]]
     path: Path
     #reasonable? default
     provider: Provider = Field(Provider.CSV)
-    
+
     def resolve_paths(self, relative_to: Optional[Path]=None):
         if isinstance(self.file_pattern, Path):
             if relative_to is None:
