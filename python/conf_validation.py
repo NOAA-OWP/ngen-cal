@@ -81,6 +81,3 @@ if __name__ == "__main__":
     rel_file         = sys.argv[5]
 
     validate(catchment_file,catchment_subset,nexus_file,nexus_subset,rel_file)
-
-
-
