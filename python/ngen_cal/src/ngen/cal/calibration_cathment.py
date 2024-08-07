@@ -143,4 +143,3 @@ class CalibrationCatchment(AdjustableCatchment, EvaluatableCatchment):
         except FileNotFoundError:
             pass
         return restart_iteration
-
