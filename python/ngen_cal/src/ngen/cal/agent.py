@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from ngen.cal.meta import JobMeta
-from ngen.cal.configuration import Model
+from ngen.cal.configuration import Model, NoModel
 from ngen.cal.utils import pushd
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -59,9 +59,13 @@ class BaseAgent(ABC):
 
 class Agent(BaseAgent):
 
-    def __init__(self, model_conf, workdir: Path, log: bool=False, restart: bool=False, parameters: Mapping[str, Any] | None = {}):
+    def __init__(self, model: Model, workdir: 'Path', log: bool=False, restart: bool=False, parameters: 'Optional[Mapping[str, Any]]' = {}):
         self._workdir = workdir
         self._job = None
+        assert not isinstance(model.model, NoModel), "invariant"
+        # NOTE: if support for new models is added, this will need to be modified
+        model_inner = model.model.unwrap()
+        self._model = model
         if restart:
             # find prior ngen workdirs
             # FIXME if a user starts with an independent calibration strategy
@@ -72,17 +76,14 @@ class Agent(BaseAgent):
             # 0 correctly since not all basin params can be loaded.
             # There are probably some similar issues with explicit and independent, since they have
             # similar data semantics
-            workdirs = list(Path.glob(workdir, model_conf['type']+"_*_worker"))
+            workdirs = list(Path.glob(workdir, model_inner.type+"_*_worker"))
             if len(workdirs) > 1:
                 print("More than one existing workdir, cannot restart")
             elif len(workdirs) == 1:
-                self._job = JobMeta(model_conf['type'], workdir, workdirs[0], log=log)
+                self._job = JobMeta(model_inner.type, workdir, workdirs[0], log=log)
 
         if self._job is None:
-            self._job = JobMeta(model_conf['type'], workdir, log=log)
-        resolved_binary = Path(model_conf['binary']).resolve()
-        model_conf['workdir'] = self.job.workdir
-        self._model = Model(model=model_conf, binary=resolved_binary)
+            self._job = JobMeta(model_inner.type, workdir, log=log)
         self._model.model.resolve_paths(self.job.workdir)
 
         self._params = parameters
@@ -117,4 +118,4 @@ class Agent(BaseAgent):
         data = self.model.__root__.copy(deep=True)
         #return a new agent, which has a unique Model instance
         #and its own Job/workspace
-        return Agent(data.dict(by_alias=True), self._workdir)
+        return Agent(data, self._workdir)
