@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from hypy.nexus import Nexus
 
     from ngen.cal.configuration import General
+    from ngen.cal.model import ModelExec
     from ngen.cal.meta import JobMeta
 
 hookspec = pluggy.HookspecMarker(PROJECT_SLUG)
@@ -51,6 +52,19 @@ def ngen_cal_finish(exception: Exception | None) -> None:
 
 
 class ModelHooks:
+    @hookspec
+    def ngen_cal_model_configure(self, config: ModelExec) -> None:
+        """
+        Called before calibration begins.
+        This allow plugins to perform initial configuration.
+
+        Plugins' configuration data should be provided using the
+        `plugins_settings` field in the `model` section of an `ngen.cal`
+        configuration file.
+        By convention, the name of the plugin should be used as top level key in
+        the `plugin_settings` dictionary.
+        """
+
     @hookspec(firstresult=True)
     def ngen_cal_model_observations(
         self,
