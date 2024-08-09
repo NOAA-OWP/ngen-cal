@@ -4,7 +4,8 @@ from __future__ import annotations
 import yaml
 from os import chdir
 from pathlib import Path
-from ngen.cal.configuration import General
+from ngen.cal.configuration import General, Model
+from ngen.cal.ngen import Ngen
 from ngen.cal.search import dds, dds_set, pso_search
 from ngen.cal.strategy import Algorithm
 from ngen.cal.agent import Agent
@@ -42,6 +43,13 @@ def main(general: General, model_conf: Mapping[str, Any]):
         import numpy as np
         np.random.seed(general.random_seed)
 
+    # model scope plugins setup in constructor
+    model = Model(model=model_conf)
+
+    # NOTE: if support for new models is added, this will need to be modified
+    assert isinstance(model.model, Ngen), f"ngen.cal.ngen.Ngen expected, got {type(model.model)}"
+    model_inner = model.model.unwrap()
+
     plugins = cast(List[Union[Callable, ModuleType]], general.plugins)
     plugin_manager = setup_plugin_manager(plugins)
 
@@ -57,8 +65,9 @@ def main(general: General, model_conf: Mapping[str, Any]):
     into a single variable vector and calibrating a set of heterogenous formultions...
     """
     start_iteration = 0
-    #Initialize the starting agent
-    agent = Agent(model_conf, general.workdir, general.log, general.restart, general.strategy.parameters)
+
+    # Initialize the starting agent
+    agent = Agent(model, general.workdir, general.log, general.restart, general.strategy.parameters)
     if general.strategy.algorithm == Algorithm.dds:
         func = dds_set #FIXME what about explicit/dds
         start_iteration = general.start_iteration
