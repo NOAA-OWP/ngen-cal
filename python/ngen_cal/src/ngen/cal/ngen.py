@@ -595,6 +595,11 @@ class Ngen(BaseModel, Configurable, smart_union=True):
         return self.__root__.get_binary()
     def update_config(self, *args, **kwargs):
         return self.__root__.update_config(*args, **kwargs)
+
+    def unwrap(self) -> NgenBase:
+        """convenience method that returns the underlying __root__ instance"""
+        return self.__root__
+
     #proxy methods for model
     @property
     def adjustables(self):
