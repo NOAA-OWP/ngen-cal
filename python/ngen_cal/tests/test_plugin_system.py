@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from hypy.nexus import Nexus
 
     from ngen.cal.configuration import General
+    from ngen.cal.model import ModelExec
+    from pathlib import Path
 
 
 def test_setup_plugin_manager():
@@ -73,6 +75,10 @@ class ClassBasedPlugin:
     @hookimpl
     def ngen_cal_finish(self) -> None:
         """Called after exiting the calibration loop."""
+
+    @hookimpl
+    def ngen_cal_model_configure(self, config: ModelExec) -> None:
+        """Test model model configure plugin"""
 
     @hookimpl
     def ngen_cal_model_output(self) -> None:
