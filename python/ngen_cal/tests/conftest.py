@@ -5,7 +5,7 @@ from copy import deepcopy
 import json
 import pandas as pd # type: ignore
 import geopandas as gpd # type: ignore
-from ngen.cal.configuration import General
+from ngen.cal.configuration import General, Model
 from ngen.cal.ngen import Ngen
 from ngen.cal.meta import JobMeta
 from ngen.cal.calibration_cathment import CalibrationCatchment
@@ -104,9 +104,10 @@ def meta(ngen_config, general_config, mocker) -> Generator[JobMeta, None, None]:
     yield m
 
 @pytest.fixture
-def agent(ngen_config, general_config) -> Generator['Agent', None, None]:
-    a = Agent(ngen_config.__root__.dict(), general_config.workdir, general_config.log)
-    yield a
+def agent(ngen_config, general_config) -> Agent:
+    model = Model(model=ngen_config)
+    a = Agent(model, general_config.workdir, general_config.log)
+    return a
 
 @pytest.fixture
 def eval(ngen_config) -> Generator[EvaluationOptions, None, None]:
