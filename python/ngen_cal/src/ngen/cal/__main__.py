@@ -57,6 +57,7 @@ def main(general: General, model_conf: Mapping[str, Any]):
 
     # setup plugins
     plugin_manager.hook.ngen_cal_configure(config=general)
+    model_inner._plugin_manager.hook.ngen_cal_model_configure(config=model_inner)
 
     print("Starting calib")
 
