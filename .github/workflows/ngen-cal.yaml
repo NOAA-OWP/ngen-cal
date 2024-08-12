@@ -38,6 +38,11 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 ./python/ngen_cal --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+    - name: Installing libnetcdf
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --fix-missing libnetcdf-dev
+
     - name: Installing ngen_cal in python virtual environment
       run: |
         # setup virtual environment
