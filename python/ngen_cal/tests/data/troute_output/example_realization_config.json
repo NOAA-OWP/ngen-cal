@@ -1,0 +1,14 @@
+{
+  "global": {
+    "formulations": [],
+    "forcing": {
+      "file_pattern": ".*{{id}}.*.csv",
+      "path": "./does/not/exist/"
+    }
+  },
+  "time": {
+    "start_time": "2023-04-02 00:00:00",
+    "end_time": "2023-04-03 00:00:00",
+    "output_interval": 3600
+  }
+}
