@@ -45,7 +45,7 @@ jobs:
         source ./venv/bin/activate
         # upgrade pip
         pip install -U pip
-        pip install "python/ngen_cal[develop]"
+        pip install "python/ngen_cal[develop,netcdf]"
         # NOTE: Install checked out version of ngen_conf.
         # This ensure ngen_cal tests test against ngen_conf source checked out by the runner.
         pip install python/ngen_conf
