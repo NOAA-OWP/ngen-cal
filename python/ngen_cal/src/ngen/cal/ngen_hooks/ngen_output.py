@@ -98,20 +98,21 @@ class NgenSaveOutput:
     terminal_pattern = "tnx-*.csv"
     coastal_pattern = "cnx-*.csv"
     routing_output = "flowveldepth_Ngen.csv"
+
     @hookimpl(trylast=True)
     def ngen_cal_model_iteration_finish(self, iteration: int, info: JobMeta) -> None:
         """
-            After each iteration, copy the old outputs for possible future
-            evaluation and inspection.
+        After each iteration, copy the old outputs for possible future
+        evaluation and inspection.
         """
         path = info.workdir
-        out_dir = path/f"output_{iteration}"
+        out_dir = path / f"output_{iteration}"
         Path.mkdir(out_dir)
         globs = []
-        globs.append( path.glob(self.runoff_pattern) )
-        globs.append( path.glob(self.lateral_pattern) )
-        globs.append( path.glob(self.terminal_pattern) )
-        globs.append( path.glob(self.coastal_pattern) )
+        globs.append(path.glob(self.runoff_pattern))
+        globs.append(path.glob(self.lateral_pattern))
+        globs.append(path.glob(self.terminal_pattern))
+        globs.append(path.glob(self.coastal_pattern))
         for g in globs:
             for f in g:
                 f.rename(out_dir / f.name)
