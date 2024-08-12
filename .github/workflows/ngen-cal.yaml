@@ -19,7 +19,7 @@ jobs:
         #so for now, don't enable testing on 3.10.  3.11 similarly builds some deps, but it
         #particaularly fails to build the tables dep since the ubuntu image doesn't have hdf5
         #When 3.11 tables wheel is available, then add it?  Also, put 3.10 in quotes or it turns into 3.1
-        python-version: [3.7, 3.8, 3.9] #, '3.10', 3.11] 
+        python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v2
