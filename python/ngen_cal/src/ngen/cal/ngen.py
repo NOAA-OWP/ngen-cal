@@ -292,6 +292,8 @@ class NgenBase(ModelExec):
     @root_validator
     def _validate_model(cls, values: dict) -> dict:
         NgenBase._verify_hydrofabric(values)
+        realization: Optional[NgenRealization] = values.get("ngen_realization")
+        NgenBase._verify_ngen_realization(realization)
         return values
 
     @staticmethod
@@ -322,7 +324,29 @@ class NgenBase(ModelExec):
         if cats is not None or nex is not None or x is not None:
             warnings.warn("GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.", DeprecationWarning)
 
-        return values
+    @staticmethod
+    def _verify_ngen_realization(realization: Optional[NgenRealization]) -> None:
+        """
+        Verify `ngen_realization` uses supported features.
+
+        Args:
+            realization: maybe an `NgenRealization` instance
+
+        Raises:
+            UnsupportedFeatureError: If `realization.output_root` is not None.
+                                     Feature not supported.
+
+        Returns:
+            None
+        """
+        if realization is None:
+            return None
+
+        if realization.output_root is not None:
+            from .errors import UnsupportedFeatureError
+            raise UnsupportedFeatureError(
+                "ngen realization `output_root` field is not supported by ngen.cal. will be removed in future; see https://github.com/NOAA-OWP/ngen-cal/issues/150"
+            )
 
     def update_config(self, i: int, params: 'pd.DataFrame', id: str = None, path=Path("./")):
         """_summary_
