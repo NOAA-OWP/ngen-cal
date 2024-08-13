@@ -83,7 +83,7 @@ class NgenBase(ModelExec):
     nexus: Optional[FilePath]
     crosswalk: Optional[FilePath]
     ngen_realization: Optional[NgenRealization]
-    routing_output: Optional[Path] = Field(default=Path("flowveldepth_Ngen.csv"))
+    routing_output: Path = Path("flowveldepth_Ngen.csv")
     #optional fields
     partitions: Optional[FilePath]
     parallel: Optional[PosInt]
