@@ -28,6 +28,7 @@ from hypy.hydrolocation import NWISLocation
 from hypy.nexus import Nexus
 from hypy.catchment import Catchment
 
+
 class NgenStrategy(str, Enum):
     """
     """
@@ -289,19 +290,24 @@ class NgenBase(ModelExec):
         return values
 
     @root_validator
-    def validate_hydrofabic(cls, values: dict) -> dict:
+    def _validate_model(cls, values: dict) -> dict:
+        NgenBase._verify_hydrofabric(values)
+        return values
+
+    @staticmethod
+    def _verify_hydrofabric(values: dict) -> None:
         """
-        Validates hydrofabric information is provided either as (deprecated) GeoJSON
+        Verify hydrofabric information is provided either as (deprecated) GeoJSON
         or (preferred) GeoPackage files.
 
         Args:
-            values (dict): configuation values to check
+            values: root validator dictionary
 
         Raises:
             ValueError: If a geopackage hydrofabric or set of geojsons are not found
 
         Returns:
-            dict: Valid configuration elements for hydrofabric requirements
+            None
         """
         hf: FilePath = values.get('hydrofabric')
         cats: FilePath = values.get("catchments")
