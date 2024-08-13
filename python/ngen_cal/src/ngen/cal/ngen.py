@@ -288,7 +288,7 @@ class NgenBase(ModelExec):
             raise ValueError("Must provide partitions if using parallel")
         return values
 
-    @root_validator()
+    @root_validator
     def validate_hydrofabic(cls, values: dict) -> dict:
         """
         Validates hydrofabric information is provided either as (deprecated) GeoJSON
@@ -313,13 +313,6 @@ class NgenBase(ModelExec):
                   "or proide catchment, nexus, and crosswalk geojson files."  
             raise ValueError(msg)
         
-        if hf is not None:
-            try:
-                p = Path(hf)
-                if not p.exists():
-                    raise
-            except:
-                raise TypeError("hydrofabric must be a valid file path")
         if cats is not None or nex is not None or x is not None:
             warnings.warn("GeoJSON support will be deprecated in a future release, use geopackage hydrofabric.", DeprecationWarning)
 
