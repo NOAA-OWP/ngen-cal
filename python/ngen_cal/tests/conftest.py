@@ -151,12 +151,12 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
     output = nexus._hydro_location.get_data().rename(columns={'value':'sim_flow'})
     output.set_index('value_time', inplace=True)
     #Override the output property so it doesn't try to reload output each time
-    mocker.patch(__name__+'.EvaluatableCatchment.output',
+    mocker.patch('ngen.cal.calibration_cathment.EvaluatableCatchment.output',
                 new_callable=mocker.PropertyMock,
                 return_value = output
                 )
     #Disable output saving for testing purpose
-    mocker.patch(__name__+'.AdjustableCatchment.save_output',
+    mocker.patch('ngen.cal.calibration_cathment.AdjustableCatchment.save_output',
                 return_value=None)
 
     id = 'tst-1'
