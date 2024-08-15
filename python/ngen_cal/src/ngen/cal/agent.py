@@ -63,8 +63,9 @@ class Agent(BaseAgent):
         self._workdir = workdir
         self._job = None
         assert not isinstance(model.model, NoModel), "invariant"
-        # NOTE: if support for new models is added, this will need to be modified
-        model_inner = model.model.unwrap()
+        # NOTE: if support for new models is added, support for other model
+        # type variants will be required
+        ngen_model = model.model.unwrap()
         self._model = model
         if restart:
             # find prior ngen workdirs
@@ -76,14 +77,14 @@ class Agent(BaseAgent):
             # 0 correctly since not all basin params can be loaded.
             # There are probably some similar issues with explicit and independent, since they have
             # similar data semantics
-            workdirs = list(Path.glob(workdir, model_inner.type+"_*_worker"))
+            workdirs = list(Path.glob(workdir, ngen_model.type+"_*_worker"))
             if len(workdirs) > 1:
                 print("More than one existing workdir, cannot restart")
             elif len(workdirs) == 1:
-                self._job = JobMeta(model_inner.type, workdir, workdirs[0], log=log)
+                self._job = JobMeta(ngen_model.type, workdir, workdirs[0], log=log)
 
         if self._job is None:
-            self._job = JobMeta(model_inner.type, workdir, log=log)
+            self._job = JobMeta(ngen_model.type, workdir, log=log)
         self._model.model.resolve_paths(self.job.workdir)
 
         self._params = parameters
