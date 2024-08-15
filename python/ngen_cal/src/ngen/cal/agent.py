@@ -85,6 +85,7 @@ class Agent(BaseAgent):
 
         if self._job is None:
             self._job = JobMeta(ngen_model.type, workdir, log=log)
+        ngen_model.workdir = self.job.workdir
         self._model.model.resolve_paths(self.job.workdir)
 
         self._params = parameters
