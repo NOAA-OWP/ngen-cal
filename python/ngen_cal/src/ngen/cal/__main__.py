@@ -57,7 +57,6 @@ def main(general: General, model_conf: Mapping[str, Any]):
 
     # setup plugins
     plugin_manager.hook.ngen_cal_configure(config=general)
-    model_inner._plugin_manager.hook.ngen_cal_model_configure(config=model_inner)
 
     print("Starting calib")
 
@@ -69,6 +68,10 @@ def main(general: General, model_conf: Mapping[str, Any]):
 
     # Initialize the starting agent
     agent = Agent(model, general.workdir, general.log, general.restart, general.strategy.parameters)
+
+    # Agent mutates the model config, so `ngen_cal_model_configure` is called afterwards
+    model_inner._plugin_manager.hook.ngen_cal_model_configure(config=model_inner)
+
     if general.strategy.algorithm == Algorithm.dds:
         func = dds_set #FIXME what about explicit/dds
         start_iteration = general.start_iteration
