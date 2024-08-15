@@ -59,7 +59,7 @@ class BaseAgent(ABC):
 
 class Agent(BaseAgent):
 
-    def __init__(self, model: Model, workdir: 'Path', log: bool=False, restart: bool=False, parameters: 'Optional[Mapping[str, Any]]' = {}):
+    def __init__(self, model: Model, workdir: Path, log: bool=False, restart: bool=False, parameters: Mapping[str, Any] | None = {}):
         self._workdir = workdir
         self._job = None
         assert not isinstance(model.model, NoModel), "invariant"
