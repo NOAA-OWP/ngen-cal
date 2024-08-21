@@ -36,7 +36,9 @@ class TrouteOutput:
     # this will only execute if all other hooks return None (or they don't exist)
     @hookimpl(specname="ngen_cal_model_output", trylast=True)
     def get_output(self, id: str) -> pd.Series | None:
-        assert self._ngen_realization is not None, "ngen realization required"
+        assert (
+            self._ngen_realization is not None
+        ), "ngen realization required; ensure `ngen_cal_model_configure` was called and the plugin was properly configured"
 
         if not self._output_file.exists():
             print(
