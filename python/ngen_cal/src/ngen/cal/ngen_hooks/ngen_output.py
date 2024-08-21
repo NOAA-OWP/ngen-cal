@@ -24,6 +24,7 @@ class TrouteOutput:
         self._output_file = filepath
         self._ngen_realization: NgenRealization | None = None
 
+    @hookimpl
     def ngen_cal_model_configure(self, config: ModelExec) -> None:
         # avoid circular import
         from ngen.cal.ngen import NgenBase
