@@ -175,7 +175,7 @@ def catchment(nexus, fabric, workdir, mocker) -> Generator[CalibrationCatchment,
     return catchment
 
 @pytest.fixture
-def catchment2(nexus, fabric, workdir) -> Generator[CalibrationCatchment, None, None]:
+def catchment2(nexus, fabric, workdir) -> CalibrationCatchment:
     """
         A hy_features catchment implementing the calibratable interface
         Doesn't mock output, can be used to test semantics of erronous output
