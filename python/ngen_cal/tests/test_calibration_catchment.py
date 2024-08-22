@@ -31,7 +31,10 @@ def test_output(
     """
     import pandas as pd
 
-    monkeypatch.setattr(pd, "read_csv", lambda *args, **kwargs: FileNotFoundError())
+    def file_not_found(*args, **kwargs):
+        raise FileNotFoundError
+
+    monkeypatch.setattr(pd, "read_csv", file_not_found)
     output = catchment2.output
     assert output is None
 
