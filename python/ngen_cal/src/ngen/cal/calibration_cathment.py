@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pandas import DataFrame, read_csv # type: ignore
+import pandas as pd
 import shutil
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
     from pathlib import Path
     from geopandas import GeoSeries
     from datetime import datetime
@@ -33,7 +32,7 @@ class AdjustableCatchment(FormulatableCatchment, Adjustable):
         """
 
         FormulatableCatchment.__init__(self=self, catchment_id=id, params=params, outflow=nexus)
-        Adjustable.__init__(self=self, df=DataFrame(params).rename(columns={'init': '0'}))
+        Adjustable.__init__(self=self, df=pd.DataFrame(params).rename(columns={'init': '0'}))
         #FIXME paramterize
         self._output_file = workdir/f'{self.id}.csv'
         self._workdir = workdir
@@ -86,7 +85,7 @@ class EvaluatableCatchment(Evaluatable):
         return self._eval_range
 
     @property
-    def output(self) -> DataFrame:
+    def output(self) -> pd.DataFrame:
         """
             The model output hydrograph for this catchment
             This re-reads the output file each call, as the output for given calibration catchment changes
@@ -94,7 +93,7 @@ class EvaluatableCatchment(Evaluatable):
         """
         try:
             #FIXME get the output variable from config
-            self._output = read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time', dtype={self._output_var: 'float64'})
+            self._output = pd.read_csv(self._output_file, usecols=["Time", self._output_var], parse_dates=['Time'], index_col='Time', dtype={self._output_var: 'float64'})
             self._output.rename(columns={self._output_var:'sim_flow'}, inplace=True)
             #FIXME make sure units are correct here...
             #Assumes model catchment outputs are in m/hr, convert to m^3/s
@@ -113,7 +112,7 @@ class EvaluatableCatchment(Evaluatable):
         self._output = df
 
     @property
-    def observed(self) -> DataFrame:
+    def observed(self) -> pd.DataFrame:
         """
             The observed hydrograph for this catchment FIXME move output/observed to calibratable?
         """
