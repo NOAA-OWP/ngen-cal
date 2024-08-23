@@ -22,6 +22,9 @@ _noah_owp_config_data_path = _datadir / "init_config_data" / "noah_owp.namelist"
 _soil_freeze_thaw_config_data_path = _datadir / "init_config_data" / "soil_freeze_thaw.txt"
 _soil_moisture_profile_config_data_path = _datadir / "init_config_data" / "soil_moisture_profile.txt"
 _lgar_config_data_path = _datadir / "init_config_data" / "lgar.txt"
+_topmodel_subcat_config_path = _datadir / "init_config_data" / "subcat.dat"
+_topmodel_params_config_path = _datadir / "init_config_data" / "params.dat"
+_topmodel_config_path = _datadir / "init_config_data" / "topmodel.run"
 
 
 """
@@ -232,3 +235,26 @@ def soil_moisture_profile_init_config() -> str:
 def lgar_init_config() -> str:
     # drop eol char
     return _lgar_config_data_path.read_text().rstrip()
+
+@pytest.fixture
+def topmodel_subcat_config_path() -> Path:
+    return _topmodel_subcat_config_path
+
+@pytest.fixture
+def topmodel_params_config_path() -> Path:
+    return _topmodel_params_config_path
+
+@pytest.fixture
+def topmodel_subcat_config(topmodel_subcat_config_path: Path) -> str:
+    # drop eol char
+    return topmodel_subcat_config_path.read_text().rstrip()
+
+@pytest.fixture
+def topmodel_params_config(topmodel_params_config_path: Path) -> str:
+    # drop eol char
+    return topmodel_params_config_path.read_text().rstrip()
+
+@pytest.fixture
+def topmodel_config() -> str:
+    # drop eol char
+    return _topmodel_config_path.read_text().rstrip()
