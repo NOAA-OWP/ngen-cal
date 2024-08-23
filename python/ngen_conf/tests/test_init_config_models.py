@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import warnings
 
 import pytest
@@ -9,7 +11,12 @@ from ngen.config.init_config.noahowp import NoahOWP
 from ngen.config.init_config.pet import PET
 from ngen.config.init_config.soil_freeze_thaw import SoilFreezeThaw
 from ngen.config.init_config.soil_moisture_profile import SoilMoistureProfile
-from ngen.init_config import utils
+from ngen.config.init_config.topmodel import Topmodel, TopModelSubcat, TopModelParams
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_cfe(cfe_init_config: str):
@@ -114,6 +121,47 @@ def test_soil_moisture_profile(soil_moisture_profile_init_config: str):
     o = SoilMoistureProfile.from_ini_str(soil_moisture_profile_init_config)
     assert o.to_ini_str() == soil_moisture_profile_init_config
 
+
 def test_lgar(lgar_init_config: str):
     o = Lgar.from_ini_str(lgar_init_config)
     assert o.to_ini_str() == lgar_init_config
+
+
+def test_topmodel_subcat(topmodel_subcat_config: str):
+    model = TopModelSubcat.parse_obj(topmodel_subcat_config)
+    assert model.to_str() == topmodel_subcat_config
+
+
+def test_topmodel_params(topmodel_params_config: str):
+    model = TopModelParams.parse_obj(topmodel_params_config)
+    assert model.to_str() == topmodel_params_config
+
+
+def test_topmodel(topmodel_config: str):
+    model = Topmodel.parse_obj(topmodel_config)
+    assert model.to_str() == topmodel_config
+
+
+def test_topmodel_deserialize_and_serialize_linked_configs(
+    topmodel_config: str,
+    topmodel_subcat_config_path: Path,
+    topmodel_params_config_path: Path,
+    topmodel_subcat_config: str,
+    topmodel_params_config: str,
+):
+    model = Topmodel.parse_obj(topmodel_config)
+
+    # update paths to avoid resolution issues.
+    # paths are relative to `_topmodel_config_path` (see conftest.py)
+    # left unchanged, paths will not resolve correctly unless `pytest` is run
+    # from the directory that contains `_topmodel_config_path`.
+    # this fixes that
+    model.subcat = model.subcat.with_path(topmodel_subcat_config_path)
+    model.params = model.params.with_path(topmodel_params_config_path)
+
+    # read from file and deserialize into `pydantic` model
+    assert model.subcat.read(), f"failed to deserialize from file {topmodel_subcat_config_path!s}"
+    assert model.params.read(), f"failed to deserialize from file {topmodel_params_config_path!s}"
+
+    assert model.subcat.serialize() == topmodel_subcat_config
+    assert model.params.serialize() == topmodel_params_config
