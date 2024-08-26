@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
+
 from .core import Base
 from .utils import merge_class_attr
 from ._deserializers import (
@@ -105,3 +107,21 @@ class JsonDeserializer(Base):
     @classmethod
     def from_json_str(cls, s: str) -> Self:
         return cls.parse_raw(s)
+
+
+class GenericDeserializer(Base, ABC):
+    """
+    Stub for deserializing from a generic format.
+    Subclasses must implement the `from_file` and `from_str` abstract class methods.
+    See `ngen.init_config.core.Base` and `pydantic`'s documentation for configuration options.
+    """
+
+    @classmethod
+    @abstractmethod
+    def from_file(cls, p: Path, *_) -> Self:
+        ...
+
+    @classmethod
+    @abstractmethod
+    def from_str(cls, s: str, *_) -> Self:
+        ...

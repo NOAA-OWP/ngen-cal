@@ -70,3 +70,13 @@ class JsonSerializerDeserializer(ser.JsonSerializer, de.JsonDeserializer):
     """
 
     ...
+
+
+class GenericSerializerDeserializer(ser.GenericSerializer, de.GenericDeserializer):
+    """
+    Stub for deserializing from and serializing to a generic format.
+    Subclasses must implement the `to_file`, `to_str`, `from_file`, and `from_str` abstract methods.
+    See `ngen.init_config.core.Base` and `pydantic`'s documentation for configuration options.
+    """
+
+    ...

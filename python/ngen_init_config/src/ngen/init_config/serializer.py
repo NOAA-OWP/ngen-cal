@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from abc import ABC, abstractmethod
 
 from . import core, format_serializers, utils
 from typing import TYPE_CHECKING
@@ -146,3 +147,19 @@ class JsonSerializer(core.Base):
         options = {} if not indent else {"indent": indent}
         # remove trailing eol
         return self.json(by_alias=True, **options).rstrip()
+
+
+class GenericSerializer(core.Base, ABC):
+    """
+    Stub for serializing a generic format.
+    Subclasses must implement the `to_file` and `to_str` abstract class methods.
+    See `ngen.init_config.core.Base` and `pydantic`'s documentation for configuration options.
+    """
+
+    @abstractmethod
+    def to_file(self, p: pathlib.Path, *_) -> None:
+        ...
+
+    @abstractmethod
+    def to_str(self, *_) -> str:
+        ...

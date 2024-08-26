@@ -8,6 +8,7 @@ from .deserializer import (
     YamlDeserializer,
     TomlDeserializer,
     JsonDeserializer,
+    GenericDeserializer,
 )
 from .serializer import (
     IniSerializer,
@@ -15,6 +16,7 @@ from .serializer import (
     YamlSerializer,
     TomlSerializer,
     JsonSerializer,
+    GenericSerializer,
 )
 
 from .serializer_deserializer import (
@@ -23,4 +25,5 @@ from .serializer_deserializer import (
     YamlSerializerDeserializer,
     TomlSerializerDeserializer,
     JsonSerializerDeserializer,
+    GenericSerializerDeserializer,
 )
