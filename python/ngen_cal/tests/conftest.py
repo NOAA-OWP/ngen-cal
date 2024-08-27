@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import pytest
-from typing import Generator, List
+from typing import Generator, List, Mapping
 from pathlib import Path
 from copy import deepcopy
 import json
@@ -11,6 +13,7 @@ from ngen.cal.meta import JobMeta
 from ngen.cal.calibration_cathment import CalibrationCatchment
 from ngen.cal.model import EvaluationOptions
 from ngen.cal.agent import Agent
+from ngen.cal.parameter import Parameter
 from hypy import Nexus
 
 from .utils import *
@@ -219,3 +222,12 @@ def explicit_catchments(nexus, fabric, workdir) -> Generator[ List[ CalibrationC
         cat = CalibrationCatchment(workdir, id, nexus, start, end, fabric, 'Q_Out', eval_options, data)
         catchments.append(cat)
     yield catchments
+
+@pytest.fixture
+def multi_model_shared_params() -> Mapping[str, list[Parameter]]:
+    p1 = Parameter(name='a', min=0, max=1, init=0)
+    p2 = Parameter(name='a', min=0, max=1, init=0)
+
+    params = {'A':[p1], 'B':[p2]}
+
+    return params
