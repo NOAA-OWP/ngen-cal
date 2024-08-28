@@ -226,9 +226,10 @@ def explicit_catchments(nexus, fabric, workdir) -> Generator[ List[ CalibrationC
 @pytest.fixture
 def multi_model_shared_params() -> Mapping[str, list[Parameter]]:
     p1 = Parameter(name='a', min=0, max=1, init=0)
-    p2 = Parameter(name='a', min=0, max=1, init=0)
+    p2 = Parameter(name='d', min=2, max=3, init=0)
     p3 = Parameter(name='c', min=0, max=1, init=0)
-    params = {'A':[p1], 'B':[p2], 'C':[p3]}
+    p4 = Parameter(name='a', min=0, max=1, init=0)
+    params = {'A':[p1], 'B':[p2, p4], 'C':[p3, p4]}
 
     return params
 
