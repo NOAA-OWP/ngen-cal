@@ -48,9 +48,9 @@ class Adjustable(ABC):
     @property
     def variables(self) -> Series:
         """
-            Index series of variables
+            Index of unique variables to permute
         """
-        return Series(self.df.index.values)
+        return Series(self.df.index.unique().values)
 
     @property
     def bounds(self) -> tuple[Series, Series]:
