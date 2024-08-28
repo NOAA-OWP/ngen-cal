@@ -17,10 +17,10 @@ def test_multi_params(multi_model_shared_params: Mapping[str, list[Parameter]]):
     # create new iteration from old
     params['1'] = params['0']
     #update the parameters by index
-    params.loc[0, '1'] = 0.5
+    params.loc['a', '1'] = 0.5
     pa = params[ params['model'] == 'A' ]
     pb = params[ params['model'] == 'B' ]
-
+    pc = params[ params['model'] == 'C' ]
     assert pa.drop('model', axis=1).equals( pb.drop('model', axis=1) )
-
-# TODO test/document case where params have same name but different min/max/init values
+    # ensure unique params/alias are not modifed by selection
+    assert pa.loc['a', '1'] != pc.loc['c', '1']
