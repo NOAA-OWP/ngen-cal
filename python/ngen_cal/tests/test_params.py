@@ -40,3 +40,21 @@ def test_multi_params2(multi_model_shared_params2: Mapping[str, list[Parameter]]
     pa = params[ params['model'] == 'A' ].drop('model', axis=1).loc['a']
     pb = params[ params['model'] == 'B' ].drop('model', axis=1).loc['a']
     assert pa.equals( pb )
+
+def test_alias_params(multi_model_alias_params: Mapping[str, list[Parameter]]):
+    # This is essentially the path the params go through from
+    # creation in model.py to update in search.py
+    assert multi_model_alias_params['C'][0].alias == multi_model_alias_params['C'][0].name
+    params = _params_as_df(multi_model_alias_params)
+    params = pd.DataFrame(params).rename(columns={'init':'0'})
+    # create new iteration from old
+    params['1'] = params['0']
+    #update the parameters by index
+
+    params.loc['c', '1'] = 0.5
+    pa = params[ params['model'] == 'A' ]
+    pb = params[ params['model'] == 'B' ]
+
+    assert pa.drop(['model', 'param'], axis=1).equals( pb.drop(['model', 'param'], axis=1) )
+
+# TODO test/document case where params have same name but different min/max/init values

@@ -241,3 +241,13 @@ def multi_model_shared_params2() -> Mapping[str, list[Parameter]]:
     params = {'A':[p1, p3], 'B':[p2]}
 
     return params
+
+@pytest.fixture
+def multi_model_alias_params() -> Mapping[str, list[Parameter]]:
+    p1 = Parameter(name='a', alias='c', min=0, max=1, init=0)
+    p2 = Parameter(name='b', alias='c', min=0, max=1, init=0)
+    p3 = Parameter(name='d', min=0, max=1, init=0)
+
+    params = {'A':[p1,p3], 'B':[p2, p3], 'C':[p3]}
+
+    return params
