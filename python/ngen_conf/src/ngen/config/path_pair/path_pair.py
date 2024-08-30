@@ -136,6 +136,101 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
         return cls(path_validator(value))
 
 
+# NOTE: this is an established pattern pydantic uses for 'constrained' types.
+# like . See pydantic constrained types (e.g. `pydantic.types.ContstrainedInt`
+# and `conint`) for other examples of this pattern.
+def path_pair(
+    t: type[T],
+    *,
+    serializer: Serializer[T] | None = None,
+    deserializer: Deserializer[T] | None = None,
+    reader: Reader = path_reader,
+    writer: Writer = path_writer,
+) -> type[PathPairOptions]:
+    """
+    In nearly all cases, this should be used as the pydantic model field type
+    if the field is to be a `PathPair[T]`. This will ensure that the
+    `PathPair[T]` instance has the specified `serializer`, `deserializer`,
+    `reader`, and `writer`.
+
+    NOTE: if a `PathPair` instance is passed to a model field defined using
+    this function during initialization of the model, any `serializer`,
+    `deserializer`, `reader`, or `writer` on the `PathPair` instance will not
+    be replaced by the inputs provided to this function.
+
+    NOTE: if a pydantic model's field type is defined using this function, it's
+    `ModelField.type_` will be a `PathPairOptions`.
+
+    Example:
+        import typing
+        import pydantic
+        from ngen.config.path_pair import (
+            PathPair,
+            pydantic_serializer,
+            pydantic_deserializer,
+        )
+
+        class Model(pydantic.BaseModel):
+            field: int
+
+        class Foo(pydantic.BaseModel):
+            # make static type checkers happy
+            if typing.TYPE_CHECKING:
+                path: PathPair[Model]
+            else:
+                path: path_pair(
+                    Model,
+                    serializer=pydantic_serializer,
+                    deserializer=pydantic_deserializer(Model),
+                )
+    """
+    opts = dict(
+        ty=t,
+        serializer=serializer,
+        deserializer=deserializer,
+        reader=reader,
+        writer=writer,
+    )
+    return type("PathPairOptionsValue", (PathPairOptions,), opts)
+
+
+# NOTE: this is exposed so downstream code verify that a pydantic model's
+# `ModelField.type_` is a `PathPairOptions`.
+class PathPairOptions:
+    ty: ClassVar[type]
+    reader: ClassVar[Reader | None] = None
+    writer: ClassVar[Writer | None] = None
+    serializer: ClassVar[Serializer[type] | None] = None
+    deserializer: ClassVar[Deserializer[type] | None] = None
+
+    @classmethod
+    def __modify_schema__(cls, field_schema: dict[str, Any]) -> None:
+        field_schema.update(PathPair[cls.ty].schema())  # type: ignore
+
+    @classmethod
+    def __get_validators__(cls) -> CallableGenerator:
+        yield from PathPair[cls.ty].__get_validators__()
+        # apply all validators, now `value` is guaranteed to be a `PathPair`
+        yield cls._apply_path_pair_options
+
+    @staticmethod
+    def _apply_path_pair_options(value: PathPair[T], field: ModelField) -> PathPair[T]:
+        assert isinstance(
+            value, PathPair
+        ), "must be a `PathPair` instance by this point"
+        opts: PathPairOptions = field.type_
+
+        def update_if_none(prop_name: str, new_value: Any):
+            if getattr(value, prop_name) is None:
+                setattr(value, prop_name, new_value)
+
+        update_if_none("_serializer", opts.serializer)  # type: ignore
+        update_if_none("_deserializer", opts.deserializer)  # type: ignore
+        update_if_none("_reader", opts.reader)  # type: ignore
+        update_if_none("_writer", opts.writer)  # type: ignore
+        return value
+
+
 class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
     """A `pathlib.Path` subclass that encapsulates a collection of `T`'s and methods for reading,
     writing, and de/serializing to and from a the collection of `T`'s. This type enables treating a
