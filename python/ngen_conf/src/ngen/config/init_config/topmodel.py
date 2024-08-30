@@ -16,6 +16,7 @@ import typing_extensions
 from pydantic import Field, root_validator, validator
 
 import ngen.init_config.serializer_deserializer as serde
+from ngen.config.path_pair.path_pair import path_pair
 from ngen.config.path_pair import PathPair
 
 if TYPE_CHECKING:
@@ -353,8 +354,20 @@ class Topmodel(serde.GenericSerializerDeserializer):
     title: str
     # NOTE: never used with ngen
     input: pathlib.Path = pathlib.Path("/dev/null")
-    subcat: PathPair[TopModelSubcat]
-    params: PathPair[TopModelParams]
+    if TYPE_CHECKING:
+        subcat: PathPair[TopModelSubcat]
+        params: PathPair[TopModelParams]
+    else:
+        subcat: path_pair(
+            TopModelSubcat,
+            serializer=lambda o: o.to_str().encode(),
+            deserializer=TopModelSubcat.parse_obj,
+        )
+        params: path_pair(
+            TopModelParams,
+            serializer=lambda o: o.to_str().encode(),
+            deserializer=TopModelParams.parse_obj,
+        )
     output: pathlib.Path = pathlib.Path("/dev/null")
     hyd: pathlib.Path = pathlib.Path("/dev/null")
 
