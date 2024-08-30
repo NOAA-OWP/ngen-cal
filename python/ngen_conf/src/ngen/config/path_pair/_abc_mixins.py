@@ -64,7 +64,7 @@ class AbstractPathPairMixin(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def read(self):
+    def read(self) -> bool:
         """
         Try to read the current path and deserialize into an inner encapsulated `T`. If an inner `T`
         already exists and it deserializes correctly, replace the inner `T` with the new instance.
