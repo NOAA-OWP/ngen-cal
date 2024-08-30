@@ -1,17 +1,20 @@
-import pytest
-import tempfile
-from pydantic import BaseModel, validator
-from pathlib import Path
+from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+from typing import Any, Union, Protocol, TYPE_CHECKING
+
+import pytest
+from pydantic import BaseModel, ValidationError, validator
+
+from ngen.config.path_pair.path_pair import path_pair
 from ngen.config.path_pair import (
     PathPair,
-    PosixPathPair,
     PathPairCollection,
+    PosixPathPair,
     PosixPathPairCollection,
 )
 from ngen.config.path_pair.common import pydantic_deserializer, pydantic_serializer
-
-from typing import Union
 
 
 class InnerModel(BaseModel):
@@ -23,7 +26,7 @@ class Model(BaseModel):
 
 
 @pytest.fixture
-def path_pair() -> PosixPathPair[InnerModel]:
+def path_pair_model() -> PosixPathPair[InnerModel]:
     m = InnerModel(foo=12)
     return PathPair(
         "",
@@ -40,64 +43,64 @@ def test_path_pair_from_object():
     assert o.inner == m
 
 
-def test_path_pair_with_path(path_pair: PosixPathPair[InnerModel]):
-    assert path_pair != Path("/")
+def test_path_pair_with_path(path_pair_model: PosixPathPair[InnerModel]):
+    assert path_pair_model != Path("/")
 
-    o2 = path_pair.with_path("/")
+    o2 = path_pair_model.with_path("/")
     assert o2 == Path("/")
-    assert o2.inner == path_pair.inner
+    assert o2.inner == path_pair_model.inner
 
 
-def test_path_truediv(path_pair: PosixPathPair[InnerModel]):
-    assert path_pair != Path("test")
+def test_path_truediv(path_pair_model: PosixPathPair[InnerModel]):
+    assert path_pair_model != Path("test")
 
-    o = path_pair / "test"
+    o = path_pair_model / "test"
 
     assert o == Path("test")
-    assert o.inner == path_pair.inner
+    assert o.inner == path_pair_model.inner
 
     o /= "test"
     assert o == Path("test/test")
-    assert o.inner == path_pair.inner
+    assert o.inner == path_pair_model.inner
 
 
-def test_path_rtruediv(path_pair: PosixPathPair[InnerModel]):
-    o = "test/test" / path_pair
+def test_path_rtruediv(path_pair_model: PosixPathPair[InnerModel]):
+    o = "test/test" / path_pair_model
     assert o == Path("test/test")
-    assert o.inner == path_pair.inner
+    assert o.inner == path_pair_model.inner
 
 
-def test_path_serialize(path_pair: PosixPathPair[InnerModel]):
-    assert path_pair.serialize() == path_pair.inner.json().encode()
+def test_path_serialize(path_pair_model: PosixPathPair[InnerModel]):
+    assert path_pair_model.serialize() == path_pair_model.inner.json().encode()
 
 
-def test_path_deserialize(path_pair: PosixPathPair[InnerModel]):
-    data = path_pair.serialize()
-    o = PosixPathPair(path_pair, deserializer=path_pair._deserializer)
+def test_path_deserialize(path_pair_model: PosixPathPair[InnerModel]):
+    data = path_pair_model.serialize()
+    o = PosixPathPair(path_pair_model, deserializer=path_pair_model._deserializer)
     assert o.deserialize(data) == True
-    assert o.inner == path_pair.inner
+    assert o.inner == path_pair_model.inner
 
 
-def test_path_write(path_pair: PosixPathPair[InnerModel]):
+def test_path_write(path_pair_model: PosixPathPair[InnerModel]):
     with tempfile.NamedTemporaryFile() as f:
         p = Path(f.name)
-        o = path_pair.with_path(p)
+        o = path_pair_model.with_path(p)
         assert o.write() == True
         assert p.read_bytes() == o.serialize()
         assert p.is_file()
         assert p.exists()
 
 
-def test_path_read(path_pair: PosixPathPair[InnerModel]):
+def test_path_read(path_pair_model: PosixPathPair[InnerModel]):
     with tempfile.NamedTemporaryFile() as f:
         p = Path(f.name)
-        o = path_pair.with_path(p)
+        o = path_pair_model.with_path(p)
         assert o.write() == True
-        o2 = PathPair(o, deserializer=path_pair._deserializer)
+        o2 = PathPair(o, deserializer=path_pair_model._deserializer)
         assert p.is_file()
         assert p.exists()
         assert o2.read() == True
-        assert o2.inner == o.inner == path_pair.inner
+        assert o2.inner == o.inner == path_pair_model.inner
 
 
 @pytest.fixture
@@ -306,3 +309,154 @@ def test_integration_with_pydantic_model():
         outer = Outer(path=path_to_file)
         assert outer.path == path_to_file
         assert outer.path.inner == inner
+
+
+@pytest.mark.parametrize("input", (42, True, "1"))
+def test_bound_generics(input: Any):
+    P = PathPair[int]
+    P.with_object(input)
+
+
+@pytest.mark.parametrize("input", ("not a number", (1,), {"key": "value"}))
+def test_bound_generics_negative(input: Any):
+    P = PathPair[int]
+    with pytest.raises(ValidationError):
+        P.with_object(input)
+
+    with pytest.raises(ValidationError):
+        P("", inner=input)  # type: ignore
+
+
+def test_embedded_bound_generics():
+    class M(BaseModel):
+        field: PathPair[int]
+
+    assert M(field=PathPair[int].with_object(42)).field.inner == 42
+    # NOTE: `bool` is coerced to `int`
+    assert M(field=PathPair[bool].with_object(True)).field.inner == 1
+
+
+def test_no_binding_is_supported():
+    assert PathPair("").inner is None  # type: ignore
+    assert PathPair("", inner=True).inner is True  # type: ignore
+    assert PathPair.with_object(True).inner is True
+
+    p = PathPair.with_object(True)
+    assert p.with_path("path") == Path("path")
+    assert p.with_path("path").inner is True
+
+
+class Subscribable(Protocol):
+    @classmethod
+    def __class_getitem__(
+        cls: type, params: type[Any] | tuple[type[Any], ...]
+    ) -> type[Any]: ...
+
+
+def test_model_field_dunder_name_is_correctly_patched():
+    # NOTE: could not use pytest parametrize here b.c. of
+    # __future__ annotations type hinting
+    class M(BaseModel):
+        field: PathPair[int]
+
+    assert M.__fields__["field"].type_ == PathPair[int]
+    assert M.__fields__["field"].outer_type_ == PathPair[int]
+
+    class N(BaseModel):
+        field: PathPairCollection[int]
+
+    assert N.__fields__["field"].type_ == PathPairCollection[int]
+    assert N.__fields__["field"].outer_type_ == PathPairCollection[int]
+
+
+def test_path_pair_collection_fails_to_init_with_wrong_inner_t():
+    P = PathPairCollection[int]
+    path = Path("file_{id}")
+    with pytest.raises(ValidationError):
+        # "a", "b", "c" cannot be coerced into `int`s
+        P.with_objects(
+            ["a", "b", "c"],  # type: ignore
+            path=path,
+            pattern="{id}",
+            ids=["1", "2", "3"],
+        )
+
+
+def test_path_pair_collection_bound_generic():
+    P = PathPairCollection[int]
+    path = Path("file_{id}")
+    P.with_objects(
+        [1, 2, 3],
+        path=path,
+        pattern="{id}",
+        ids=["1", "2", "3"],
+    )
+
+
+class InnerTypeHintModel(BaseModel):
+    field: int
+
+
+class TypeHintModel(BaseModel):
+    # make static type checkers happy
+    if TYPE_CHECKING:
+        path: PathPair[InnerTypeHintModel]
+    else:
+        path: path_pair(
+            InnerTypeHintModel,
+            serializer=pydantic_serializer,
+            deserializer=pydantic_deserializer(InnerTypeHintModel),
+        )
+
+
+def test_using_path_pair_fn_as_type_hint():
+    o = TypeHintModel(**{"path": ""})  # type: ignore
+    assert o.path == Path("")
+
+    o = TypeHintModel.parse_obj({"path": ""})
+    assert o.path == Path("")
+
+    m = InnerTypeHintModel(field=42)
+    o = TypeHintModel(path=PathPair[InnerTypeHintModel].with_object(m, path=""))
+    assert o.path == Path("")
+    assert o.path.inner == m
+
+
+@pytest.mark.parametrize("ty", (PathPair[InnerTypeHintModel], PathPair))
+def test_using_path_pair_fn_as_type_hint_reading_and_writing(ty: type[PathPair[Any]]):
+    # test with bound an unbound type
+    m = InnerTypeHintModel(field=42)
+    with tempfile.TemporaryDirectory() as dir:
+        model_path = Path(dir) / "model"
+        o = TypeHintModel(path=ty.with_object(m, path=model_path))
+        assert o.path == model_path
+        assert o.path.inner is not None
+        assert o.path.serialize() == pydantic_serializer(o.path.inner)
+
+        assert o.path.write()
+        assert model_path.is_file()
+
+        r = TypeHintModel(path=model_path)  # type: ignore
+        assert r.path.read()
+        assert r.path.inner == o.path.inner
+
+
+def test_using_path_pair_fn_as_type_hint_custom_options_respected():
+    m = InnerTypeHintModel(field=42)
+
+    def marker(): ...
+
+    p = PathPair[InnerTypeHintModel].with_object(
+        m,
+        reader=marker,  # type: ignore
+        writer=marker,  # type: ignore
+        serializer=marker,  # type: ignore
+        deserializer=marker,  # type: ignore
+    )
+    o = TypeHintModel(path=p)
+    # TODO: these properties should likely be exposed publicly.
+    #       this test will need to be updated when that happens.
+    assert o.path._reader == marker  # type: ignore
+    assert o.path._writer == marker  # type: ignore
+    assert o.path._serializer == marker  # type: ignore
+    assert o.path._deserializer == marker  # type: ignore
