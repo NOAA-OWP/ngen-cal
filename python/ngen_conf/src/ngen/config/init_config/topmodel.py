@@ -381,22 +381,19 @@ class Topmodel(serde.GenericSerializerDeserializer):
             )
         return value
 
-    @root_validator
-    @classmethod
-    def _coerce_path_pairs(cls, values: dict[str, Any]) -> dict[str, Any]:
-        assert isinstance(values["subcat"], PathPair)
-        assert isinstance(values["params"], PathPair)
-        values["subcat"] = PathPair(
-            pathlib.Path(values["subcat"]),
-            deserializer=TopModelSubcat.parse_obj,  # type: ignore
-            serializer=lambda o: o.to_str(),  # type: ignore
-        )  # type: ignore
-        values["params"] = PathPair(
-            pathlib.Path(values["params"]),
-            deserializer=TopModelParams.parse_obj,  # type: ignore
-            serializer=lambda o: o.to_str(),  # type: ignore
-        )  # type: ignore
-        return values
+    @validator("subcat", pre=True)
+    def _coerce_topmodel_subcat_into_pathpair(cls, value: Any) -> Any:
+        return cls._maybe_coerce_into_pathpair(TopModelSubcat, value)
+
+    @validator("params", pre=True)
+    def _coerce_topmodel_params_into_pathpair(cls, value: Any) -> Any:
+        return cls._maybe_coerce_into_pathpair(TopModelParams, value)
+
+    @staticmethod
+    def _maybe_coerce_into_pathpair(ty: type, value: Any) -> Any:
+        if isinstance(value, ty):
+            return PathPair[ty].with_object(value)
+        return value
 
     @typing_extensions.override
     @classmethod
