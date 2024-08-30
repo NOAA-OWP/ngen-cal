@@ -298,9 +298,10 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         if inner is None:
             inner = []
 
-        prefix, _, suffix = template_str.name.partition(pattern)
+        prefix, ptrn, suffix = template_str.name.partition(pattern)
+        assert ptrn == pattern, f"pattern {pattern} not found in {template_str.name!s}"
         for item in inner:
-            if PathPairCollection._get_id(item, prefix, suffix) == "":
+            if PathPairCollection._get_id(item, prefix, suffix) == "":  # type: ignore
                 raise ValueError(
                     f"Filename not derived from template and pattern, {template_str.name!r} {pattern!r}: {item}"
                 )
@@ -329,9 +330,8 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         prefix: str,
         suffix: str,
     ) -> str:
-        assert prefix != "" and suffix != ""
-
-        return p.name[len(prefix) : -len(suffix)]
+        assert len(prefix) + len(suffix) <= len(p.name)
+        return p.name[len(prefix) : len(p.name) - len(suffix)]
 
     @classmethod
     def cwd(cls) -> Path:
@@ -355,12 +355,19 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
         deserializer: Deserializer[T] | None = None,
     ) -> PosixPathPairCollection[T] | WindowsPathPairCollection[T]:
         assert len(objs) == len(ids)
-        prefix, _, suffix = path.name.partition(pattern)
-        assert prefix != "" and suffix != ""
+        prefix, ptrn, suffix = path.name.partition(pattern)
+        assert ptrn == pattern, f"pattern {pattern} not found in {path.name!s}"
 
         pairs = []
         for idx, item in enumerate(objs):
             fp = path.parent / f"{prefix}{ids[idx]}{suffix}"
+            # NOTE: `PathPair` is implicitly `PathPair[Optional[Any]]`
+            # (b.c. generic params are unbound) , however when the class
+            # instance is created in `__new__`, further validation is applied
+            # that makes this moot.
+            #
+            # A downside of this implementation is two instances of a
+            # `PathPair` are created for every `item` to ensure validity.
             pair = PathPair.with_object(
                 item,
                 path=fp,
