@@ -163,5 +163,43 @@ def test_topmodel_deserialize_and_serialize_linked_configs(
     assert model.subcat.read(), f"failed to deserialize from file {topmodel_subcat_config_path!s}"
     assert model.params.read(), f"failed to deserialize from file {topmodel_params_config_path!s}"
 
-    assert model.subcat.serialize() == topmodel_subcat_config
-    assert model.params.serialize() == topmodel_params_config
+    assert model.subcat.serialize() == topmodel_subcat_config.encode()
+    assert model.params.serialize() == topmodel_params_config.encode()
+
+def test_topmodel_initialize_fields_with_path_pair_instances(
+    topmodel_subcat_config: str,
+    topmodel_params_config: str,
+):
+    from ngen.config.path_pair import PathPair
+
+    subcat = TopModelSubcat.parse_obj(topmodel_subcat_config)
+    params = TopModelParams.parse_obj(topmodel_params_config)
+
+    model = Topmodel(
+        title="title",
+        subcat=PathPair[TopModelSubcat].with_object(subcat),
+        params=PathPair[TopModelParams].with_object(params),
+    )
+
+    assert model.subcat.inner is not None
+    assert model.subcat.inner == subcat
+    assert model.params.inner is not None
+    assert model.params.inner == params
+
+def test_topmodel_initialize_fields_with_non_path_pair_instances(
+    topmodel_subcat_config: str,
+    topmodel_params_config: str,
+):
+    subcat = TopModelSubcat.parse_obj(topmodel_subcat_config)
+    params = TopModelParams.parse_obj(topmodel_params_config)
+
+    model = Topmodel(
+        title="title",
+        subcat=subcat, # type: ignore
+        params=params # type: ignore
+    )
+
+    assert model.subcat.inner is not None
+    assert model.subcat.inner == subcat
+    assert model.params.inner is not None
+    assert model.params.inner == params
