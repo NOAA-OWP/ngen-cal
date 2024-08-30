@@ -16,6 +16,7 @@ from ngen.init_config.serializer import (
     NamelistSerializer,
     TomlSerializer,
     YamlSerializer,
+    GenericSerializer,
 )
 from pydantic import BaseModel
 from typing_extensions import Literal, Self
@@ -58,6 +59,8 @@ def _get_str_serializer(data: BaseModel) -> Callable[[], str]:
         return data.to_toml_str
     elif isinstance(data, YamlSerializer):
         return data.to_yaml_str
+    elif isinstance(data, GenericSerializer):
+        return data.to_str
     elif isinstance(data, BaseModel):
         return data.json
 
@@ -81,6 +84,8 @@ def _get_serializer(data: BaseModel) -> Callable[[Path], None]:
         return data.to_toml
     elif isinstance(data, YamlSerializer):
         return data.to_yaml
+    elif isinstance(data, GenericSerializer):
+        return data.to_file
     elif isinstance(data, BaseModel):  # type: ignore
         json_serializer(data)
 
@@ -98,6 +103,8 @@ def _get_file_extension(data: BaseModel) -> str:
         return "toml"
     elif isinstance(data, YamlSerializer):
         return "yaml"
+    elif isinstance(data, GenericSerializer):
+        return ""
     elif isinstance(data, BaseModel):  # type: ignore
         return "json"
 
