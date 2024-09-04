@@ -5,15 +5,65 @@ from pydantic import BaseModel, Field
 
 from .bmi_formulation import BMIC
 
+
 class CFEParams(BaseModel):
-    """Class for validating CFE Parameters
-    """
-    maxsmc: Optional[float]
+    """Class for validating CFE Parameters"""
+
+    b: Optional[float]
+    """Pore size distribution index"""
     satdk: Optional[float]
+    """Saturated hydraulic conductivity"""
+    satpsi: Optional[float]
+    """saturated capillary head"""
     slope: Optional[float]
-    bb: Optional[float]
-    multiplier: Optional[float]
+    """Linear scaling of "openness" of bottom drainage boundary"""
+    maxsmc: Optional[float]
+    """saturated soil moisture content"""
+    wltsmc: Optional[float]
+    """wilting point soil moisture content"""
+    refkdt: Optional[float]
+    """
+    Surface runoff parameter; REFKDT is a tuneable parameter that significantly
+    impacts surface infiltration and hence the partitioning of total runoff into
+    surface and subsurface runoff. Increasing REFKDT decreases surface runoff
+    """
     expon: Optional[float]
+    """soil primary outlet coefficient"""
+    max_gw_storage: Optional[float]
+    """Maximum groundwater storage"""
+    cgw: Optional[float]
+    """Coefficent for the groundwater equation"""
+    alpha_fc: Optional[float]
+    """field_capacity_atm_press_fraction (alpha_fc)"""
+    kn: Optional[float]
+    """Nash coefficient for subsurface lateral flow through Nash cascade"""
+    klf: Optional[float]
+    """Nash coefficient that determines the volume of lateral flow"""
+    kinf_nash_surface: Optional[float]
+    """Storage fraction per hour that moves from Nash surface reservoirs to soil"""
+    retention_depth_nash_surface: Optional[float]
+    """Water retention depth threshold (only applied to the first reservoir)"""
+    a_xinanjiang_inflection_point_parameter: Optional[float]
+    """Contributing area curve inflection point"""
+    b_xinanjiang_shape_parameter: Optional[float]
+    """Contributing area curve shape parameter"""
+    x_xinanjiang_shape_parameter: Optional[float]
+    """Contributing area curve shape parameter"""
+
+    class Config(BaseModel.Config):
+        allow_population_by_field_name = True
+        fields = {
+            "cgw": {"alias": "Cgw"},
+            "kn": {"alias": "Kn"},
+            "klf": {"alias": "Klf"},
+            "kinf_nash_surface": {"alias": "Kinf_nash_surface"},
+            "a_xinanjiang_inflection_point_parameter": {
+                "alias": "a_Xinanjiang_inflection_point_parameter"
+            },
+            "b_xinanjiang_shape_parameter": {"alias": "b_Xinanjiang_shape_parameter"},
+            "x_xinanjiang_shape_parameter": {"alias": "x_Xinanjiang_shape_parameter"},
+        }
+
 
 class CFE(BMIC):
     """A BMIC implementation for the CFE ngen module
