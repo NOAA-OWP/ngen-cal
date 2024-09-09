@@ -64,7 +64,12 @@ def _params_as_df(params: Mapping[str, Parameters], name: str = None):
             return df
 
 def _map_params_to_realization(params: Mapping[str, Parameters], realization: Realization):
-    # don't even think about calibration multiple formulations at once just yet..
+    # Since params are mapped by model name, we can track the model/param relationship
+    # in the dataframe to reconstruct each models parameters indepndently
+    # with a unique parameter index build in _params_as_df, this supports multi-model
+    # parameters with a key distinction --
+    # WARNING parameters with the _exact_ same name between two models will be exposed
+    # as two parameters in the parameter space, but will always share the same value
     module = realization.formulations[0].params
 
     if isinstance(module, MultiBMI):
