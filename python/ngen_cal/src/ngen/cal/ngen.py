@@ -46,13 +46,22 @@ def _params_as_df(params: Mapping[str, Parameters], name: str = None):
             df['model'] = k
             df.rename(columns={'name':'param'}, inplace=True)
             dfs.append(df)
-        return pd.concat(dfs)
+        df = pd.concat(dfs)
+        # Copy the parameter column and use it as the index
+        # The param -> model relation has to be maintained for writing back
+        # to specific model components later
+        df['p'] = df['param']
+        return df.set_index('p')
     else:
         p = params.get(name, [])
         df = pd.DataFrame([s.__dict__ for s in p])
         df['model'] = name
         df.rename(columns={'name':'param'}, inplace=True)
-        return df
+        if p:
+            df['p'] = df['param']
+            return df.set_index('p')
+        else:
+            return df
 
 def _map_params_to_realization(params: Mapping[str, Parameters], realization: Realization):
     # don't even think about calibration multiple formulations at once just yet..
