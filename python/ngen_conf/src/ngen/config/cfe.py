@@ -25,7 +25,8 @@ class CFEParams(BaseModel):
     """
     Surface runoff parameter; REFKDT is a tuneable parameter that significantly
     impacts surface infiltration and hence the partitioning of total runoff into
-    surface and subsurface runoff. Increasing REFKDT decreases surface runoff
+    surface and subsurface runoff. Increasing REFKDT decreases surface runoff.
+    Only applicable when surface_water_partitioning_scheme is Schaake.
     """
     expon: Optional[float]
     """soil primary outlet coefficient"""
@@ -40,9 +41,15 @@ class CFEParams(BaseModel):
     klf: Optional[float]
     """Nash coefficient that determines the volume of lateral flow"""
     kinf_nash_surface: Optional[float]
-    """Storage fraction per hour that moves from Nash surface reservoirs to soil"""
+    """
+    Storage fraction per hour that moves from Nash surface reservoirs to soil.
+    Only applicable surface_runoff_scheme = NASH_CASCADE.
+    """
     retention_depth_nash_surface: Optional[float]
-    """Water retention depth threshold (only applied to the first reservoir)"""
+    """
+    Water retention depth threshold (only applied to the first reservoir)
+    Only applicable surface_runoff_scheme = NASH_CASCADE.
+    """
     a_xinanjiang_inflection_point_parameter: Optional[float]
     """Contributing area curve inflection point"""
     b_xinanjiang_shape_parameter: Optional[float]
