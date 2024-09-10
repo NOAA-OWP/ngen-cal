@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path, PosixPath, WindowsPath
 
 from .protocol import Reader, Writer, Serializer, Deserializer
@@ -84,6 +85,9 @@ class PathPair(AbstractPathPairMixin[T], Path, Generic[T]):
             inner = _MaybeInner[cls._parameters[0]](inner=inner).inner  # type: ignore
         cls = WindowsPathPair[T] if os.name == "nt" else PosixPathPair[T]
         self: WindowsPathPair[T] | PosixPathPair[T] = Path.__new__(cls, *args, **kwargs)
+        # explicitly call __init__ to setup instance (see #193)
+        if sys.version_info >= (3, 12):
+            self.__init__(*args)
         self._inner = inner  # type: ignore
         self._serializer = serializer  # type: ignore
         self._deserializer = deserializer  # type: ignore
@@ -316,6 +320,9 @@ class PathPairCollection(AbstractPathPairCollectionMixin[T], Path, Generic[T]):
             deserializer=deserializer,
             **kwargs,
         )
+        # explicitly call __init__ to setup instance (see #193)
+        if sys.version_info >= (3, 12):
+            self.__init__(*args)
         self._inner = inner
         self._serializer = serializer
         self._deserializer = deserializer
