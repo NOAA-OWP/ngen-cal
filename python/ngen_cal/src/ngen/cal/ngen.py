@@ -388,7 +388,16 @@ class NgenBase(ModelExec):
         # Cleanup any t-route parquet files between runs
         # TODO this may not be _the_ best place to do this, but for now,
         # it works, so here it be...
-        for file in Path(path).glob("*NEXOUT.parquet"):
+        import itertools
+        to_remove = (
+            # Path(path).glob("troute_output_*.*"),
+            # Path(path).glob("flowveldepth_*.*"),
+            Path(path).glob("*NEXOUT.parquet"),
+            # ngen files
+            # Path(path).glob("cat-*.csv"),
+            # Path(path).glob("nex-*_output.csv"),
+        )
+        for file in itertools.chain(*to_remove):
             file.unlink()
 
 class NgenExplicit(NgenBase):
