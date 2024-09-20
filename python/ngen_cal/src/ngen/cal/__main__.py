@@ -15,6 +15,7 @@ from typing import cast, Callable, List, Union, TYPE_CHECKING
 from types import ModuleType
 
 if TYPE_CHECKING:
+    from ngen.config.realization import NgenRealization
     from typing import Mapping, Any
     from pluggy import PluginManager
 
@@ -33,6 +34,25 @@ def _loaded_plugins(pm: PluginManager) -> str:
         plugins.append(name)
 
     return f"Plugins Loaded: {', '.join(plugins)}"
+
+
+def _update_troute_config(
+    realization: NgenRealization,
+    troute_config: dict[str, Any],
+):
+    start = realization.time.start_time
+    end = realization.time.end_time
+    duration = (end - start).total_seconds()
+
+    troute_config["compute_parameters"]["restart_parameters"]["start_datetime"] = (
+        start.strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+    forcing_parameters = troute_config["compute_parameters"]["forcing_parameters"]
+    dt = forcing_parameters["dt"]
+    nts, r = divmod(duration, dt)
+    assert r == 0, "routing timestep is not evenly divisible by ngen_timesteps"
+    forcing_parameters["nts"] = nts
 
 
 def main(general: General, model_conf: Mapping[str, Any]):
@@ -108,6 +128,80 @@ def main(general: General, model_conf: Mapping[str, Any]):
             #for catchment_set in agent.model.adjustables:
             #    func(start_iteration, general.iterations, catchment_set, agent)
             func(start_iteration, general.iterations, agent)
+
+        if (validation_parms := model.model.unwrap().val_params) is not None:
+            print("configuring calibration")
+            # NOTE: importing here so its easier to refactor in the future
+            from ngen.cal.calibration_set import CalibrationSet
+            import pandas as pd
+            from typing import TYPE_CHECKING
+            if TYPE_CHECKING:
+                from typing import Sequence
+                import pandas as pd
+                from ngen.cal.calibration_cathment import CalibrationCatchment
+
+            adjustables: Sequence[CalibrationCatchment] = agent.model.adjustables
+
+            realization: NgenRealization = agent.model.unwrap().ngen_realization
+            assert realization is not None
+
+            sim_start, sim_end = validation_parms.sim_interval()
+            eval_start, eval_end = validation_parms.evaluation_interval()
+            print(f"validation {sim_start=} {sim_end=}")
+
+            # NOTE: do this before `update_config` is called so the right path is written to disk
+            realization.time.start_time = sim_start
+            realization.time.end_time = sim_end
+
+            assert realization.routing is not None
+
+            troute_config_path = realization.routing.config
+
+            with troute_config_path.open() as fp:
+                troute_config = yaml.safe_load(fp)
+
+            _update_troute_config(realization, troute_config)
+
+            troute_config_path_validation = troute_config_path.with_name("troute_validation.yaml")
+            with troute_config_path_validation.open("w") as fp:
+                yaml.dump(troute_config, fp)
+
+            # NOTE: do this before `update_config` is called so the right path is written to disk
+            realization.routing.config = troute_config_path_validation
+
+            for calibration_object in adjustables:
+                best_df: pd.DataFrame = calibration_object.df[[str(agent.best_params), 'param', 'model']]
+
+                agent.update_config(agent.best_params, best_df, calibration_object.id)
+
+                # NOTE: importing here so its easier to refactor in the future
+                from ngen.cal.search import _execute, _objective_func
+                from ngen.cal.utils import pushd
+
+                print("starting calibration")
+                # TODO: validation_parms.objective and target are not being correctly configured
+                _execute(agent)
+                with pushd(agent.job.workdir):
+                    sim = calibration_object.output
+
+                    assert isinstance(calibration_object, CalibrationSet)
+                    # TODO: get from realization config
+                    simulation_interval = pd.Timedelta(3600, unit="s")
+                    # TODO: need a way to get the nexus
+                    nexus = calibration_object._eval_nexus
+                    agent_pm = agent.model.unwrap()._plugin_manager
+                    obs = agent_pm.hook.ngen_cal_model_observations(
+                        nexus=nexus,
+                        # NOTE: techinically start_time=`eval_start` + `simulation_interval`
+                        start_time=eval_start,
+                        end_time=eval_end,
+                        simulation_interval=simulation_interval,
+                    )
+                    print(f"{sim=}")
+                    print(f"{obs=}")
+                    score = _objective_func(sim, obs, validation_parms.objective, (sim_start, sim_end))
+                    print(f"validation run score: {score}")
+
     # call `ngen_cal_finish` plugin hook functions
     except Exception as e:
         plugin_manager.hook.ngen_cal_finish(exception=e)

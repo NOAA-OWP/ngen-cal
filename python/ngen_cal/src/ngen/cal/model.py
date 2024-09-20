@@ -212,6 +212,51 @@ class EvaluationOptions(BaseModel):
 
         return start_iteration
 
+
+class ValidationOptions(BaseModel):
+    """A data class holding validation options"""
+    #Optional, but co-dependent, see @_validate_start_stop_both_or_neither_exist for validation logic
+    evaluation_start: datetime
+    evaluation_stop: datetime
+    sim_start: Optional[datetime] = None
+    sim_stop: Optional[datetime] = None
+    objective: Optional[Union[Objective, PyObject]] = Objective.custom
+    target: Union[Literal['min'], Literal['max'], float] = 'min'
+
+    def sim_interval(self) -> tuple[datetime, datetime]:
+        """Returns a tuple of simulation start and stop datetimes"""
+        start = self.sim_start if self.sim_start is not None else self.evaluation_start
+        stop = self.sim_stop if self.sim_stop is not None else self.evaluation_stop
+        return start, stop
+
+    def evaluation_interval(self) -> tuple[datetime, datetime]:
+        """Returns a tuple of evaluation start and stop datetimes"""
+        return self.evaluation_start, self.evaluation_stop
+
+    @root_validator(skip_on_failure=True)
+    @classmethod
+    def _validate_periods(cls, values: dict[str, datetime | None]) -> dict[str, datetime | None]:
+        evaluation_start: datetime = values["evaluation_start"] # type: ignore
+        evaluation_stop: datetime = values["evaluation_stop"] # type: ignore
+        sim_start: datetime | None = values.get("sim_start")
+        sim_stop: datetime | None = values.get("sim_stop")
+
+        errs: list[str] = []
+        if sim_start is not None and sim_start > evaluation_start:
+            errs.append("`sim_start` must be <= `evaluation_start`")
+
+        if sim_stop is not None and sim_stop < evaluation_stop:
+            errs.append("`evaluation_stop` must be <= `sim_stop`")
+
+        if evaluation_stop < evaluation_start:
+            errs.append("`evaluation_start` must be <= `evaluation_stop`")
+
+        if errs:
+            raise ValueError("\n".join(errs))
+
+        return values
+
+
 class ModelExec(BaseModel, Configurable):
     """
         The data class for a given model, which must also be Configurable
@@ -220,6 +265,8 @@ class ModelExec(BaseModel, Configurable):
     args: Optional[str]
     workdir: DirectoryPath = Path("./") #FIXME test the various workdirs
     eval_params: Optional[EvaluationOptions] = Field(default_factory=EvaluationOptions)
+    # TODO: likely want to move this into `NgenBase` instead of here
+    val_params: Optional[ValidationOptions] = None
     plugins: List[PyObjectOrModule] = Field(default_factory=list)
     plugin_settings: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
