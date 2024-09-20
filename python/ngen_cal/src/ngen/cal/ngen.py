@@ -46,13 +46,13 @@ def _params_as_df(params: Mapping[str, Parameters], name: str = None):
             df['model'] = k
             df.rename(columns={'name':'param'}, inplace=True)
             dfs.append(df)
-        return pd.concat(dfs)
+        return pd.concat(dfs).set_index('alias')
     else:
         p = params.get(name, [])
         df = pd.DataFrame([s.__dict__ for s in p])
         df['model'] = name
         df.rename(columns={'name':'param'}, inplace=True)
-        return df
+        return df.set_index('alias')
 
 def _map_params_to_realization(params: Mapping[str, Parameters], realization: Realization):
     # don't even think about calibration multiple formulations at once just yet..
