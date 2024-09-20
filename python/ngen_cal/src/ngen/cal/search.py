@@ -24,11 +24,14 @@ __iteration_counter = 0
 
 def _objective_func(simulated_hydrograph, observed_hydrograph, objective, eval_range: tuple[datetime, datetime] | None = None):
     df = pd.merge(simulated_hydrograph, observed_hydrograph, left_index=True, right_index=True)
-    if df.empty:
-        print("WARNING: Cannot compute objective function, do time indicies align?")
     if eval_range:
         df = df.loc[eval_range[0]:eval_range[1]]
-    #print( df )
+    if df.empty:
+        print("WARNING: Cannot compute objective function, do time indicies align?")
+        if eval_range:
+            print(f"\teval range: [{eval_range[0]!s} : {eval_range[1]!s}]")
+        print(f"\tsim interval: [{simulated_hydrograph.index.min()!s} : {simulated_hydrograph.index.max()!s}]")
+        print(f"\tobs interval: [{observed_hydrograph.index.min()!s} : {observed_hydrograph.index.max()!s}]")
     #Evaluate custom objective function providing simulated, observed series
     return objective(df['obs_flow'], df['sim_flow'])
 
