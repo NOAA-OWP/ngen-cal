@@ -18,9 +18,11 @@ The release process can be summarized fairly simply:
 [//]: # (TODO: document testing and quality checks/process for release candidate prior to release)
 [//]: # (TODO: document peer review and integration process for bug fixes, doc updates, etc., into release candidate branch prior to release (i.e, regular PR?)
 
-1. The next version name/number is decided/finalized
+1. The nested Python packages that will be releasing new versions is identified
+    - And their new version numbers 
 2. A release candidate branch, based on `master`, is created in the official OWP repo
-    - The name of this branch will be `release-X` for version `X`
+    - The name of this branch should be prefixed with either `release-` or `rc-`
+    - The name should also reflect the nested packages that will get new versions and their new version numbers
 3. All necessary testing and quality pre-release tasks are performed using this release candiate branch
     - **TODO**: to be documented in more detail
 4. (If necessary) Bug fixes, documentation updates, and other acceptable, non-feature changes are applied to the release branch
@@ -30,57 +32,26 @@ The release process can be summarized fairly simply:
     - At this point, the branch is ready for official release
 6. All changes in the release candidate branch are incorporated into `production` in the official OWP repo
     - Note that **rebasing** should be used to reconcile changes ([see here](../CONTRIBUTING.md#a-rebase-strategy) for more info)
-7. The subsequent `HEAD` commit of `production` is tagged with the new repository version in the official OWP repo
+7. The subsequent `HEAD` commit of `production` is tagged appropriately in the official OWP repo, with [applicable tags for all the nested Python packages that received new versions](#versions)
 8. All changes in the release candidate branch are incorporated back into `master` in the official OWP repo
-    - This will include things like bug fixes committed to `release-X` after it was branched from `master`
+    - This will include things like bug fixes committed to the release candidate branch after it was branched from `master`
     - As with `production` in Step 6., this should be [done using rebasing](../CONTRIBUTING.md#a-rebase-strategy)
 9. The release candidate branch is deleted from the OWP repo (and, ideally, other clones and forks)
-10. [Additional tags](#extra-package-specific-tags) to help mark release points of the individual nested packages are applied as needed to the `HEAD` commit of `production` in the official OWP repo
 
 # Versions
 
-The versioning for ngen-cal is a little complicated.
+The versioning for ngen-cal is a little different than most OWP repos.
 
-The repository contains the sources of several independently-versioned Python packages; e.g., `ngen.cal:0.2.2`, `ngen.config_gen:0.0.2`, etc.  As long as this code remains organized as multiple separate packages, the package versions need to be maintained individually.  Similarly, the repository version as a whole can't simply mirror the version of one of the nest packages:  this could not represent a new version of the repo _without_ any changes to the mirrored package. 
+The repository contains the source code of several independently-versioned Python packages.  This includes the "main" `ngen.cal` Python package, but also others such as the `ngen.config_gen` pacakge.  As long as their code remains organized as multiple separate packages, the package versions for these need to be maintained individually.
 
-## Rules for Repository Versioning
+The individual versioning of the nested packages within the repository should follow [Semantic Versioning](https://semver.org/) and its typical `MAJOR.MINOR.PATCH` pattern.
 
-The solution is for repository versions to be a composite of the [versions of the nested Python packages](#rules-for-individual-nested-package-versions) using the following pattern:
+Since _ngen-cal_ does not (currently) have a distinct versioning scheme at the repository level, new releases are thought of as composed of new versions of one or more of the nested Python packages.  Because of this, version tags are applied to the repo that are specific to both an updated package and that package's new version, following the pattern `<package_name>:<pacakge_version>`.  
 
-`<ngen.cal>-<ngen.conf>-<ngen.config_gen>-<ngen.init_config>`
+Put another way, for every nested Python package `PKG`, and for the package version `VER` of `PKG` present in the source code according to the `HEAD` commit of the `production` branch, a tag named `PKG:VER` must exist pointing to a commit in the history of `production`; if it does not - in particular, whenever `HEAD` is changed - such a tag should be applied to the `HEAD` of `production`.
 
-E.g., if the current version of the individual Python packages for a repo version are:
+For example, when it is time for a new official release, if only the `ngen.cal` and `ngen.init_config` Python packages are changed since the previous release process, then only those packages will have different versions:  say, `0.3.0` and `0.1.0` respectively.  After changes in the release candidate branch are merged to `production`, the `HEAD` of `production` should be tagged with:
 
-      ngen.cal:0.2.2
-      ngen.config:0.0.3
-      ngen.config_gen:0.0.2
-      ngen.init_config:0.1.0
+* `ngen.cal:0.3.0`
+* `ngen.init_config:0.1.0`
 
-The correct repository version would be `0.2.2-0.0.3-0.0.2-0.1.0`.
-
-### Extra Package-Specific Tags
-
-Using a version like `0.2.2-0.0.3-0.0.2-0.1.0` is not terribly readable or convenience.  To help to mitigate this, in addition to the version tag, tags reflecting the release point of the individual package versions should be maintained when new repository versions are released.
-
-For example, say the repo version is transitioning from `0.2.2-0.0.3-0.0.2-0.1.0` to version `0.2.2-0.0.4-0.0.3-0.1.0`:
-
-* Prior repository version: `0.2.2-0.0.3-0.0.2-0.1.0`
-  * Tags implied to exist after this release:
-    * `0.2.2-0.0.3-0.0.2-0.1.0`
-    * `ngen.cal:0.2.2`
-    * `ngen.config:0.0.3`
-    * `ngen.config_gen:0.0.2`
-    * `ngen.init_config:0.1.0`
-* New repository version: `0.2.2-0.0.4-0.0.3-0.1.0`
-  * New tags to apply
-    * `0.2.2-0.0.4-0.0.3-0.1.0`
-    * `ngen.config:0.0.4`
-    * `ngen.config_gen:0.0.3`
-
-This new repository version represents that the nested `ngen.config` and `ngen.config_gen` Python packages were updated, but the code and versions for the `ngen.cal` and `ngen.init_config` packages are unchanged.  Two additional tags should be applied to the same commit as for the new `0.2.2-0.0.4-0.0.3-0.1.0` version, `ngen.config:0.0.4` and `ngen.config_gen:0.0.3`.
-
-However, tags `ngen.cal:0.2.2` and `ngen.init_config:0.1.0` must already exist - they would have either been created when `0.2.2-0.0.3-0.0.2-0.1.0` was released or before that - so they do not need to be created or changed.
-
-## Rules for Individual Nested Package Versions
-
-The nested packages within the repository should follow [Semantic Versioning](https://semver.org/) and its typical `MAJOR.MINOR.PATCH` pattern.
