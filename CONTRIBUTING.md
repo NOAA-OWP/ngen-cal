@@ -191,6 +191,7 @@ The following guidelines are recommended for pull requests. Following these incr
 
 * Make sure the PR has an informative and human-readable title
 * Limit the scope of changes within a PR to a single goal (no scope creep)
+* Make sure that [development versions](doc/RELEASE_MANAGEMENT.md#development-versions) are applied to packages if any existing dependency relationships with other packages will strictly require the proposed changes
 * Ensure the resulting code can be automatically rebased into `master` without conflicts
 * Make sure project coding standards, if/when defined, are followed
 * Ensure resulting code passes all existing automated tests
