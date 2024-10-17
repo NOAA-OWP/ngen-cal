@@ -86,5 +86,5 @@ class CFE(BMIC):
     #will also include these mappings
     _variable_names_map =  {
         #"water_potential_evaporation_flux": "EVAPOTRANS",
-        "atmosphere_water__liquid_equivalent_precipitation_rate": "QINSUR"
+        #"atmosphere_water__liquid_equivalent_precipitation_rate": "QINSUR"
         }
