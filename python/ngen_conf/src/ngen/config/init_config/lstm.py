@@ -27,7 +27,10 @@ class LSTM(serde.YamlSerializerDeserializer):
     slope_mean: float
 
     class Config(serde.YamlSerializerDeserializer.Config):
-        field_serializers = {"verbose": lambda b: int(b)}
+        field_serializers = {
+            "verbose": lambda b: int(b),
+            "train_cfg_file": str,
+        }
         # descriptions source: https://github.com/NOAA-OWP/lstm/blob/63116cc6a6bbdb5537868f20ff55cc326795b570/bmi_config_files/README.md
         fields = {
             "area_sqkm": {"description": "allows bmi to adjust a weighted output"},
