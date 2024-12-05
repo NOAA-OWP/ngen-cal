@@ -56,49 +56,49 @@ class Cfe:
         # beta exponent on Clapp-Hornberger (1978) soil water relations
         # NOTE: it seems all values each layer of `bexp_soil_layers_stag` are the same.
         self.data["soil_params_b"] = FloatUnitPair(
-            value=data["bexp_soil_layers_stag=1"],
+            value=data["mode.bexp_soil_layers_stag=1"],
             unit=EMPTY,
         )
 
         # saturated hydraulic conductivity
         # NOTE: it seems all values each layer of `dksat_soil_layers_stag` are the same.
         self.data["soil_params_satdk"] = FloatUnitPair(
-            value=data["dksat_soil_layers_stag=1"],
+            value=data["geom_mean.dksat_soil_layers_stag=1"],
             unit=M_PER_S,
         )
 
         # saturated capillary head
         # NOTE: it seems all values each layer of `psisat_soil_layers_stag` are the same.
         self.data["soil_params_satpsi"] = FloatUnitPair(
-            value=data["psisat_soil_layers_stag=1"],
+            value=data["geom_mean.psisat_soil_layers_stag=1"],
             unit=METERS,
         )
 
         # this factor (0-1) modifies the gradient of the hydraulic head at the soil bottom. 0=no-flow.
-        self.data["soil_params_slop"] = FloatUnitPair(value=data["slope"], unit=M_PER_M)
+        self.data["soil_params_slop"] = FloatUnitPair(value=data["mean.slope"], unit=M_PER_M)
 
         # saturated soil moisture content
         # NOTE: it seems all values each layer of `smcmax_soil_layers_stag` are the same.
         self.data["soil_params_smcmax"] = FloatUnitPair(
-            value=data["smcmax_soil_layers_stag=1"],
+            value=data["mean.smcmax_soil_layers_stag=1"],
             unit=M_PER_M,
         )
 
         # wilting point soil moisture content
         # NOTE: it seems all values each layer of `smcwlt_soil_layers_stag` are the same.
         self.data["soil_params_wltsmc"] = FloatUnitPair(
-            value=data["smcwlt_soil_layers_stag=1"],
+            value=data["mean.smcwlt_soil_layers_stag=1"],
             unit=M_PER_M,
         )
 
         # maximum storage in the conceptual reservoir
-        self.data["max_gw_storage"] = FloatUnitPair(value=data["gw_Zmax"], unit=METERS)
+        self.data["max_gw_storage"] = FloatUnitPair(value=data["mean.Zmax"], unit=METERS)
 
         # the primary outlet coefficient
-        self.data["cgw"] = FloatUnitPair(value=data["gw_Coeff"], unit=M_PER_H)
+        self.data["cgw"] = FloatUnitPair(value=data["mean.Coeff"], unit=M_PER_H)
 
         # exponent parameter (1.0 for linear reservoir)
-        self.data["expon"] = FloatUnitPair(value=data["gw_Expon"], unit=EMPTY)
+        self.data["expon"] = FloatUnitPair(value=data["mode.Expon"], unit=EMPTY)
 
     def _v2_defaults(self) -> None:
         """

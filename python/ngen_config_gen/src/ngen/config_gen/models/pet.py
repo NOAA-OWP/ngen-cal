@@ -47,9 +47,9 @@ class Pet:
         if version != "2.0":
             raise RuntimeError("only support v2 hydrofabric")
 
-        self.data["longitude_degrees"] = data["X"]
-        self.data["latitude_degrees"] = data["Y"]
-        self.data["site_elevation_m"] = data["elevation_mean"]
+        self.data["longitude_degrees"] = data["centroid_x"]
+        self.data["latitude_degrees"] = data["centroid_y"]
+        self.data["site_elevation_m"] = data["mean.elevation"]
 
     def _v2_defaults(self) -> None:
         self.data["yes_wrf"] = False
