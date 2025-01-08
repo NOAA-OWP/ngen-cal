@@ -65,8 +65,8 @@ class Cfe:
 
         # saturated hydraulic conductivity
         # NOTE: it seems all values each layer of `dksat_soil_layers_stag` are the same.
-        x_data = data.get("dksat_soil_layers_stag=1",None)
-        if x_data is None: x_data = data.get("geom_mean.dksat_soil_layers_stag=1",None)
+        x_data = data.get("geom_mean.dksat_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("dksat_soil_layers_stag=1",None)
         if x_data is None: raise Exception(f"Neither geom_mean.dksat_soil_layers_stag=1 nor dksat_soil_layers_stag=1 were found in attributes")        
         self.data["soil_params_satdk"] = FloatUnitPair(
             value=x_data,
@@ -101,7 +101,7 @@ class Cfe:
 
         # wilting point soil moisture content
         # NOTE: it seems all values each layer of `smcwlt_soil_layers_stag` are the same.
-        x_data = data.get("mean.smcwlt_soil_layers_stag=1=1",None)
+        x_data = data.get("mean.smcwlt_soil_layers_stag=1",None)
         if x_data is None: x_data = data.get("smcwlt_soil_layers_stag=1",None)
         if x_data is None: raise Exception(f"Neither mean.smcwlt_soil_layers_stag=1 nor smcwlt_soil_layers_stag=1 were found in attributes")         
         self.data["soil_params_wltsmc"] = FloatUnitPair(
@@ -122,9 +122,9 @@ class Cfe:
         self.data["cgw"] = FloatUnitPair(value=x_data, unit=M_PER_H)
 
         # exponent parameter (1.0 for linear reservoir)
-        x_data = data.get("mean.Expon",None)
+        x_data = data.get("mode.Expon",None)
         if x_data is None: x_data = data.get("gw_Expon",None)
-        if x_data is None: raise Exception(f"Neither mean.Expon nor gw_Expon were found in attributes")         
+        if x_data is None: raise Exception(f"Neither mode.Expon nor gw_Expon were found in attributes")         
         self.data["expon"] = FloatUnitPair(value=x_data, unit=EMPTY)
 
     def _v2_defaults(self) -> None:
