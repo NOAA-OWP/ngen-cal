@@ -1,3 +1,7 @@
+# V 0.3.X
+- `ngen.cal` subpackage for `optmizers`
+- `ngen.cal.optmizers` Grey Wolf Optimizer added
+
 # V 0.2.1
 - `ngen.cal` `Objective` enum now properly subclasses `str`. This fixes
   pydantic models' json schemas that use `Objective` as a field type. See #31
