@@ -23,7 +23,7 @@ def inverted_nnse(observed, simulated):
     return 1 - nnse
 
 def kge(observed, simulated):
-    return 1 - kling_gupta_efficiency(observed, simulated)
+    return kling_gupta_efficiency(observed, simulated)
 
 def peak_error_single(observed, simulated):
     max_sim = simulated.max()
