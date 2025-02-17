@@ -55,50 +55,77 @@ class Cfe:
         """
         # beta exponent on Clapp-Hornberger (1978) soil water relations
         # NOTE: it seems all values each layer of `bexp_soil_layers_stag` are the same.
+        x_data = data.get("mode.bexp_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("bexp_soil_layers_stag=1",None)
+        if x_data is None: raise Exception(f"Neither mode.bexp_soil_layers_stag=1 nor bexp_soil_layers_stag=1 were found in attributes")
         self.data["soil_params_b"] = FloatUnitPair(
-            value=data["bexp_soil_layers_stag=1"],
+            value=x_data,
             unit=EMPTY,
         )
 
         # saturated hydraulic conductivity
         # NOTE: it seems all values each layer of `dksat_soil_layers_stag` are the same.
+        x_data = data.get("geom_mean.dksat_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("dksat_soil_layers_stag=1",None)
+        if x_data is None: raise Exception(f"Neither geom_mean.dksat_soil_layers_stag=1 nor dksat_soil_layers_stag=1 were found in attributes")        
         self.data["soil_params_satdk"] = FloatUnitPair(
-            value=data["dksat_soil_layers_stag=1"],
+            value=x_data,
             unit=M_PER_S,
         )
 
         # saturated capillary head
         # NOTE: it seems all values each layer of `psisat_soil_layers_stag` are the same.
+        x_data = data.get("geom_mean.psisat_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("psisat_soil_layers_stag=1",None)
+        if x_data is None: raise Exception(f"Neither geom_mean.psisat_soil_layers_stag=1 nor psisat_soil_layers_stag=1 were found in attributes")           
         self.data["soil_params_satpsi"] = FloatUnitPair(
-            value=data["psisat_soil_layers_stag=1"],
+            value=x_data,
             unit=METERS,
         )
 
         # this factor (0-1) modifies the gradient of the hydraulic head at the soil bottom. 0=no-flow.
-        self.data["soil_params_slop"] = FloatUnitPair(value=data["slope"], unit=M_PER_M)
+        x_data = data.get("mean.slope",None)
+        if x_data is None: x_data = data.get("slope",None)
+        if x_data is None: raise Exception(f"Neither mean.slope nor slope were found in attributes")        
+        self.data["soil_params_slop"] = FloatUnitPair(value=x_data, unit=M_PER_M)
 
         # saturated soil moisture content
         # NOTE: it seems all values each layer of `smcmax_soil_layers_stag` are the same.
+        x_data = data.get("mean.smcmax_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("smcmax_soil_layers_stag=1",None)
+        if x_data is None: raise Exception(f"Neither mean.smcmax_soil_layers_stag=1 nor smcmax_soil_layers_stag=1 were found in attributes")         
         self.data["soil_params_smcmax"] = FloatUnitPair(
-            value=data["smcmax_soil_layers_stag=1"],
+            value=x_data,
             unit=M_PER_M,
         )
 
         # wilting point soil moisture content
         # NOTE: it seems all values each layer of `smcwlt_soil_layers_stag` are the same.
+        x_data = data.get("mean.smcwlt_soil_layers_stag=1",None)
+        if x_data is None: x_data = data.get("smcwlt_soil_layers_stag=1",None)
+        if x_data is None: raise Exception(f"Neither mean.smcwlt_soil_layers_stag=1 nor smcwlt_soil_layers_stag=1 were found in attributes")         
         self.data["soil_params_wltsmc"] = FloatUnitPair(
-            value=data["smcwlt_soil_layers_stag=1"],
+            value=x_data,
             unit=M_PER_M,
         )
 
         # maximum storage in the conceptual reservoir
-        self.data["max_gw_storage"] = FloatUnitPair(value=data["gw_Zmax"], unit=METERS)
+        x_data = data.get("mean.Zmax",None)
+        if x_data is None: x_data = data.get("gw_Zmax",None)
+        if x_data is None: raise Exception(f"Neither mean.Zmax nor gw_Zmax were found in attributes")            
+        self.data["max_gw_storage"] = FloatUnitPair(value=x_data, unit=METERS)
 
         # the primary outlet coefficient
-        self.data["cgw"] = FloatUnitPair(value=data["gw_Coeff"], unit=M_PER_H)
+        x_data = data.get("mean.Coeff",None)
+        if x_data is None: x_data = data.get("gw_Coeff",None)
+        if x_data is None: raise Exception(f"Neither mean.Coeff nor gw_Coeff were found in attributes")         
+        self.data["cgw"] = FloatUnitPair(value=x_data, unit=M_PER_H)
 
         # exponent parameter (1.0 for linear reservoir)
-        self.data["expon"] = FloatUnitPair(value=data["gw_Expon"], unit=EMPTY)
+        x_data = data.get("mode.Expon",None)
+        if x_data is None: x_data = data.get("gw_Expon",None)
+        if x_data is None: raise Exception(f"Neither mode.Expon nor gw_Expon were found in attributes")         
+        self.data["expon"] = FloatUnitPair(value=x_data, unit=EMPTY)
 
     def _v2_defaults(self) -> None:
         """
