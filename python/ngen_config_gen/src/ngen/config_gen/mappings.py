@@ -77,7 +77,7 @@ class LinkedData_2_2(metaclass=ClassVarIter[typing.Mapping[str, str]]):
             "mean.mfsno": "mfsno",
             "mean.mp": "mp",
             "mean.refkdt": "refkdt",
-            "mean.slope_1km": "slope_1km",
+            "mean.slope_1km": "slope", #NJF TODO check mean_slope vs slope
             "mean.smcmax_soil_layers_stag=1": "smcmax_soil_layers_stag=1",
             "mean.smcmax_soil_layers_stag=2": "smcmax_soil_layers_stag=2",
             "mean.smcmax_soil_layers_stag=3": "smcmax_soil_layers_stag=3",
@@ -87,16 +87,16 @@ class LinkedData_2_2(metaclass=ClassVarIter[typing.Mapping[str, str]]):
             "mean.smcwlt_soil_layers_stag=3": "smcwlt_soil_layers_stag=3",
             "mean.smcwlt_soil_layers_stag=4": "smcwlt_soil_layers_stag=4",
             "mean.vcmx25": "vcmx25",
-            "mean.Coeff": "Coeff",
-            "mean.Zmax": "Zmax",
-            "mode.Expon": "Expon",
+            "mean.Coeff": "gw_Coeff",
+            "mean.Zmax": "gw_Zmax",
+            "mode.Expon": "gw_Expon",
             "centroid_x": "X",
             "centroid_y": "Y",
-            "mean.impervious": "impervious",
-            "mean.elevation": "elevation",
-            "mean.slope": "slope",
-            "circ_mean.aspect": "aspect",
-            "dist_4.twi": "twi",
+            "mean.impervious": "impervious_mean",
+            "mean.elevation": "elevation_mean",
+            "mean.slope": "slope_mean",
+            "circ_mean.aspect": "aspect_c_mean",
+            "dist_4.twi": "twi_dist_4",
         }
     )
     """Conus Mappings"""
@@ -138,10 +138,10 @@ class LinkedData_2_2(metaclass=ClassVarIter[typing.Mapping[str, str]]):
             "X": "X",
             "Y": "Y",
             "mean.impervious": "impervious",
-            "mean.elevation": "elevation",
-            "mean.slope": "slope",
-            "circ_mean.aspect": "aspect",
-            "dist_4.twi": "twi",
+            "mean.elevation": "elevation_mean",
+            "mean.slope": "slope_mean",
+            "circ_mean.aspect": "aspect_mean",
+            "dist_4.twi": "twi_dist_4",
         }
     )
     """Hawaii Mappings"""
