@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from .bmi_formulation import BMIFortran
 
 
-class NoahOWPParams(BaseModel):
+class NoahOWPParams(BaseModel, extra='allow'):
     """Class for validating NoahOWP Parameters
     """
     #define params which can be adjusted here
